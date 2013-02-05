@@ -1,0 +1,190 @@
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,figcaption,figure,footer,header,hgroup,menu,nav,section,summary,time,mark,audio,video
+  margin: 0
+  padding: 0
+
+@import url('http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,600,700,800');
+
+html
+  font-family: "OpenSans", 'Arial', sans-serif
+  font-size: 100%
+
+#iokit-modal
+  IO_POS_ABSOLUTE()
+  width: 800px
+  height: 600px
+  background-color: IO_WHITE
+  box-shadow: IO_BOX_SHADOW
+  border-radius: 1px
+  margin: auto
+  z-index: 1000
+
+  .modal-win-ctrl
+    position: absolute
+    top: 9px
+    padding: 0
+    opacity: 0.5
+    &:hover
+      opacity: 1
+
+  .close-icn
+    top: 5px
+    font-size: 20px
+
+  .modal-title
+    position: absolute
+    top: 10px
+    left: 10px
+    font-weight: 900
+
+  .modal-inner-wrapper
+    IO_POS_ABSOLUTE()
+    top: 40px
+    overflow: auto
+    border-top: 1px solid #ddd
+
+    .modal-sidebar
+
+      .sidebar-nav
+        IO_POS_ABSOLUTE()
+        width: 150px
+        overflow: auto
+        border-right: 1px solid #ddd
+        list-style: none
+        padding: 20px 0
+        li
+          padding: 5px
+          font-weight: 300
+          cursor: pointer
+          border-left: 5px solid transparent
+          font-size: 0.9em
+          &:hover
+            background-color: IO_GREY_BG
+          &.active
+            border-color: IO_ORANGE
+            font-weight: 900
+            color: IO_ORANGE
+      .sidebar-content
+        IO_POS_ABSOLUTE()
+        left: 160px
+        overflow: auto
+        >div
+          display: none
+
+      .offset-details-view
+        margin-right: 220px
+      .modal-details-view
+        width: 240px
+        position: absolute
+        top: 0
+        right: 0
+        bottom: 0
+        border-left: 1px solid #ddd
+
+  &.arrange-left
+    margin: 0
+    left: 0
+    bottom: 0
+    width: 150px
+    IO_TRANSITION(0.3s)
+    .sidebar-nav
+      display: none
+    .modal-details-view
+      display: none
+    .modal-sidebar 
+      .sidebar-content
+        left: 0
+      .offset-details-view
+        margin-right: 0
+    .modal-title
+      display: none
+    .web-files-control div
+      display: none
+    .selected-counter
+      display: none
+
+.btn
+  IO_GRADIENT( #f5f5f5, #f1f1f1 )
+  border: 1px solid #DCDCDC
+  border-radius: 1px
+  color: #333333;
+  cursor: pointer;
+  font-weight: bold
+  padding: 4px 12px
+  text-shadow: -1px 1px 0 #FFFFFF
+  white-space: nowrap
+  border-radius: 1px
+  text-decoration: none
+  font-size: 12px
+  cursor: pointer
+  &:hover
+    background-color: IO_BUTTON_WHITE_HOVER;
+    background-image: -moz-linear-gradient(center top , #F8F8F8, #F1F1F1);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#F8f8f8), to(#F8f8f8))
+    background-position: 0 0;
+    background-repeat: repeat-x;
+    border-color: #C6C6C6;
+    box-shadow: -1px 1px 1px rgba(0, 0, 0, 0.1);
+    color: #333333;
+    text-shadow: none;
+    transition: none 0s ease 0s;
+    z-index: 2;
+  &.w-icn-only
+    padding: 4px 8px 2px
+    .icn
+      opacity: 0.5
+  &.no-bg
+    background: none
+    box-shadow: none
+    opacity: 0.8
+    border: none
+    &:hover
+      background: none
+      box-shadow: none
+      opacity: 1
+  &.blue
+    IO_GRADIENT(#118be7, #007ad6)
+    color: white
+    text-shadow: none
+    font-weight: 500
+    border: 1px solid #118be7
+  &.green
+    IO_GRADIENT(#8a0, #9b1)
+    color: white
+    text-shadow: none
+    font-weight: 500
+    border: 1px solid #8a0
+    &:hover
+      border: 1px solid #790
+      box-shadow: -1px 1px 1px rgba(0,0,0,0.3)
+      
+/* ------------------------------------------------ tipys */
+.tipsy
+  font-size: 10px
+  position: absolute
+  padding: 5px
+  z-index: 100000
+
+.tipsy-inner
+  background-color: rgba(0,0,0,0.8)
+  color: #FFF
+  max-width: 200px
+  padding: 5px 8px 4px 8px
+  text-align: center
+  border-radius: 1px
+
+.tipsy-arrow { position: absolute; width: 0; height: 0; line-height: 0; border: 5px dashed rgba(0,0,0,0.95); }
+
+/* Rules to colour arrows */
+.tipsy-arrow-n { border-bottom-color: rgba(0,0,0,0.95); }
+.tipsy-arrow-s { border-top-color: rgba(0,0,0,0.95); }
+.tipsy-arrow-e { border-left-color: rgba(0,0,0,0.95); }
+.tipsy-arrow-w { border-right-color: rgba(0,0,0,0.95); }
+
+.tipsy-n .tipsy-arrow { top: 0px; left: 50%; margin-left: -5px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent; }
+.tipsy-nw .tipsy-arrow { top: 0; left: 10px; border-bottom-style: solid; border-top: none; border-left-color: transparent; border-right-color: transparent;}
+.tipsy-ne .tipsy-arrow { top: 0; right: 10px; border-bottom-style: solid; border-top: none;  border-left-color: transparent; border-right-color: transparent;}
+.tipsy-s .tipsy-arrow { bottom: 0; left: 50%; margin-left: -5px; border-top-style: solid; border-bottom: none;  border-left-color: transparent; border-right-color: transparent; }
+.tipsy-sw .tipsy-arrow { bottom: 0; left: 10px; border-top-style: solid; border-bottom: none;  border-left-color: transparent; border-right-color: transparent; }
+.tipsy-se .tipsy-arrow { bottom: 0; right: 10px; border-top-style: solid; border-bottom: none; border-left-color: transparent; border-right-color: transparent; }
+.tipsy-e .tipsy-arrow { right: 0; top: 50%; margin-top: -5px; border-left-style: solid; border-right: none; border-top-color: transparent; border-bottom-color: transparent; }
+.tipsy-w .tipsy-arrow { left: 0; top: 50%; margin-top: -5px; border-right-style: solid; border-left: none; border-top-color: transparent; border-bottom-color: transparent; }

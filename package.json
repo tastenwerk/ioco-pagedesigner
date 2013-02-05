@@ -1,0 +1,35 @@
+{
+  "name": "iopagedesigner",
+  "version": "0.1.0",
+  "description": "build, design web pages and let your editors do the rest",
+  "homepage": "http://github.com/tastenwerk/iopagedesigner",
+  "author": "thorsten zerha <quaqua@tastenwerk.com>",
+  "keywords": [
+    "cms",
+    "design",
+    "webpage",
+    "build"
+  ],
+  "engines": {
+    "node": ">=0.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tastenwerk/iopagedesigner.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tastenwerk/iopagedesigner/issues"
+  },
+  "license": "GPL-3",
+  "dependencies": {
+    "cheerio": "0.10.6"
+  },
+  "devDependencies" : {
+    "uglify-js" : "latest",
+    "should": "latest",
+    "mocha": "latest"
+  },
+  "scripts": {
+    "test" : "node_modules/.bin/mocha --reporter list"
+  }
+}
