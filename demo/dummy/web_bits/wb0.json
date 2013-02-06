@@ -8,6 +8,6 @@
   },
   "properties": {},
   "category": "Container",
-  "content": "<div data-id=\"wb1\" data-web-bit-name=\"Main Menu\"></div><div data-id=\"wb5\" data-web-bit-name=\"Hero Header\"></div><div data-id=\"wb2\" data-web-bit-name=\"1 of 3 Columns\"></div><div data-id=\"wb3\" data-web-bit-name=\"2 of 3 Columns\"></div><div data-id=\"wb4\" data-web-bit-name=\"3 of 3 Columns\"></div>",
+  "content": "<div data-web-bit-root><div data-web-bit-id=\"wb1\" data-web-bit-name=\"Main Menu\"></div><div data-web-bit-id=\"wb5\" data-web-bit-name=\"Hero Header\"></div><div data-web-bit-id=\"wb2\" data-web-bit-name=\"1 of 3 Columns\"></div><div data-web-bit-id=\"wb3\" data-web-bit-name=\"2 of 3 Columns\"></div><div data-web-bit-id=\"wb4\" data-web-bit-name=\"3 of 3 Columns\"></div></div>",
   "library": true
 }

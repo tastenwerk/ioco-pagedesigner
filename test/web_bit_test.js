@@ -1,6 +1,7 @@
 var should = require('should')
 
-var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer');
+var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer')
+  , testHelper = require(__dirname+'/page-designer_test_helper');
 
 describe('iokit.pageDesigner', function(){
 
@@ -45,12 +46,12 @@ describe('iokit.pageDesigner', function(){
           });
         });
 
-        describe( '@setRenderedContent', function(){
+        describe( '@cleanup', function(){
 
-          it( 'takes a content attribute and turns it into setRenderedContent observable method, which will used for the initialized WebBit information', function(){
+          it( 'takes a content attribute and turns it into cleanup observable method, which will used for the initialized WebBit information', function(){
             var webBit = new WebBit( { pluginName: 'empty', name: 'first', content: '' });
-            webBit.setRenderedContent('val');
-            webBit.renderedContent.should.eql('val');
+            webBit.cleanup('val');
+            webBit.render().should.eql('val');
           });
 
         })
@@ -87,34 +88,57 @@ describe('iokit.pageDesigner', function(){
 
     });
 
-    describe( '#initialize', function(){
+    describe( '#new', function(){
       
-      var webBit
-        , webBitJSON;
-
       before( function( done ){
-
-        // load emptyContainer plugin
-        pageDesigner.addPlugin( require(__dirname+'/../public/javascripts/iokit/pageDesigner/plugins/empty-container') );
-
-        var fs = require('fs');
-        fs.readFile( __dirname+'/../demo/dummy/web_bits/wb2.json', function( err, jsonStr ){
-          webBitJSON = JSON.parse(jsonStr);
-          webBit = new WebBit( webBitJSON );
-          done();
-        })
+        testHelper.load.call(this, 'WebBit', 'wb2', done );
       });
 
       it( 'provides renderedContent formatted as html', function(){
-        webBit.renderedContent.should.eql( webBitJSON.content )
+        this.webBit.renderedContent.should.eql( this.webBitJSON.content )
       });
 
       it( 'changing the content in html will allways sync with the actual content object but keep it free from nested WebBit content', function(){
-        webBit.setRenderedContent('<p>other</p>');
-        webBit.content.should.eql('<p>other</p>');
-      })
+        this.webBit.cleanup('<p>other</p>');
+        this.webBit.content.should.eql('<p>other</p>');
+      });
 
-    })
+    });
+
+    describe( '#initialize empty WebBit', function(){
+
+      before( function( done ){
+        testHelper.load.call(this, 'WebBit', 'wb2', done );
+      });
+
+      it( 'initializes all sub WebBits of this webBit', function( done ){
+        this.webBit.initialize( function( err, webBit ){
+          should.not.exist(err);
+          webBit.webBits.should.have.lengthOf(0);
+          done();
+        });
+      });
+
+    });
+
+    describe( '#initialize WebBit with nested WebBits', function(){
+
+      before( function( done ){
+        testHelper.load.call(this, 'WebBit', 'wb0', done );
+        testHelper.setupTestDefaults( pageDesigner );
+      });
+
+      it( 'initializes all sub WebBits of this webBit', function( done ){
+        this.webBit.initialize( function( err, webBit ){
+          should.not.exist(err);
+          webBit.webBits.should.have.lengthOf(5);
+          webBit.webBits[0].should.be.instanceof( WebBit );
+          done();
+        });
+      });
+
+    });
+
 
   });
 

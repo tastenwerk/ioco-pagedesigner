@@ -1,6 +1,7 @@
 var should = require('should')
 
-var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer');
+var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer')
+  , testHelper = require(__dirname+'/page-designer_test_helper');
 
 describe('iokit.pageDesigner', function(){
 
@@ -43,6 +44,21 @@ describe('iokit.pageDesigner', function(){
       })
 
     });
+
+    describe( '#initialize', function( e ){
+
+      var webPage;
+
+      before( function( done ){
+        testHelper.load.call( this, 'WebPage', 'wp0', done );
+      });
+
+      it( 'creates a full html view with all WebBits\' content', function(){
+        //webPage.initialize();
+      });
+
+    });
+
   });
 
 })

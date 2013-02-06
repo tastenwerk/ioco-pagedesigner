@@ -17,6 +17,17 @@
   pageDesigner = {};
 
   /**
+   * default options
+   *
+   */
+  pageDesigner.options = {
+    webBitUrl: '/web_bits',
+    webBitUrlData: null,
+    webPageUrl: '/web_pages',
+    webPageUrlData: null
+  };
+
+  /**
    * _plugins
    *
    * internal variable. Holds all plugins
@@ -142,17 +153,39 @@
       if( i === 'content' ){
         if( lang && lang.length > 0 && typeof( attrs[i] ) === 'object' ){
           if( attrs[i][lang] )
-            this.initialize( attrs[i][lang] );
+            pageDesigner._processObservable.call( this, 'renderedContent', attrs[i][lang] );
           else if( attrs[i][fallbackLang] )
-            this.initialize( attrs[i][fallbackLang] );
+            pageDesigner._processObservable.call( this, 'renderedContent', attrs[i][fallbackLang] );
           else
             throw new Error('lang key not present ('+lang+')');
         } else
-          this.initialize( attrs[i] );
+          pageDesigner._processObservable.call( this, 'renderedContent', attrs[i] );
       }
       this[i] = attrs[i];
     }
+
   };
+
+  /**
+   * load a webBit by given id
+   * either in browser mode by using json or
+   * in server mode by using an external function (passed in by options)
+   */
+  pageDesigner.WebBit.loadById = function loadWebBitById( id, callback ){
+    if( isNode )
+      throw new Error('WebBit.loadById in NodeJS mode interface needs to be implemented by overriding this function. See documentation');
+    else
+      $.ajax({  url: pageDesigner.options.webBitUrl,
+                data: pageDesigner.options.webBitUrlData, 
+                type: 'get',
+                dataType: 'json',
+                success: function( json ){
+                  // TODO: more error parsing
+                  // and feedback!!!
+                  callback( null, new pageDesigner.WebBit( json ) );
+                }
+      })
+  }
 
   /**
    * create non-enumerable observable function
@@ -172,6 +205,9 @@
   });
 
   /**
+   *
+   * renderedContent
+   *
    * create special property
    * renderedContent which is not visible
    * to enumerables
@@ -183,7 +219,20 @@
   });
 
   /**
-   * set renderedContent and invoke observable
+   * 
+   * webBits
+   *
+   * webBits is a temporary property just used
+   * for caching mechanisms. It should not be enumerable
+   *
+   */
+  Object.defineProperty( pageDesigner.WebBit.prototype, "webBits", {
+    value: [],
+    writable: true
+  });
+
+  /**
+   * cleanup and update content property
    *
    * get a clean html string from this WebBit with all
    * initialized SubWebBits removed. This leaves e.g. one
@@ -197,29 +246,69 @@
    *
    *     <div class="iokit-web-bit" data-id="<webBitId>"></div>
    *
+   * and writes it to the content property
+   *
    *
    */
-  Object.defineProperty( pageDesigner.WebBit.prototype, "setRenderedContent", {
+  Object.defineProperty( pageDesigner.WebBit.prototype, "cleanup", {
     value: function( val ){
       // TODO: update the content attribute
       // cleanup from tidied html code bits
       this.content = pageDesigner._cleanup(val);
 
-      pageDesigner._processObservable.call( this, 'renderedContent', val );
+      //pageDesigner._processObservable.call( this, 'renderedContent', val );
+    }
+  });
+
+  /**
+   * read content property, reload all webbits and get a new
+   * html format of this webbit
+   */
+  Object.defineProperty( pageDesigner.WebBit.prototype, "render", {
+    value: function(){
+      // TODO: format content
+      this.renderedContent = this.content;
+      return this.renderedContent;
     }
   });
 
   /**
    * initialize (prototype for WebBit)
    *
-   * initializes this WebBits _content. This loads all inner
-   * WebBits recursively.
+   * initializes all associated WebBits and applies styles
+   *
    */
-  pageDesigner.WebBit.prototype.initialize = function initializeWebBit( val ){
-    //
-    // TODO: transform val by
-    // loading all required WebBits
-    pageDesigner._processObservable.call( this, 'renderedContent', val );
+  pageDesigner.WebBit.prototype.initialize = function initializeWebBit( callback ){
+    if( !this.content || this.content.lenght < 2 )
+      return;
+    var self = this;
+    var $procContent = pageDesigner.$(self.content);
+
+    var webBitIds = [];
+    $procContent.find('[data-web-bit-id]').each(function(){
+      webBitIds.push( pageDesigner.$(this).attr('data-web-bit-id') );
+    });
+
+    var initialized = 0;
+
+    function initNextWebBit(){
+      if( webBitIds.length === 0 || initialized > webBitIds.length - 1 )
+        return callback( null, self );
+      if( self.webBits.length > initialized && self.webBits[initialized]._id && self.webBits[initialized]._id === webBitIds[initialized] ){
+        initialized++;
+        initNextWebBit();
+      } else {
+        pageDesigner.WebBit.loadById( webBitIds[initialized], function( err, webBit ){
+          if( webBit )
+            self.webBits.push( webBit );
+          initialized++;
+          initNextWebBit();
+        });
+      }
+    }
+
+    initNextWebBit();
+
   };
 
   /**
@@ -256,9 +345,9 @@
    * call their cleanup function
    *
    */
-  pageDesigner.WebPage.prototype.cleanup = function clenaupWebPage(){
+  pageDesigner.WebPage.prototype.initialize = function initializeWebPage(){
     if( this.rootWebBit )
-      this.rootWebBit.cleanup();
+      ;//this.rootWebBit.initialize();
   };
 
   // expose pageDesigner to the global namespace
@@ -270,13 +359,14 @@
     // provide a jquery parser to pageDesigner. This is required
     // in order to use the same parsing function as in the browser
     cheerio = require('cheerio');
-    pageDesigner.$ = cheerio.load;
+    pageDesigner.$ = cheerio;
     module.exports = pageDesigner;
     isNode = true;
   } else {
     if( !root.iokit || typeof( root.iokit ) !== 'object' )
       root.iokit = {};
     root.iokit.pageDesigner = pageDesigner;
+    pageDesigner.$ = jQuery;
   }
 
 })();
