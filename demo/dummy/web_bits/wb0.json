@@ -1,0 +1,13 @@
+{
+  "_id": "wb0",
+  "name": "Main Container",
+  "_type": "WebBit",
+  "pluginName": "empty-container",
+  "acl": {
+    "a00000000000": "r"
+  },
+  "properties": {},
+  "category": "Container",
+  "content": "<div data-id=\"wb1\" data-web-bit-name=\"Main Menu\"></div><div data-id=\"wb5\" data-web-bit-name=\"Hero Header\"></div><div data-id=\"wb2\" data-web-bit-name=\"1 of 3 Columns\"></div><div data-id=\"wb3\" data-web-bit-name=\"2 of 3 Columns\"></div><div data-id=\"wb4\" data-web-bit-name=\"3 of 3 Columns\"></div>",
+  "library": true
+}

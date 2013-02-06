@@ -1,0 +1,13 @@
+{
+  "_id": "wb1",
+  "_type": "WebBit",
+  "pluginName": "empty-container",
+  "name": "Main Menu",
+  "acl": {
+    "a00000000000": "r"
+  },
+  "properties": {},
+  "category": "Menu",
+  "content": "<ul><li>Early Life</li><li>Accession</li><li>Succession</li></ul>",
+  "library": true
+}

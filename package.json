@@ -31,5 +31,11 @@
   },
   "scripts": {
     "test" : "node_modules/.bin/mocha --reporter list"
-  }
+  },
+  "contributors": [
+    {
+      "name": "Jürgen Krausz",
+      "email": "jk@grafikrausz.at"
+    }
+  ]
 }

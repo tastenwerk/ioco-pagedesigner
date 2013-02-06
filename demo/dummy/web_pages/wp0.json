@@ -1,0 +1,22 @@
+{
+  "_id": "wp0",
+  "_type": "WebPage",
+  "name": "Richard III.",
+  "acl": {
+    "a00000000000": "r"
+  },
+  "properties": {
+    "meta": {
+      "description": "King of England from 1483 until 1485",
+      "keywords": "king of england, richard III, richard 3"
+    },
+    "css": {
+      "classes": "",
+      "styles": ""
+    },
+    "javascript": "console.log('this comes from the WebPage meta javascript');"
+  },
+  "rootWebBit": "wb0",
+  "slug": "/richard_III",
+  "category": "Default"
+}

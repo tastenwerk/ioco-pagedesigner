@@ -1,0 +1,13 @@
+{
+  "_id": "wb5",
+  "_type": "WebBit",
+  "pluginName": "empty-container",
+  "name": "Hero Header",
+  "acl": {
+    "a00000000000": "r"
+  },
+  "properties": {},
+  "category": "Default",
+  "content": "<h1>Richard III.</h1>",
+  "library": false
+}

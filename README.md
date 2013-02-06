@@ -26,7 +26,7 @@ To use in any other content management system:
 Copy the files from the public folder into your own public folder.
 
 
-## Requirenments
+## Requirements
 
 * jquery >= 1.7
 * jquery ui (draggable/droppable) >= 1.8
@@ -38,11 +38,13 @@ http://tastenwerk.com/iokit/io-page-designer
 # Usage
 
 html:
-    <div id="mypage">Here goes my page content</div>
+
+        <div id="mypage">Here goes my page content</div>
 
 javascript:
-    $(document).ready( function(){
-      $('#mypage').ioPageDesigner();
-    })
+
+        $(document).ready( function(){
+          $('#mypage').ioPageDesigner();
+        })
 
 This builds a page designer component on top of the mypage div (which gets wrapped)
