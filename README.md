@@ -42,6 +42,8 @@ stylesheet.
 
 # Usage
 
+## Client Side
+
 html:
 
     <div id="mypage">Here goes my page content</div>
@@ -53,3 +55,36 @@ javascript:
     })
 
 This builds a page designer component on top of the mypage div (which gets wrapped)
+
+## Server Side (nodejs)
+
+In order to use pageDesigner on server side, you need to tell pageDesigner how to load
+content from the db or the filesystem. Find a full working example with a file system
+implementation of pageDesigner in the demo directory:
+
+
+    var pageDesigner = require('iopagedesigner');
+
+Override the loadById() interface of both WebPage and WebBit:
+
+    pageDesigner.WebPage.loadById = function loadWebPageById( id, callback ){
+      fs.readFile( __dirname+'/web_pages/'+id+'.json', function( err, jsonStr ){
+        callback( null, new self( JSON.parse(jsonStr) ) );
+      });
+    }
+
+    pageDesigner.WebPage.loadById = function loadWebPageById( id, callback ){
+      fs.readFile( __dirname+'/web_pages/'+id+'.json', function( err, jsonStr ){
+        callback( null, new self( JSON.parse(jsonStr) ) );
+      });
+    }
+    
+    pageDesigner.WebPage.loadById( 'wp1', function( myPage ){
+      // render your WebPage with the myPage object
+      // all nested WebBits are available starting from the 
+      // myPage.rootWebBit
+    });
+
+# Contributors
+
+* Jürgen Krausz <jk@grafikrausz.at>

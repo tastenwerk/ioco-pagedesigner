@@ -1,5 +1,5 @@
 {
-  "_id": "wp0",
+  "_id": "wp_i18n0",
   "_type": "WebPage",
   "name": "Richard III.",
   "acl": {
@@ -16,7 +16,7 @@
     },
     "javascript": "console.log('this comes from the WebPage meta javascript');"
   },
-  "rootWebBitId": "wb0",
+  "rootWebBitId": "wb_i18n0",
   "slug": "/richard_III",
   "category": "Default"
 }

@@ -31,13 +31,30 @@ module.exports = exports = {
 
   setupTestDefaults: function(pD){
     pD.WebBit.loadById = this._overrideWebBitLoadById;
+    pD.WebPage.loadById = this._overrideWebPageLoadById;
   },
 
-  _overrideWebBitLoadById: function( id, callback ){
+  _overrideWebBitLoadById: function( id, options, callback ){
+    if( typeof( callback ) === 'undefined' ){
+      callback = options;
+      options = {};
+    }
     var self = this; // WebBit
     var url = __dirname+dummyPath+'web_bits'+'/'+id+'.json';
     fs.readFile( url, function( err, jsonStr ){
-      callback( null, new self( JSON.parse(jsonStr) ) );
+      callback( null, new self( JSON.parse(jsonStr), options.lang, options.fallbackLang ) );
+    });
+  },
+
+  _overrideWebPageLoadById: function( id, options, callback ){
+    if( typeof( callback ) === 'undefined' ){
+      callback = options;
+      options = {};
+    }
+    var self = this; // WebPage
+    var url = __dirname+dummyPath+'web_pages'+'/'+id+'.json';
+    fs.readFile( url, function( err, jsonStr ){
+      callback( null, new self( JSON.parse(jsonStr), options.lang, options.fallbackLang ) );
     });
   }
 

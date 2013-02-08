@@ -1,0 +1,16 @@
+{
+  "_id": "wb_i18n1",
+  "_type": "WebBit",
+  "pluginName": "empty-container",
+  "name": "Main Menu",
+  "acl": {
+    "a00000000000": "r"
+  },
+  "properties": {},
+  "category": "Menu",
+  "content": {
+    "de": "<div data-web-bit-root=\"true\"><ul><li>Anfänge</li><li>Thronbesteigung</li><li>Erben</li></ul></div>",
+    "en": "<div data-web-bit-root=\"true\"><ul><li>Early Life</li><li>Accession</li><li>Succession</li></ul></div>"
+  },
+  "library": true
+}

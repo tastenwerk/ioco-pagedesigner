@@ -1,0 +1,13 @@
+{
+  "_id": "wb6",
+  "_type": "WebBit",
+  "pluginName": "empty-container",
+  "name": "Images of Richard",
+  "acl": {
+    "a00000000000": "r"
+  },
+  "properties": {},
+  "category": "Default",
+  "content": "<div data-web-bit-root=\"true\"><img src=\"./tower.jpg\" /></div>",
+  "library": false
+}

@@ -8,6 +8,6 @@
   },
   "properties": {},
   "category": "Default",
-  "content": "<h1>Richard III.</h1>",
+  "content": "<div data-web-bit-root=\"true\"><h1>Richard III.</h1><div data-web-bit-id=\"wb6\" data-web-bit-name=\"Images of Richard\"></div></div>",
   "library": false
 }
