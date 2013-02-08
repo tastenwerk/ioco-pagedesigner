@@ -86,7 +86,6 @@ describe('iokit.pageDesigner', function(){
       it( 'sets a WebBit as the rootWebBit for this webPage', function( done ){
         var self = this;
         this.webPage.setRootWebBit( this.webBit, function( err, webPage ){
-          console.log("here")
           webPage.should.be.instanceOf( pageDesigner.WebPage );
           webPage.rootWebBit.should.be.instanceOf( pageDesigner.WebBit );
           webPage.rootWebBit._id.should.eql( self.webBit._id );

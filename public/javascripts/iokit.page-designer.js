@@ -146,7 +146,7 @@
 
     Object.defineProperty( this, "renderedContent", { value: '', writable: true });
     Object.defineProperty( this, "webBits", { value: [], writable: true });
-    Object.defineProperty( this, "revision", { value: options.revision || '', configurable: true });
+    Object.defineProperty( this, "revision", { value: options.revision || null, configurable: true });
     Object.defineProperty( this, "lang", { value: options.lang, configurable: true });
     Object.defineProperty( this, "fallbackLang", {
       value: options.fallbackLang || pageDesigner.options.fallbackLang,
@@ -225,22 +225,6 @@
   }
 
   /**
-   * switch to the revision to use for current
-   * WebBit
-   *
-   * @param {String} [id] - the revision id to be switched to
-   *
-   */
-  pageDesigner.WebBit.prototype.switchRevision = function switchRevisionForWebBit( id ){
-    if( this.content && typeof( this.content ) !== 'object' )
-      throw new Error('WebBit '+this.name+' is not under revision control');
-    if( !this.content[id] )
-      throw new Error('WebBit '+this.name+' does not appear to have revision '+id);
-    Object.defineProperty( this, "revision", { value: id });
-    this.renderedContent = this.content;
-  }
-
-  /**
    * load a webBit by given id
    * either in browser mode by using json or
    * in server mode by using an external function (passed in by options)
@@ -310,15 +294,8 @@
     });
     if( typeof(this.content) === 'string' )
       return this.content = $procContent.html();
-    if( typeof(this.content) === 'object' ){
-      if( this.content.revisions && typeof(this.content.revisions) === 'object' ){
-        this.content.revisions[ Object.keys( this.content.revisions ).length ] = {
-          'createdAt': new Date(),
-          'createdBy': this.currentAuthor,
-          'content': $procContent.html()
-        };
-      }
-    }
+    if( typeof(this.content) === 'object' )
+      this.content[this.lang || this.fallbackLang] = $procContent.html();
   };
 
   /**
