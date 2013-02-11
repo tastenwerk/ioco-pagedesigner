@@ -84,6 +84,12 @@ html {
   font-family: "OpenSans", 'Arial', sans-serif;
   font-size: 100%;
 }
+[draggable] {
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
 #iokit-modal {
   width: 800px;
   height: 600px;
@@ -243,6 +249,192 @@ html {
 .btn.green:hover {
   border: 1px solid #790;
   box-shadow: -1px 1px 1px rgba(0,0,0,0.3);
+}
+/* ------------------------------------------------ icons */
+.icn {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-image: url("./iokit-icons16x16.png");
+}
+.icn.icn-plus {
+  background-position: 0 0;
+}
+.icn.icn-minus {
+  background-position: -16px 0;
+}
+.icn.icn-upload {
+  background-position: -32px 0;
+}
+.icn.icn-download {
+  background-position: -48px 0;
+}
+.icn.icn-info {
+  background-position: -64px 0;
+}
+.icn.icn-pencil {
+  background-position: -80px 0;
+}
+.icn.icn-preferences,
+.icn.icn-settings,
+.icn.icn-properties {
+  background-position: -96px 0;
+}
+.icn.icn-save {
+  background-position: -112px 0;
+}
+.icn.icn-home {
+  background-position: -128px 0;
+}
+.icn.icn-comments {
+  background-position: -144px 0;
+}
+.icn.icn-person,
+.icnicn-person-male {
+  background-position: -32px 0;
+}
+.icnicn-person-female {
+  background-position: -32px -16px;
+}
+.icn.icn-checkbox,
+.icn.icn-plain {
+  background-position: 0 -80px;
+}
+.icn.icn-checkbox.checked,
+.icn.icn-plain.checked {
+  background-position: -16px -80px;
+}
+.icn.icn-web_element,
+.icn.icn-webelement {
+  background-position: -112px -64px;
+}
+.icn.icn-trash {
+  background-position: -48px -32px;
+}
+.icn.icn-preview,
+.icn.icn-eye-open {
+  background-position: -64px -32px;
+}
+.icn.icn-refresh {
+  background-position: -80px -16px;
+}
+.icn.icn-win-arrange-left,
+.icn.icn-box-float-left-all-over {
+  background-position: -144px -16px;
+}
+.icn.icn-win-arrange-right,
+.icn.icn-box-float-right-all-over {
+  background-position: -128px -16px;
+}
+.icn.icn-box-float-none {
+  background-position: -96px -96px;
+}
+.icn.icn-box-float-right {
+  background-position: -112px -96px;
+}
+.icn.icn-box-float-left {
+  background-position: -128px -96px;
+}
+.icn.icn-box-position-absolute {
+  background-position: -144px -96px;
+}
+.icn.icn-move {
+  background-position: -80px -96px;
+}
+.icn.icn-locked {
+  background-position: -80px -32px;
+}
+.icn.icn-locked.unlocked {
+  background-position: -96px -32px;
+}
+.icn.icn-bold {
+  background-position: -32px -48px;
+}
+.icn.icn-italic {
+  background-position: -16px -48px;
+}
+.icn.icn-underline {
+  background-position: -48px -48px;
+}
+.icn.icn-strikeThrough {
+  background-position: -64px -48px;
+}
+.icn.icn-paste {
+  background-position: -64px -64px;
+}
+.icn.icn-link {
+  background-position: 0 -48px;
+}
+.icn.icn-code,
+.icn.icn-source {
+  background-position: 0 -64px;
+}
+.icn.icn-undo {
+  background-position: -16px -64px;
+}
+.icn.icn-redo {
+  background-position: -32px -64px;
+}
+.icn.icn-justifyLeft {
+  background-position: -80px -48px;
+}
+.icn.icn-justifyRight {
+  background-position: -96px -48px;
+}
+.icn.icn-justifyCenter {
+  background-position: -112px -48px;
+}
+.icn.icn-justifyFull {
+  background-position: -128px -48px;
+}
+.icn.icn-list,
+.icn.icn-insertUnorderedList {
+  background-position: -144px -48px;
+}
+.icn.icn-insertOrderedList {
+  background-position: -144px -64px;
+}
+.icn.icn-image {
+  background-position: -32px -80px;
+}
+.icn.icn-share {
+  background-position: -48px -80px;
+}
+.icn.icn-file {
+  background-position: -64px -80px;
+}
+.icn.icn-search {
+  background-position: -64px -16px;
+}
+.icn.icn-power {
+  background-position: -128px -32px;
+}
+.icn.icn-history {
+  background-position: -112px -32px;
+}
+.icn.icn-email {
+  background-position: -80px -80px;
+}
+.icn.icn-reply {
+  background-position: -96px -80px;
+}
+.icn.icn-edit2 {
+  background-position: -112px -80px;
+}
+.icn.icn-exit {
+  background-position: -128px -80px;
+}
+.icn.icn-user {
+  background-position: 0px -32px;
+}
+.icn.icn-user.role-editor {
+  background-position: -16px -32px;
+}
+.icn.icn-user.role-admin {
+  background-position: -32px -32px;
+}
+.icn.icn-arr-right {
+  background-position: -32px -96px;
 }
 /* ------------------------------------------------ tipys */
 .tipsy {

@@ -8,6 +8,6 @@
   },
   "properties": {},
   "category": "Menu",
-  "content": "<div data-web-bit-root=\"true\"><ul><li>Early Life</li><li>Accession</li><li>Succession</li></ul></div>",
+  "content": "<div data-web-bit-root=\"true\"><ul class=\"menu\"><li>Early Life</li><li>Accession</li><li>Succession</li></ul></div>",
   "library": true
 }

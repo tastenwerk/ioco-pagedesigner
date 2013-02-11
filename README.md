@@ -52,7 +52,7 @@ javascript:
 
     $(document).ready( function(){
       $('#mypage').ioPageDesigner();
-    })
+    });
 
 This builds a page designer component on top of the mypage div (which gets wrapped)
 

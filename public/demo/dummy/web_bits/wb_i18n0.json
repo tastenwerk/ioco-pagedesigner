@@ -1,0 +1,13 @@
+{
+  "_id": "wb_i18n0",
+  "name": "Main Container",
+  "_type": "WebBit",
+  "pluginName": "empty-container",
+  "acl": {
+    "a00000000000": "r"
+  },
+  "properties": {},
+  "category": "Container",
+  "content": "<div data-web-bit-root=\"true\" class=\"span1\"><div data-web-bit-id=\"wb_i18n1\" data-web-bit-name=\"Main Menu\"></div><div data-web-bit-id=\"wb_i18n2\" data-web-bit-name=\"1 of 3 Columns\"></div></div>",
+  "library": true
+}

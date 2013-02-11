@@ -4,7 +4,7 @@ var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer
   , WebBit = pageDesigner.WebBit
   , WebPage = pageDesigner.WebPage;
 
-var dummyPath = '/../demo/dummy/';
+var dummyPath = '/../public/demo/dummy/';
 
 module.exports = exports = {
 

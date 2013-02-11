@@ -25,7 +25,11 @@
     webBitUrlData: null,
     webPageUrl: '/web_pages',
     webPageUrlData: null,
-    fallbackLang: 'en'
+    fallbackLang: 'en',
+    debug: 3 // 0 ... no debug at all
+             // 1 ... errors on console.log
+             // 2 ... warnings on console.log
+             // 3 ... info on console.log
   };
 
   /**
@@ -82,7 +86,7 @@
           return 'not supported in nodejs yet';
       } else {
         $.ajax({ url: plugin, type: 'get', 
-          success: function( pluginStr ){
+          done: function( pluginStr ){
             if( pluginStr && pluginStr.length > 0 )
               this._plugins.push( eval(pluginStr) );
             if( typeof(callback) === 'function' )
@@ -233,15 +237,10 @@
     if( isNode )
       throw new Error('WebBit.loadById in NodeJS mode interface needs to be implemented by overriding this function. See documentation');
     else
-      $.ajax({  url: pageDesigner.options.webBitUrl,
-                data: pageDesigner.options.webBitUrlData, 
-                type: 'get',
-                dataType: 'json',
-                success: function( json ){
-                  // TODO: more error parsing
-                  // and feedback!!!
+      $.getJSON( pageDesigner.options.webBitUrl + '/' + id + '.json', function( json ){
+                  if( pageDesigner.options.debug > 2 )
+                    console.log('[pageDesigner] WebBit ', id, ' ('+json.name+')', 'loaded');
                   callback( null, new pageDesigner.WebBit( json ) );
-                }
       })
   }
 
@@ -314,8 +313,25 @@
         pageDesigner.$(this).html( tmpWebBits[id].render() );
       else
         this.html('ERROR: WebBit ' + this.attr('data-web-bit-name') + ' not found');
+      pageDesigner.$(this).addClass('iokit-web-bit');
     });
-    return $procContent.html();
+
+    if( !isNode ){
+      this.decorateBox( $procContent );
+      return $procContent;
+    }
+    return $procContent.toString();
+  };
+
+  /**
+   * decorate a given box with
+   * properties and action functions
+   */
+  pageDesigner.WebBit.prototype.decorateBox = function decorateBox( $box ){
+    var plugin = pageDesigner.getPluginByName( this.pluginName );
+    if( !plugin && pageDesigner.options.debug > 0 )
+      console.log('[pageDesigner] ERROR: Plugin ', this.pluginName, 'was not found for ', this.name);
+    $box.prepend( pageDesigner.client.utils.renderBoxControls( plugin ) );
   }
 
   /**
@@ -450,6 +466,343 @@
     this.initialize( callback );
   };
 
+  /**
+   * read content property, reload all webbits and get a new
+   * html format of this WebPage instance
+   */
+  pageDesigner.WebPage.prototype.render = function renderWebPage(){
+    if( this.rootWebBit )
+      return pageDesigner.$('<div/>')
+              .attr('data-web-bit-id',this.rootWebBit._id)
+              .attr('data-web-bit-name',this.rootWebBit.name)
+              .addClass('iokit-web-bit')
+              .append(this.rootWebBit.render());
+    return 'no root WebBit';
+  }
+
+
+  /**
+   * load a webPage by given id
+   * either in browser mode by using json or
+   * in server mode by using an external function (passed in by options)
+   */
+  pageDesigner.WebPage.loadById = function loadWebPageById( id, callback ){
+    if( pageDesigner.options.debug > 2 )
+      console.log('[pageDesigner] loading WebPage', 'id:', id, 'url:', pageDesigner.options.webPageUrl);
+    if( isNode )
+      throw new Error('WebBit.loadById in NodeJS mode interface needs to be implemented by overriding this function. See documentation');
+    else
+      $.getJSON( pageDesigner.options.webPageUrl + '/' + id + '.json', function( json ){
+        if( pageDesigner.options.debug > 2 )
+          console.log('[pageDesigner] WebPage ', id, ' ('+json.name+')', 'loaded');
+        callback( null, new pageDesigner.WebPage( json ) );
+      })
+  }
+
+
+
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // --------------------------------------------------------- client side specific code for jQuery plugin
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+
+
+  /**
+   * pageDesigner.client
+   *
+   * object holding jQuery plugin to build
+   * $(selector).ioPageDesigner( options );
+   *
+   * and its private subfunctions
+   */
+  pageDesigner.client = {};
+
+  /**
+   * $.fn.ioPageDesigner( options )
+   *
+   * initializes a given jQuery dom object as a page designer
+   * object.
+   *
+   * @param {Object} [options] - options for pageDesigner. See
+   * documentation on http://github.com/tastenwerk/iopagedesigner/wiki
+   * for usage
+   */
+  pageDesigner.client.jQueryPlugin = function ioPageDesignerJQueryPlugin( options ){
+
+    var $this = this;
+
+    if( $this.attr('data-io-page-designer-initialized') )
+      return false;
+    $this.attr('data-io-page-designer-initialized', true);
+
+    this.options = options;
+    this.utils = pageDesigner.client.utils;
+    for( var i in this.utils.defaults )
+      if( !options[i] )
+        options[i] = this.utils.defaults[i];
+    for( var i in options )
+      pageDesigner.options[i] = options[i];
+
+    this.activeBox = null;
+    this.$pageContent = $('<div/>').addClass('iokit-page-content').append( $this.html() );
+
+    this.utils.renderToolbar.call( this );
+
+    $this
+      .html( $this.$pageContent )
+      .prepend( this.$toolbar );
+
+    this.utils.applyActionsForToolbar.call( this );
+
+    if( options.webPage ){
+      if( typeof(options.webPage) === 'string' )
+        pageDesigner.WebPage.loadById( this.options.webPage, function( err, webPage ){
+          if( webPage ){
+            webPage.initialize( function( err, webPage ){
+              options.webPage = webPage
+              $this.$pageContent.html( webPage.render() );
+              $this.$pageContent.find('.iokit-web-bit').each(function(){
+                $this.utils.applyActionsForBox.call( $this, $(this) );
+              })
+            });
+          } else
+            options.notify( 'error', err );
+        });
+      else if( typeof( this.options.webPage ) === 'object' )
+        webPage.initialize( function( err, webPage ){
+          options.webPage = webPage
+          $this.$pageContent.html( webPage.render() );
+        });
+    } // else
+    // demo content will not be initialized
+
+  };
+
+  /**
+   * utils namespace
+   */
+  pageDesigner.client.utils = {};
+
+  /**
+   * defaults
+   */
+  pageDesigner.client.utils.defaults = {
+    webBitUrl: '/web_bits',
+    webPageUrl: '/web_pages',
+    /**
+     * could be replaced with i18n-tools like
+     * $.i18n.t
+     */
+    translate: function( val ){ return val; },
+    /**
+     * notification function
+     *
+     * default: iokit.notify
+     */
+    notify: typeof(iokit) === 'object' && iokit.notify || null
+  };
+
+  /**
+   * toolbar
+   *
+   * renders ioPageDesigner toolbar
+   *
+   * @public false
+   *
+   * @returns {String} $html code to be attached to html dom
+   *
+   */
+  pageDesigner.client.utils.renderToolbar = function renderPageDesignerToolbar(){
+    
+    this.$toolbar = $('<div/>').addClass('iokit-page-designer-toolbar')
+      .attr('draggable', true)
+      .append(
+        $('<div/>').addClass('switch-btns')
+          .append($('<a/>').attr('href', '#page-designer-library').text('Bibliothek'))
+          .append($('<a/>').attr('href', '#page-designer-templates').text('Vorlagen'))
+          .append($('<a/>').attr('href', '#page-designer-grid').text('Grid'))
+          .append($('<a/>').attr('href', '#page-designer-tools').text('Tools'))
+      )
+      .append(
+        $('<div/>').addClass('iokit-logo draggable-handle')
+      )
+      .append( this.utils.renderPluginsContainer.call( this ) );
+  };
+
+  /**
+   * plugins
+   *
+   * renders the plugins container inside the
+   * toolbar container
+   *
+   * @public false
+   *
+   * @returns {String} $html code to be attached to html dom
+   *
+   */
+  pageDesigner.client.utils.renderPluginsContainer = function renderPluginsContainer(){
+
+    var $toolsContainer = $('<div/>')
+      .addClass('page-designer-part')
+      .attr('id','page-designer-tools');
+
+    for( var i=0,plugin; plugin=pageDesigner._plugins[i]; i++ ){
+      var pluginBtn = $('<div/>').addClass('design-btn')
+                        .append($('<span/>').addClass('icn').addClass(plugin.iconClass && plugin.iconClass));
+      if( plugin.name )
+        pluginBtn.attr('original-title', plugin.name).addClass('live-tipsy-l');
+      pluginBtn.data('plugin', plugin);
+      $toolsContainer.append(pluginBtn);
+    }
+    return $toolsContainer;
+  };
+
+  /**
+   * applies actions for toolbar
+   *
+   */
+  pageDesigner.client.utils.applyActionsForToolbar = function applyActionsForToolbar(){
+    var $toolbar = this.$toolbar;
+    $toolbar
+      .draggable({ handle: '.draggable-handle'})
+      .find('.draggable-handle').on('dblclick', function(e){
+        $toolbar.css({ right: 10, top: 10, left: 'auto' });
+      }).end()
+      .find('.switch-btns a').on('click', function(e){
+        e.preventDefault();
+        $toolbar.find('.page-designer-part').hide().end()
+          .find($(this).attr('href')).fadeIn(200).end()
+          .find('.switch-btns .active').removeClass('active');
+        $(this).addClass('active');
+        if( $toolbar.find($(this).attr('href')).attr('data-expand-width') )
+          $($toolbar.addClass('expanded'));
+        else
+          $toolbar.removeClass('expanded');
+      })
+      .last().click();
+  };
+
+  /**
+   * setup actions for a WebBit or WebPage box
+   */
+  pageDesigner.client.utils.applyActionsForBox = function applyActionsForBox( $box ){
+    var $pageContent = this.$pageContent
+      , $activeBox = this.activeBox;
+    $box
+      .on('mouseenter', function(e){
+        e.stopPropagation();
+        $pageContent.find('.hovered').removeClass('hovered');
+        $box.addClass('hovered');
+      }).on('mouseleave', function(e){
+        e.stopPropagation();
+        $box.removeClass('hovered');
+      })
+      .on('click', function(e){
+        e.stopPropagation();
+        if( $box.hasClass('active') ){
+          activeBox = null;
+          $box.removeClass('active');
+        } else {
+          $pageContent.find('.active').removeClass('active');
+          activebox = $box;
+          $box.addClass('active');
+        }
+      })
+      .droppable({
+        accept: ".design-btn,.iokit-web-bit-from-library,.iokit-web-bit",
+        greedy: true,
+        over: function( e, ui ){
+          console.log('over', this);
+          ui.draggable.data("current-droppable", $(this));
+        },
+        out: function( e, ui ){
+          $(this).removeClass('highlight').removeClass('highlight-left');
+        },
+        drop: function(){ console.log('not implemented droppedBox'); }
+      });
+  }
+
+  /**
+   * box controls returns
+   * a jquery dom with actions (close, delete, prperties) and
+   * plugin functions
+   *
+   * @param {Object} [plugin] a plugin object
+   *
+   * @returns {Object} [jQueryDom] of box controls
+   *
+   */
+  pageDesigner.client.utils.renderBoxControls = function renderBoxControls( plugin ){
+
+    var closeBtn = $('<a/>').addClass('box-control live-tipsy detach-box').html('&times;')
+        .attr('original-title', pageDesigner.options.translate('web.page_designer.detach-web_bit'))
+        .on('click', function(e){
+          removeBox( $(e.target).closest('.iokit-web-bit') );
+        });
+
+    var saveBtn = $('<a/>').addClass('box-control save-btn live-tipsy')
+      .append($('<span/>').addClass('icn icn-save'))
+      .attr('original-title', pageDesigner.options.translate('save'))
+      .on('click', function(e){
+        options.webBit.content = options.box.find('.box-content').html();
+        saveWebBit( options.box, options.webBit );
+      });
+
+    var propBtn = $('<a/>').addClass('box-control live-tipsy').append($('<span/>').addClass('icn icn-properties'))
+        .attr('original-title', pageDesigner.options.translate('web.page_designer.web_bit-properties'))
+        .on('click', function(e){
+          openPropertiesDialog( options.box, options.webBit, options.plugin );
+        });
+
+    var moveBtn = $('<a/>').addClass('box-control move-btn move-enabled live-tipsy')
+      .append($('<span/>').addClass('icn icn-move'))
+      .attr('original-title', pageDesigner.options.translate('web.page_designer.move'))
+      .on('click', function(e){
+        console.log('storing a move is not implemented yet')
+      });
+
+    var controls = $('<div/>').addClass('box-controls')
+          .append(moveBtn)
+          .append(propBtn);
+
+    // add plugin
+    // controls
+    if( plugin.addControls && plugin.addControls instanceof Array )
+      plugin.addControls.forEach( function(controlDef){
+        var controlBtn = $('<a/>').addClass('box-control')
+        if( controlDef.icon )
+          controlBtn.append($('<span/>').addClass('icn '+controlDef.icon));
+        else if( controlDef.title )
+          controlBtn.text( controlDef.title )
+        if( controlDef.hoverTitle )
+          controlBtn.addClass('live-tipsy').attr('original-title', controlDef.hoverTitle);
+        if( typeof(controlDef.action) === 'function' )
+          controlBtn.on('click', function( e ){ controlDef.action( options.box, e ) });
+        controls.append(controlBtn);
+      });
+
+    return controls
+      .append(saveBtn)
+      .append(closeBtn);
+
+  }
+
+  // --------------------------------------------------------- main export server/client
+
   // expose pageDesigner to the global namespace
   // or export it if within nodejs
   //
@@ -468,6 +821,7 @@
       root.iokit = {};
     root.iokit.pageDesigner = pageDesigner;
     pageDesigner.$ = jQuery;
+    jQuery.fn.ioPageDesigner = pageDesigner.client.jQueryPlugin;
   }
 
 })();
