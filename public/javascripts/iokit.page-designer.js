@@ -664,7 +664,7 @@
       var pluginBtn = $('<div/>').addClass('design-btn')
                         .append($('<span/>').addClass('icn').addClass(plugin.iconClass && plugin.iconClass));
       if( plugin.name )
-        pluginBtn.attr('original-title', plugin.name).addClass('live-tipsy-l');
+        pluginBtn.attr('title', plugin.name).addClass('tooltip-l');
       pluginBtn.data('plugin', plugin);
       $toolsContainer.append(pluginBtn);
     }
@@ -748,29 +748,29 @@
    */
   pageDesigner.client.utils.renderBoxControls = function renderBoxControls( plugin ){
 
-    var closeBtn = $('<a/>').addClass('box-control live-tipsy detach-box').html('&times;')
-        .attr('original-title', pageDesigner.options.translate('web.page_designer.detach-web_bit'))
+    var closeBtn = $('<a/>').addClass('box-control tooltip detach-box').html('&times;')
+        .attr('title', pageDesigner.options.translate('web.page_designer.detach-web_bit'))
         .on('click', function(e){
           removeBox( $(e.target).closest('.iokit-web-bit') );
         });
 
-    var saveBtn = $('<a/>').addClass('box-control save-btn live-tipsy')
+    var saveBtn = $('<a/>').addClass('box-control save-btn tooltip')
+      .attr('title', pageDesigner.options.translate('save'))
       .append($('<span/>').addClass('icn icn-save'))
-      .attr('original-title', pageDesigner.options.translate('save'))
       .on('click', function(e){
         options.webBit.content = options.box.find('.box-content').html();
         saveWebBit( options.box, options.webBit );
       });
 
-    var propBtn = $('<a/>').addClass('box-control live-tipsy').append($('<span/>').addClass('icn icn-properties'))
-        .attr('original-title', pageDesigner.options.translate('web.page_designer.web_bit-properties'))
+    var propBtn = $('<a/>').addClass('box-control tooltip').append($('<span/>').addClass('icn icn-properties'))
+        .attr('title', pageDesigner.options.translate('web.page_designer.web_bit-properties'))
         .on('click', function(e){
           openPropertiesDialog( options.box, options.webBit, options.plugin );
         });
 
-    var moveBtn = $('<a/>').addClass('box-control move-btn move-enabled live-tipsy')
+    var moveBtn = $('<a/>').addClass('box-control move-btn move-enabled tooltip')
       .append($('<span/>').addClass('icn icn-move'))
-      .attr('original-title', pageDesigner.options.translate('web.page_designer.move'))
+      .attr('title', pageDesigner.options.translate('web.page_designer.move'))
       .on('click', function(e){
         console.log('storing a move is not implemented yet')
       });
@@ -789,15 +789,18 @@
         else if( controlDef.title )
           controlBtn.text( controlDef.title )
         if( controlDef.hoverTitle )
-          controlBtn.addClass('live-tipsy').attr('original-title', controlDef.hoverTitle);
+          controlBtn.addClass('tooltip').attr('title', controlDef.hoverTitle);
         if( typeof(controlDef.action) === 'function' )
           controlBtn.on('click', function( e ){ controlDef.action( options.box, e ) });
         controls.append(controlBtn);
       });
 
-    return controls
+    controls
       .append(saveBtn)
-      .append(closeBtn);
+      .append(closeBtn)
+      .find('.tooltip').tooltipster({ touchDevice: false });
+
+    return controls;
 
   }
 

@@ -137,10 +137,4 @@
   root.iokit.notify = notify;
   root.iokit.modal = modal;
 
-  $(document).ready( function(){  
-    $('.live-tipsy').tipsy();
-    $('.live-tipsy-l').tipsy({gravity: 'e'});
-    $('.live-tipsy-r').tipsy({gravity: 'w'});
-  });
-
 })();
