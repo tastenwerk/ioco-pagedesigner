@@ -87,4 +87,4 @@ Override the loadById() interface of both WebPage and WebBit:
 
 # Contributors
 
-* Jürgen Krausz <jk@grafikrausz.at>
+* Jürgen Krausz
