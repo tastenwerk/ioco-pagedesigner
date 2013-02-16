@@ -10,6 +10,23 @@ WEB_TRANSITION()
   -ms-transition-duration: 0.3s
   transition-duration: 0.3s
 
+.iokit-page-designer-drop-desc
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  bottom: 0
+  width: 500px
+  height: 70px
+  margin: auto
+  color: #333
+  text-shadow: 0 0 3px rgba(0,0,0,0.5)
+  background-color: rgba(255,255,255,0.7)
+  padding: 10px 0
+  font-size: 30px
+  text-align: center
+  z-index: 1000
+
 .iokit-page-designer-toolbar
   position: absolute
   top: 0
@@ -241,10 +258,9 @@ html, body
 
       &.active
         outline: 3px dashed rgba( 255, 100, 100, 0.5 )
-
-        z-index: 10
         > .box-controls
           display: block
+          z-index: 11
 
       h1.no-text
         font-size: 32px
@@ -258,6 +274,11 @@ html, body
         margin: auto
         text-align: center
         line-height: 150px
+
+      &.fill-all
+        width: 100%
+        height: 100%
+        position: relative
 
       &.float-left
         float: left

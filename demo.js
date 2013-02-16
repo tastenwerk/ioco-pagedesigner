@@ -1,40 +1,23 @@
-var http = require("http"),
-url = require("url"),
-path = require("path"),
-fs = require("fs")
-port = process.argv[2] || 8080;
- 
-http.createServer(function(request, response) {
- 
-  var uri = url.parse(request.url).pathname
-    , filename = path.join(process.cwd(), 'public', uri);
+var static = require('node-static')
+  , http = require('http')
+  , util = require('util');
+var webroot = __dirname+'/public'
+  , port = 8080;
+var file = new(static.Server)(webroot);
 
-  fs.exists(filename, function(exists) {
-    if(!exists) {
-      console.log('not found', filename);
-      response.writeHead(404, {"Content-Type": "text/plain"});
-      response.write("404 Not Found\n");
-      response.end();
-      return;
-    }
-     
-    if (fs.statSync(filename).isDirectory()) 
-      filename += '/index.html';
-     
-    fs.readFile(filename, "binary", function(err, file) {
-      if(err) {
-        response.writeHead(500, {"Content-Type": "text/plain"});
-        response.write(err + "\n");
-        response.end();
-        return;
+http.createServer(function(req, res) {
+  req.addListener('end', function() {
+    file.serve(req, res, function(err, result) {
+      if (err) {
+        console.error('Error serving %s - %s', req.url, err.message);
+        if (err.status === 404 || err.status === 500) {
+          res.writeHead(err.status, err.headers);
+          res.end();
+        }
+      } else {
+        console.log('%s - %s', req.url, res.message);
       }
-       
-      response.writeHead(200);
-      response.write(file, "binary");
-      response.end();
     });
   });
-
-}).listen(parseInt(port, 10));
- 
-console.log("Static file server running at\n => http://localhost:" + port);
+}).listen(port);
+console.log('node-static running at http://localhost:%d', port);

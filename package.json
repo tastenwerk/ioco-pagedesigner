@@ -27,7 +27,8 @@
   "devDependencies" : {
     "uglify-js" : "latest",
     "should": "latest",
-    "mocha": "latest"
+    "mocha": "latest",
+    "node-static": "*"
   },
   "scripts": {
     "test" : "node_modules/.bin/mocha --reporter list"
