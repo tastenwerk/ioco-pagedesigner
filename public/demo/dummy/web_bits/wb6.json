@@ -8,6 +8,6 @@
   },
   "properties": {},
   "category": "Default",
-  "content": "<div data-web-bit-root=\"true\" class=\"span3\"><img src=\"../demo/tower.jpg\" style=\"height:100px; width: 100%\"/></div>",
+  "content": "<img src=\"../demo/tower.jpg\" style=\"height:100px; width: 100%\"/>",
   "library": false
 }

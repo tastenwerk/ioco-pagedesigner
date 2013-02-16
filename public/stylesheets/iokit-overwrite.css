@@ -1,0 +1,10 @@
+body, html{
+  background: white;
+}
+/* ------------------------------------------------ icons */
+.icn {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  background-image: url("./iokit-icons16x16.png");
+}

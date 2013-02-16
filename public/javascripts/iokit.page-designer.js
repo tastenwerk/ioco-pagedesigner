@@ -302,7 +302,7 @@
    * html format of this webbit
    */
   pageDesigner.WebBit.prototype.render = function renderWebBit(){
-    var $procContent = pageDesigner.$(this.renderedContent);
+    var $procContent = pageDesigner.$('<div/>').append(this.renderedContent);
     var tmpWebBits = {};
     for( var i in this.webBits )
       tmpWebBits[this.webBits[i]._id] = this.webBits[i];
@@ -310,17 +310,17 @@
     $procContent.find('[data-web-bit-id]').each(function(){
       var id = pageDesigner.$(this).attr('data-web-bit-id');
       if( tmpWebBits[id] )
-        pageDesigner.$(this).html( tmpWebBits[id].render() );
+        $(this).append( tmpWebBits[id].render() ).data('webBit', tmpWebBits[id]).data('plugin', pageDesigner.getPluginByName( tmpWebBits[id].pluginName ));
       else
         this.html('ERROR: WebBit ' + this.attr('data-web-bit-name') + ' not found');
       pageDesigner.$(this).addClass('iokit-web-bit');
     });
 
-    if( !isNode ){
-      this.decorateBox( $procContent );
-      return $procContent;
-    }
-    return $procContent.toString();
+    if( isNode )
+      return $procContent.toString();
+
+    var dec = this.decorateBox( $procContent.children() );
+    return dec;
   };
 
   /**
@@ -331,7 +331,10 @@
     var plugin = pageDesigner.getPluginByName( this.pluginName );
     if( !plugin && pageDesigner.options.debug > 0 )
       console.log('[pageDesigner] ERROR: Plugin ', this.pluginName, 'was not found for ', this.name);
+    if( pageDesigner.options.debug > 2 )
+      console.log('[pageDesigner] INFO:', this.name, 'was successfully decorated with plugin', plugin.name);
     $box.prepend( pageDesigner.client.utils.renderBoxControls( plugin ) );
+    return $box;
   }
 
   /**
@@ -347,7 +350,7 @@
       throw new Error('a callback function is required for WebBit.initialize');
     var self = this;
     self.webBits = [];
-    var $procContent = pageDesigner.$(self.content);
+    var $procContent = pageDesigner.$('<div>'+self.content+'</div>');
 
     var webBitIds = [];
     $procContent.find('[data-web-bit-id]').each(function(){
@@ -476,7 +479,8 @@
               .attr('data-web-bit-id',this.rootWebBit._id)
               .attr('data-web-bit-name',this.rootWebBit.name)
               .addClass('iokit-web-bit')
-              .append(this.rootWebBit.render());
+              .data('webBit', this.rootWebBit).data('plugin', pageDesigner.getPluginByName( this.rootWebBit.pluginName ))
+              .append( this.rootWebBit.render() );
     return 'no root WebBit';
   }
 
@@ -574,7 +578,7 @@
           if( webPage ){
             webPage.initialize( function( err, webPage ){
               options.webPage = webPage
-              $this.$pageContent.html( webPage.render() );
+              $this.$pageContent.append( webPage.render() );
               $this.$pageContent.find('.iokit-web-bit').each(function(){
                 $this.utils.applyActionsForBox.call( $this, $(this) );
               })
@@ -585,7 +589,7 @@
       else if( typeof( this.options.webPage ) === 'object' )
         webPage.initialize( function( err, webPage ){
           options.webPage = webPage
-          $this.$pageContent.html( webPage.render() );
+          $this.$pageContent.append( webPage.render() );
         });
     } // else
     // demo content will not be initialized
@@ -712,6 +716,8 @@
         $box.removeClass('hovered');
       })
       .on('click', function(e){
+        if( $(e.target).hasClass('box-controls') || $(e.target).closest('.box-controls').length )
+          return;
         e.stopPropagation();
         if( $box.hasClass('active') ){
           activeBox = null;
@@ -726,14 +732,13 @@
         accept: ".design-btn,.iokit-web-bit-from-library,.iokit-web-bit",
         greedy: true,
         over: function( e, ui ){
-          console.log('over', this);
           ui.draggable.data("current-droppable", $(this));
         },
         out: function( e, ui ){
           $(this).removeClass('highlight').removeClass('highlight-left');
         },
         drop: function(){ console.log('not implemented droppedBox'); }
-      });
+      })
   }
 
   /**
@@ -762,10 +767,10 @@
         saveWebBit( options.box, options.webBit );
       });
 
-    var propBtn = $('<a/>').addClass('box-control tooltip').append($('<span/>').addClass('icn icn-properties'))
+    var propBtn = $('<a/>').addClass('box-control tooltip prop-btn').append($('<span/>').addClass('icn icn-properties'))
         .attr('title', pageDesigner.options.translate('web.page_designer.web_bit-properties'))
         .on('click', function(e){
-          openPropertiesDialog( options.box, options.webBit, options.plugin );
+          pageDesigner.client.utils.renderPropertiesModal( $(this).closest('.iokit-web-bit') );
         });
 
     var moveBtn = $('<a/>').addClass('box-control move-btn move-enabled tooltip')
@@ -802,6 +807,240 @@
 
     return controls;
 
+  }
+
+  /**
+   * renders a properties modal
+   * window supported by iokit.modal
+   *
+   * @param {jQueryObject} [$box] - the box the properties modal is related to
+   *
+   */
+  pageDesigner.client.utils.renderPropertiesModal = function renderPropertiesModal( $box ){
+
+    iokit.modal({ 
+      title: pageDesigner.options.translate('web.page_designer.web_bit-properties'),
+      html: pageDesigner.client.templates.propertiesModal( $box ),
+      completed: function( html ){
+        html.find('#cssEditor').css({ height: html.find('.sidebar-content').height() - 125});
+        html.find('#htmlEditor').css({ height: html.find('.sidebar-content').height() - 65, top: 60});
+        html.find('#jsEditor').css({ height: html.find('.sidebar-content').height() - 65, top: 60});
+      },
+      windowControls: {
+        save: {
+          icn: 'icn-save',
+          title: pageDesigner.options.translate('web.source.save'),
+          callback: function( $modal ){
+            var webBit = $box.data('webBit');
+            webBit.properties = webBit.properties || {};
+            $box.attr('class', 'iokit-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val());
+            var cssVal = ace.edit($modal.find('#cssEditor').get(0)).getValue();
+            if( cssVal.length > 0 )
+              $box.attr('css', JSON.parse(cssVal) );
+            webBit.properties.libraryItem = $modal.find('input[name=libraryItem]').is(':checked');
+            webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
+            webBit.name = $modal.find('input[name=name]').val();
+            webBit.category = $modal.find('input[name=category]').val();
+            webBit.content = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
+            webBit.properties.cssClasses = $modal.find('#cssClasses').val();
+            // TODO: webBit.save();
+          }
+        }
+      }
+    });
+
+  }
+
+  /**
+   * helper
+   */
+  pageDesigner.client.helper = {};
+
+  /**
+   * reads out all css properties of an object
+   * and returns a jquery compatible css object
+   * which can be passed into another object
+   *
+   * from: http://upshots.org/javascript/jquery-get-currentstylecomputedstyle
+   * author: unknown (site does not mention any author name)
+   *
+   * @param {Object} [dom] - a dom (not jQuery!) object
+   * 
+   */
+  pageDesigner.client.helper.getStyles = function( dom ){
+    var style;
+    var returns = {};
+    if(window.getComputedStyle){
+        var camelize = function(a,b){
+            return b.toUpperCase();
+        };
+        style = window.getComputedStyle(dom, null);
+        for(var i = 0, l = style.length; i < l; i++){
+            var prop = style[i];
+            var camel = prop.replace(/\-([a-z])/, camelize);
+            var val = style.getPropertyValue(prop);
+            returns[camel] = val;
+        };
+        return returns;
+    };
+    if(style = dom.currentStyle){
+        for(var prop in style){
+            returns[prop] = style[prop];
+        };
+        return returns;
+    };
+    if(style = dom.style){
+        for(var prop in style){
+            if(typeof style[prop] != 'function'){
+                returns[prop] = style[prop];
+            }
+        }
+        return returns;
+    }
+    return returns;
+  }
+
+  /**
+   * templates
+   */
+  pageDesigner.client.templates = {};
+
+  /**
+   * propertiesModal
+   *
+   * content for the modal dialog sticked together by iterating
+   * through plugins
+   */
+  pageDesigner.client.templates.propertiesModal = function( $box ){
+
+    var webBit = $box.data('webBit')
+      , plugin = $box.data('plugin');
+
+    if( typeof(ace) === 'object' ){
+      ace.config.set("modePath", "/javascripts/3rdparty/ace");
+      ace.config.set("workerPath", "/javascripts/3rdparty/ace");
+      ace.config.set("themePath", "/javascripts/3rdparty/ace");
+    }
+
+    var cssDiv = $('<div class="web-bit-props"/>')
+                  .append($('<h1 class="title"/>').text('Style definitions'))
+                  .append($('<p/>')
+                    .append($('<label/>').text('CSS Classes'))
+                    .append('<br />')
+                    .append($('<input type="text" name="cssClasses" placeholder="e.g.: span2 float-left" value="'+
+            $box.attr('class').replace(/[\ ]*iokit-web-bit|ui-droppable|ui-draggable|active|hovered[\ ]*/g,'')+'" />'))
+                  ).append($('<p/>')
+                    .append($('<label/>').text('CSS Rules for the box (not for children) in JSON notation'))
+                    .append('<br />')
+                    .append($('<div id="cssEditor" class="ace-editor"/>'))
+                  );
+
+    // set ace editor for textareas if ace option is enabled
+    if( typeof(ace) === 'object' ){
+      aceEditor = ace.edit( cssDiv.find('#cssEditor').get(0) );
+      aceEditor.getSession().setMode("ace/mode/json");
+      aceEditor.getSession().setUseWrapMode(true);
+      aceEditor.getSession().setWrapLimitRange(80, 80);
+      if( webBit.properties && webBit.properties.styles )
+        aceEditor.setValue( JSON.stringify( webBit.properties.styles, null, 4 ) )
+      //aceEditor.setValue( JSON.stringify(pageDesigner.client.helper.getStyles( $box.get(0) ), null, 4) );
+    }
+
+    var htmlDiv = $('<div class="web-bit-props"/>')
+                  .append($('<h1 class="title"/>').text('HTML'))
+                  .append($('<p/>')
+                    .append($('<label/>').text('edit the html source'))
+                    .append('<br />')
+                    .append($('<div id="htmlEditor" class="ace-editor" />'))
+                  );
+
+    var metaDiv = $('<div class="web-bit-props"/>')
+                  .append($('<h1 class="title"/>').text('META'))
+                  .append($('<p/>')
+                    .append($('<label/>').text( pageDesigner.options.translate('name') ) )
+                    .append('<br />')
+                    .append($('<input type="text" name="name" class="fill-width" />').val( webBit.name ))
+                  )
+                  .append($('<p/>')
+                    .append($('<input type="checkbox" name="libraryItem" />').attr('checked', webBit.properties.libraryItem))
+                    .append($('<label/>').text( pageDesigner.options.translate('web.page_designer.library') ) )
+                  )
+                  .append($('<p/>')
+                    .append($('<label/>').text( pageDesigner.options.translate('web.page_designer.category') ) )
+                    .append('<br />')
+                    .append($('<input type="text" name="category" class="fill-width" />').val( webBit.category ))
+                  );
+
+    // set ace editor for textareas if ace option is enabled
+    if( typeof(ace) === 'object' ){
+      aceEditor = ace.edit( htmlDiv.find('#htmlEditor').get(0) );
+      aceEditor.getSession().setMode("ace/mode/html");
+      aceEditor.getSession().setUseWrapMode(true);
+      aceEditor.getSession().setWrapLimitRange(80, 80);
+      if( webBit.content )
+        aceEditor.setValue( webBit.content );
+    }
+
+    var jsDiv = $('<div class="web-bit-props"/>')
+                  .append($('<h1 class="title"/>').text('Javascript'))
+                  .append($('<p/>')
+                    .append($('<label/>').text('Custom Code. Available vars: $box (this box jquery dom object)'))
+                    .append('<br />')
+                    .append($('<div id="jsEditor" class="ace-editor" />'))
+                  );
+
+    // set ace editor for textareas if ace option is enabled
+    if( typeof(ace) === 'object' ){
+      aceEditor = ace.edit( jsDiv.find('#jsEditor').get(0) );
+      aceEditor.getSession().setMode("ace/mode/javascript");
+      aceEditor.getSession().setUseWrapMode(true);
+      aceEditor.getSession().setWrapLimitRange(80, 80);
+      if( webBit.properties.js )
+        aceEditor.setValue( webBit.properties.js );
+    }
+
+    var revisionsDiv = $('<div class="web-bit-props"/>')
+                  .append($('<h1 class="title"/>').text('Revisions'));
+
+    var accessDiv = $('<div class="web-bit-props"/>')
+                  .append($('<h1 class="title"/>').text('ACL'));
+
+    var sidebar = $('<ul class="sidebar-nav"/>')
+        .append($('<li/>').text( 'HTML' ))
+        .append($('<li/>').text( pageDesigner.options.translate('web.page_designer.meta') ) )
+        .append($('<li/>').text( 'CSS' ))
+        .append($('<li/>').text( 'JS' ));
+
+    var sidebarContent = $('<div class="sidebar-content"/>')
+        .append(htmlDiv)
+        .append(metaDiv)
+        .append(cssDiv)
+        .append(jsDiv)
+
+    if( plugin.addProperties && plugin.addProperties instanceof Array )
+      for( var i=0,propertyPlugin; propertyPlugin=plugin.addProperties[i]; i++ ){
+        sidebar.append($('<li/>').text( propertyPlugin.title ));
+        if( propertyPlugin.html )
+          sidebarContent.append( $('<div class="web-bit-props">').html(propertyPlugin.html) );
+        else if( propertyPlugin.remoteHtml )
+          $.get( propertyPlugin.remoteHtml, function( html ){
+            sidebarContent.append( $('<div class="web-bit-props">').html(html) );
+          });
+      }
+
+    sidebar
+      .append($('<li/>').text( 'Revisions' ))
+      .append($('<li/>').text( 'Access' ))
+
+    sidebarContent
+      .append(revisionsDiv)
+      .append(accessDiv)
+      
+    var html = $('<div class="modal-sidebar"/>')
+      .append(sidebar)
+      .append(sidebarContent);
+    
+    return html;
   }
 
   // --------------------------------------------------------- main export server/client

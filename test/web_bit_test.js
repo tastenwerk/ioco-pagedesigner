@@ -265,8 +265,8 @@ describe('iokit.pageDesigner', function(){
 
       it( 'all html auto-rendered nested WebBits are cleaned out in new content value', function( done ){
         var self = this;
-        var orig = "<div data-web-bit-root=\"true\"><div data-web-bit-id=\"wb1\" class=\"span3\" data-web-bit-name=\"Main Menu\"></div><div data-web-bit-id=\"wb5\" data-web-bit-name=\"Hero Header\" class=\"span3\"></div><div data-web-bit-id=\"wb2\" data-web-bit-name=\"1 of 3 Columns\" class=\"span1 float-left\"></div><div data-web-bit-id=\"wb3\" data-web-bit-name=\"2 of 3 Columns\" class=\"span1 float-left\"></div><div data-web-bit-id=\"wb4\" data-web-bit-name=\"3 of 3 Columns\" class=\"span1 float-left\"></div></div>";
-        var changed = "<div data-web-bit-root=\"true\"><div data-web-bit-id=\"wb1\" data-web-bit-name=\"Main Menu\"></div></div>";
+        var orig = "<div data-web-bit-id=\"wb1\" class=\"span3\" data-web-bit-name=\"Main Menu\"></div><div data-web-bit-id=\"wb5\" data-web-bit-name=\"Hero Header\" class=\"span3\"></div><div data-web-bit-id=\"wb2\" data-web-bit-name=\"1 of 3 Columns\" class=\"span1 float-left\"></div><div data-web-bit-id=\"wb3\" data-web-bit-name=\"2 of 3 Columns\" class=\"span1 float-left\"></div><div data-web-bit-id=\"wb4\" data-web-bit-name=\"3 of 3 Columns\" class=\"span1 float-left\"></div>";
+        var changed = "<div data-web-bit-id=\"wb1\" data-web-bit-name=\"Main Menu\"></div>";
         this.webBit.content.should.eql(orig);
         this.webBit.initialize( function( err, webBit ){
           webBit.setContent(changed);

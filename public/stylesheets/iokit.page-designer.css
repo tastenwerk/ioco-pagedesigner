@@ -291,8 +291,8 @@ body .iokit-page-content .iokit-web-bit.active {
   outline: 3px dashed rgba(255,100,100,0.5);
   z-index: 10;
 }
-html .iokit-page-content .iokit-web-bit.active .box-controls,
-body .iokit-page-content .iokit-web-bit.active .box-controls {
+html .iokit-page-content .iokit-web-bit.active > .box-controls,
+body .iokit-page-content .iokit-web-bit.active > .box-controls {
   display: block;
 }
 html .iokit-page-content .iokit-web-bit h1.no-text,
