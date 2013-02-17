@@ -13,7 +13,7 @@
   padding: 10px 0;
   font-size: 30px;
   text-align: center;
-  z-index: 1000;
+  z-index: 998;
 }
 .iokit-page-designer-toolbar {
   position: absolute;
@@ -202,6 +202,18 @@
 html,
 body {
   height: 100%;
+}
+html .tool-helper,
+body .tool-helper {
+  width: 30%;
+  font-size: 40px;
+  color: #333;
+  text-align: center;
+  padding: 70px 0;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  background-color: rgba(255,255,255,0.9);
+  border: 2px dashed #ddd;
+  z-index: 999;
 }
 html .iokit-page-content,
 body .iokit-page-content {

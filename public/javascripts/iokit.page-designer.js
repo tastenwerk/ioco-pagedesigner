@@ -26,6 +26,7 @@
     webPageUrl: '/web_pages',
     webPageUrlData: null,
     fallbackLang: 'en',
+    translate: function( val ){ return val; },
     debug: 3 // 0 ... no debug at all
              // 1 ... errors on console.log
              // 2 ... warnings on console.log
@@ -85,17 +86,9 @@
         else
           return 'not supported in nodejs yet';
       } else {
-        $.ajax({ url: plugin, type: 'get', 
-          done: function( pluginStr ){
-            if( pluginStr && pluginStr.length > 0 )
-              this._plugins.push( eval(pluginStr) );
+        $.getScript( plugin, function(){
             if( typeof(callback) === 'function' )
               callback( null );
-          },
-          error: function( xhr, status, errStr ){
-            if( typeof( callback ) === 'function' )
-              callback( status + ':' + errStr );
-          }
         });
       }
     } else {
@@ -120,11 +113,14 @@
   }
 
   /**
-   * cleanup given value from
-   * dirty web-bit fragments
+   * translates given value (by processing with given translation plugin)
+   * default: pass value plain through function
+   *
+   * @param {String} [val] - the value string to be translated
+   *
    */
-  pageDesigner._cleanup = function _privateCleanupValue( val ){
-    return val;
+  pageDesigner.t = pageDesigner.translate = function translate( val ){
+    return pageDesigner.options.translate(val);
   }
 
   /**
@@ -309,23 +305,22 @@
   pageDesigner.WebBit.prototype.render = function renderWebBit( $box ){
     if( !$box )
       $box = pageDesigner.$('<div/>');
-    var $procContent = $box.append(this.renderedContent);
+    $box.append(this.renderedContent);
     var tmpWebBits = {};
     for( var i in this.webBits )
       tmpWebBits[this.webBits[i]._id] = this.webBits[i];
 
-    $procContent.find('[data-web-bit-id]').each(function(){
+    $box.find('[data-web-bit-id]').each(function(){
       var id = pageDesigner.$(this).attr('data-web-bit-id');
       if( tmpWebBits[id] )
-        pageDesigner.$(this).append( tmpWebBits[id].render() );
+        pageDesigner.$(this).replaceWith( tmpWebBits[id].render( $(this) ) );
       else
         this.html('ERROR: WebBit ' + this.attr('data-web-bit-name') + ' not found');
       pageDesigner.$(this).addClass('iokit-web-bit');
     });
 
     if( isNode )
-      return $procContent.toString();
-
+      return $box.toString();
     return this.decorateBox( $box );
   };
 
@@ -363,7 +358,6 @@
 
   }
 
-
   /**
    * setup actions for this WebBit
    *
@@ -400,7 +394,7 @@
       // if dragged over a droppable box, highlight classes
       // will be calculated customized
       .draggable({ 
-        handle: '.move-enabled', 
+        handle: '.move-enabled',
         opacity: 0.3,
         cursor: 'move',
         revert: function( validDrop ){
@@ -410,18 +404,7 @@
           $(document).find('.iokit-web-bit').removeClass('highlight').removeClass('highlight-left');
           return true;
         },
-        drag: function( e, ui ){
-          var droppable = $(this).data('current-droppable');
-          if( droppable ){
-            var leftArea = Math.round(droppable.offset().left + droppable.width() / 3);
-            $('.highlight').removeClass('highlight');
-            $('.highlight-left').removeClass('highlight-left');
-            if( e.pageX <= leftArea )
-              droppable.addClass('highlight-left');
-            else
-              droppable.addClass('highlight');
-          }
-        }
+        drag: pageDesigner.client.utils.decorateDraggedBox
       })
       .droppable({
         accept: '.design-btn,.iokit-web-bit-from-library,.iokit-web-bit',
@@ -429,7 +412,7 @@
         greedy: true,
         over: function( e, ui ){
           ui.draggable.data("current-droppable", $(this));
-          console.log('entering', $(this));
+          console.log('entering', $(this), ui.draggable);
           $('.iokit-page-designer-drop-desc').remove();
           $('body').append($('<div/>').addClass('iokit-page-designer-drop-desc')
                                 .attr('data-web-bit-id', $box.data('webBit').id)
@@ -485,6 +468,28 @@
     initNextWebBit();
 
   };
+
+  /**
+   * remove a WebBit from this WebBit
+   *
+   * @param {WebBit} [ webBit ] - the webBit which should be removed from this WebBit
+   *
+   * @param {function} [callback] - callback with args: err
+   *
+   */
+  pageDesigner.WebBit.prototype.removeChild = function removeChild( webBit, callback ){
+    for( var i=0, child; child=this.webBits[i]; i++ ){
+      if( child._id === webBit._id ){
+        this.webBits.splice(i,1);
+        break; 
+      }
+    }
+    var content = pageDesigner.$('<div/>').append(this.content);
+    content.find('[data-web-bit-id='+webBit._id+']').remove();
+    this.setContent( content.html() );
+    if( typeof(callback) === 'function' )
+      callback( null );
+  }
 
   /**
    * define WebPage model. A WebPage is the top most root
@@ -582,7 +587,7 @@
    */
   pageDesigner.WebPage.prototype.render = function renderWebPage(){
     if( this.rootWebBit )
-      return this.rootWebBit.render( pageDesigner.$('<div/>') );
+      return this.rootWebBit.render();
     return 'no root WebBit';
   }
 
@@ -743,8 +748,90 @@
       .append(
         $('<div/>').addClass('iokit-logo draggable-handle')
       )
-      .append( this.utils.renderPluginsContainer.call( this ) );
+      .append( this.utils.renderPluginsContainer.call( this ) )
+      .append( this.utils.renderFormatContainer.call( this ) )
+      .append( this.utils.renderTemplatesContainer.call( this ) )
+      .append( this.utils.renderLibraryContainer.call( this ) );
   };
+
+  /**
+   * renders format container
+   * providing css class tools to be applied to
+   * WebBits
+   */
+  pageDesigner.client.utils.renderFormatContainer = function renderFormatContainer(){
+    var formatContainer = $('<div/>').addClass('page-designer-part').attr('id','page-designer-grid');
+    return formatContainer;   
+  }
+
+  /**
+   * renders templates Container
+   */
+  pageDesigner.client.utils.renderTemplatesContainer = function renderTemplatesContainer(){
+    var templatesContainer = $('<div/>').addClass('page-designer-part').attr('id','page-designer-templates')
+      .attr('data-expand-width', '150px')
+      .append($('<h1>').text( pageDesigner.t('Templates') ) )
+      .append($('<p class="desc">').text( pageDesigner.t('Click to turn remove all items for this page and apply desired template') ) )
+      .append($('<div class="overflow-area"/>').data('subtract-from-height', 103));
+    return templatesContainer;   
+  }
+
+  /**
+   * renders library container
+   */
+  pageDesigner.client.utils.renderLibraryContainer = function renderLibraryContainer(){
+
+   var libContainer = $('<div/>').addClass('page-designer-part').attr('id','page-designer-library')
+        .attr('data-expand-width', '150px')
+        .append($('<h1>').text( pageDesigner.t('Library') ))
+        .append($('<p class="desc">').text( pageDesigner.t('Drag and drop items into workspace') ) )
+        .append($('<div class="overflow-area"/>').data('subtract-from-height', 103));
+
+    $.getJSON( (pageDesigner.options.webBitUrl || '/web_bits') + '/library.json', function(json){
+      if( json ){
+
+        // sort the array by category
+        json.sort( function(a,b){
+          if( typeof( b.category ) === 'undefined' || b.category === '' || a.category < b.category )
+             return -1;
+          if( typeof( a.category ) === 'undefined' || a.category === '' || a.category > b.category )
+            return 1;
+          return 0;
+        });
+
+        var curCategory = null;
+        for( var i=0,jsonWebBit; jsonWebBit=json[i]; i++ ){
+          var webBit = new pageDesigner.WebBit( jsonWebBit );
+          if( curCategory === null || (webBit.category !== curCategory )){
+            libContainer.find('.overflow-area').append($('<h2/>').text( webBit.category || (_options.i18n ? $.i18n.t('web.page_designer.uncategorized') : 'uncategorized') ))
+              .append('<ul/>');
+            curCategory = webBit.category;
+          }
+          var li = $('<li/>')
+              .addClass('iokit-web-bit-from-library').attr('data-id', webBit._id)
+              .text(webBit.name)
+              .data('plugin', pageDesigner.getPluginByName(webBit.pluginName))
+              .data('webBit', webBit)
+              .draggable({
+                cursor: "move",
+                appendTo: '.iokit-page-content',
+                cursorAt: { top: -5, left: -5 },
+                helper: function( e ) {
+                  return $('<div/>').addClass('tool-helper').text(pageDesigner.t($(this).data('webBit').name));
+                },
+                revert: function( validDrop ){
+                  if( validDrop )
+                    return false;
+                  return true;
+                },
+                drag: pageDesigner.client.utils.decorateDraggedBox
+              });
+          libContainer.find('ul:last').append( li );
+        }
+      }
+    });
+    return libContainer;
+  }
 
   /**
    * plugins
@@ -765,14 +852,34 @@
 
     for( var i=0,plugin; plugin=pageDesigner._plugins[i]; i++ ){
       var pluginBtn = $('<div/>').addClass('design-btn')
-                        .append($('<span/>').addClass('icn').addClass(plugin.iconClass && plugin.iconClass));
+                        .append($('<span/>').addClass('icn').addClass(plugin.iconClass && plugin.iconClass))
+                        .data('plugin', plugin);
       if( plugin.name )
         pluginBtn.attr('title', plugin.name).addClass('tooltip-l');
-      pluginBtn.data('plugin', plugin);
-      $toolsContainer.append(pluginBtn);
+      $toolsContainer.append( pageDesigner.client.utils.applyPluginActions( pluginBtn, plugin ) );
     }
     return $toolsContainer;
   };
+
+  /**
+   * apply actions for the plugin button
+   */
+  pageDesigner.client.utils.applyPluginActions = function applyPluginActions( $pluginBtn, plugin ){
+    return $pluginBtn.draggable({
+      cursor: "move",
+      appendTo: '.iokit-page-content',
+      cursorAt: { top: -5, left: -5 },
+      helper: function( e ) {
+        return $('<div/>').addClass('iokit-toolbar-plugin tool-helper').text(pageDesigner.t(plugin.name));
+      },
+      revert: function( validDrop ){
+        if( validDrop )
+          return false;
+        return true;
+      },
+      drag: pageDesigner.client.utils.decorateDraggedBox
+    })
+  }
 
   /**
    * applies actions for toolbar
@@ -781,7 +888,7 @@
   pageDesigner.client.utils.applyActionsForToolbar = function applyActionsForToolbar(){
     var $toolbar = this.$toolbar;
     $toolbar
-      .draggable({ handle: '.draggable-handle'})
+      .draggable({ handle: '.draggable-handle' })
       .find('.draggable-handle').on('dblclick', function(e){
         $toolbar.css({ right: 10, top: 10, left: 'auto' });
       }).end()
@@ -813,13 +920,16 @@
       , attachMethod = null;
 
     if( $targetWebBit.hasClass('highlight-left') )
-      attachMethod = 'before';
+      if( $targetWebBit.parent('.iokit-web-bit').length > 0 )
+        attachMethod = 'before';
+      else
+        attachMethod = 'prepend';
     else
       attachMethod = 'append';
 
     $(document).find('.iokit-web-bit').removeClass('highlight').removeClass('highlight-left');
 
-    if( ui.draggable.hasClass('web-bit-from-library') || ui.draggable.hasClass('iokit-web-bit') )
+    if( ui.draggable.hasClass('iokit-web-bit-from-library') || ui.draggable.hasClass('iokit-web-bit') )
       // a WebBit has been moved from the toolkit
       // library OR a rendered WebBit has been moved here
       $targetWebBit[attachMethod]( $(ui.draggable).data('webBit').render() );
@@ -827,20 +937,39 @@
       // A new WebBit is about to be created from the toolkit 
       // plugins designer bar.
       var plugin = ui.draggable.data('plugin');
-      var boxName = prompt((_options.i18n ? $.i18n.t('web_bit.name') : 'WebBit Name') );
+      var boxName = prompt(pageDesigner.t('WebBit Name'));
       if( !boxName || boxName.length < 1 )
         return;
       var webBit = new pageDesigner.WebBit({  name: boxName, 
                                               properties: { js: '', 
-                                                            cssClasses: 'float-left span2',
+                                                            cssClasses: 'float-left span1',
                                                             cssStyles: {},
                                                             library: false },
-                                              plugin: plugin.name,
+                                              pluginName: plugin.name,
                                               category: '',
                                               content: (plugin.defaultContent ? plugin.defaultContent : '') });
       $targetWebBit[attachMethod]( webBit.render() );
     }
     ui.draggable.remove();
+    $('.iokit-page-designer-drop-desc').remove();
+  }
+
+  /**
+   * decorate the dropped box target of this
+   * draggable box with highlighters
+   *
+   */
+  pageDesigner.client.utils.decorateDraggedBox = function decorateDraggedBox( e, ui ){
+    var droppable = $(this).data('current-droppable');
+    if( droppable ){
+      var leftArea = Math.round(droppable.offset().left + droppable.width() / 3);
+      $('.highlight').removeClass('highlight');
+      $('.highlight-left').removeClass('highlight-left');
+      if( e.pageX <= leftArea )
+        droppable.addClass('highlight-left');
+      else
+        droppable.addClass('highlight');
+    }
   }
 
   /**
@@ -858,7 +987,14 @@
     var closeBtn = $('<a/>').addClass('box-control tooltip detach-box').html('&times;')
         .attr('title', pageDesigner.options.translate('web.page_designer.detach-web_bit'))
         .on('click', function(e){
-          removeBox( $(e.target).closest('.iokit-web-bit') );
+          var $box = $(e.target).closest('.iokit-web-bit')
+            , $parentBox = $box.parent('.iokit-web-bit')
+            , parent = $parentBox.data('webBit');
+          $parentBox.data('webBit').removeChild( $box.data('webBit'), function( err ){
+            if( err )
+              console.log('[pageDesigner] ERROR: ', err );
+            $box.remove();
+          });
         });
 
     var saveBtn = $('<a/>').addClass('box-control save-btn tooltip')

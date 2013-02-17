@@ -1,15 +1,17 @@
-# ioPageDesigner [NOT READY YET!!!!]
+# ioPageDesigner (not released yet)
 
-a javascript tool and nodejs module which lets you build design and maintain web pages
-in a very intuitive way. Select bits from a library, prepare a template
-set for your editors and they just fill in the bits similar to a form.
+A powerful JavaScript web tool to build, setup, design and work with web pages in a
+very intuitive manner.
 
-Let them edit as much as you want them to edit and keep their views clear of cryptic
-coding stuff.
+ioPageDesigner can be used as a plugin in [iokit](http://github.com/tastenwerk/iokit)
+or can be build-in in any kind of CMS providing storage and view methods.
 
-# Demo [soon:]
+Before you continue, take a look at the demo site to get a first impression about
+ioPageDesigner: 
 
-http://tastenwerk.com/iokit/io-page-designer
+# Demo
+
+http://tastenwerk.com/iokit/pageDesigner/demo
 
 # Philosophy
 
@@ -22,23 +24,28 @@ place them inside each other, lock them for editors and version control them
 
 # Installation
 
-To use inside nodejs:
+1. Quick standalone starting:
+
+    git clone git@github.com:tastenwerk/iopagedesigner.git
+
+copy over the /demo folder to a local or remote web server and run it. You will be
+provided with a demo marked up page which does not store but gives you the opportunity
+to play around with WebBits.
+
+2. Install with nodejs:
 
     npm install iopagedesigner
 
-To use in any other content management system:
-
-Checkout this folder and have a look at the `demo` folder. It contains an index.html
-file which should run out of the box and provide you with first steps how to integrate
-ioPageDesigner in your own CMS.
+# Integration
 
 Basically you won't need much more than the iokit.page-designer.min.js and it's according
-stylesheet.
+stylesheet. But: To get the ease of all the features of ioPageDesigner, you should copy over
+all the 3rdparty stuff (or adapt to your already build-in libraries).
 
 ## Requirements
 
-* jquery >= 1.7
-* jquery ui (draggable/droppable) >= 1.8
+* jquery >= 1.8
+* jquery ui (draggable/droppable) >= 1.10
 
 # Usage
 

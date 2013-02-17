@@ -9,5 +9,5 @@
   "properties": {},
   "category": "Menu",
   "content": "<ul class=\"menu\"><li>Early Life</li><li>Accession</li><li>Succession</li></ul>",
-  "library": true
+  "library": false
 }

@@ -25,7 +25,7 @@ WEB_TRANSITION()
   padding: 10px 0
   font-size: 30px
   text-align: center
-  z-index: 1000
+  z-index: 998
 
 .iokit-page-designer-toolbar
   position: absolute
@@ -188,6 +188,18 @@ html, body
     height: 100%
     position: relative
 
+    &.tool-helper
+      width: 30%
+      font-size: 40px
+      color: #333
+      text-align: center
+      padding: 70px 0
+      text-shadow: 0 0 3px rgba(0,0,0,0.5)
+      background-color: rgba(255,255,255,0.9)
+      border: 2px dashed #ddd
+      z-index: 999
+
+
     &.highlight
       background-color: #ffe
 
@@ -214,7 +226,6 @@ html, body
 
       &.highlight
         background-color: #fc6
-
 
       &.clearfix
         zoom: 1
@@ -258,6 +269,7 @@ html, body
 
       &.active
         outline: 3px dashed rgba( 255, 100, 100, 0.5 )
+        z-index: 10
         > .box-controls
           display: block
           z-index: 11
