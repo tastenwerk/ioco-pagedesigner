@@ -24,16 +24,16 @@ place them inside each other, lock them for editors and version control them
 
 # Installation
 
-1. Quick standalone starting:
-
+## Quick standalone starting:
+    
     git clone git@github.com:tastenwerk/iopagedesigner.git
 
 copy over the /demo folder to a local or remote web server and run it. You will be
 provided with a demo marked up page which does not store but gives you the opportunity
 to play around with WebBits.
 
-2. Install with nodejs:
-
+## Install with nodejs:
+    
     npm install iopagedesigner
 
 # Integration
