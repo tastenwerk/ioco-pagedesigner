@@ -83,7 +83,7 @@ video {
   width: 16px;
   height: 16px;
   display: inline-block;
-  background-image: url("/images/icons/iokit-icons16x16.png");
+  background-image: url("/images/icons/ioco-icons16x16.png");
 }
 .icn.icn-plus {
   background-position: 0 0;
@@ -265,13 +265,13 @@ video {
   background-position: -32px -96px;
 }
 .icn.white {
-  background-image: url("/images/icons/iokit-icons16x16w.png");
+  background-image: url("/images/icons/ioco-icons16x16w.png");
 }
 .icn32 {
   width: 32px;
   height: 32px;
   display: inline-block;
-  background-image: url("/images/icons/iokit-icons32x32.png");
+  background-image: url("/images/icons/ioco-icons32x32.png");
 }
 .icn32.icn-trash {
   background-position: -96px -64px;
@@ -310,7 +310,7 @@ ul.dropdown-menu.right-hand {
   color: #555;
   display: block;
   padding: 6px 25px;
-  cursor: poiokit;
+  cursor: poioco;
   text-decoration: none;
   font-weight: 300;
   font-size: 12px;
@@ -591,7 +591,7 @@ ul.dropdown-menu.right-hand {
   background-repeat: repeat-x;
   border: 1px solid #dcdcdc;
   color: #333;
-  cursor: poiokit;
+  cursor: poioco;
   font-weight: bold;
   padding: 4px 12px;
   text-shadow: -1px 1px 0 #fff;
@@ -889,7 +889,7 @@ h1 {
   font-size: 24px;
   line-height: 28px;
 }
-#iokit-top-panel {
+#ioco-top-panel {
   position: absolute;
   top: 0;
   left: 0;
@@ -898,24 +898,24 @@ h1 {
   background-color: #333;
   padding: 5px;
 }
-#iokit-top-panel #logo {
+#ioco-top-panel #logo {
   float: left;
   margin-left: 23px;
 }
-#iokit-top-panel #logo img {
+#ioco-top-panel #logo img {
   width: 40px;
   height: 40px;
 }
-#iokit-top-panel .dashboard {
+#ioco-top-panel .dashboard {
   cursor: pointer;
 }
-#iokit-top-panel #logo-text {
+#ioco-top-panel #logo-text {
   font-size: 23px;
   color: #ccc;
   margin: 5px 0 0 8px;
   float: left;
 }
-#iokit-top-panel #useractions {
+#ioco-top-panel #useractions {
   position: absolute;
   top: 15px;
   right: 20px;
@@ -925,19 +925,19 @@ h1 {
   font-size: 12px;
   color: #fff;
 }
-#iokit-top-panel #useractions a {
+#ioco-top-panel #useractions a {
   color: #fff;
   text-decoration: none;
   opacity: 0.7;
 }
-#iokit-top-panel #useractions a.site-title {
+#ioco-top-panel #useractions a.site-title {
   color: #aaa;
   font-size: 10px;
 }
-#iokit-top-panel #useractions a:hover {
+#ioco-top-panel #useractions a:hover {
   opacity: 1;
 }
-#iokit-top-panel #click-here-for-advanced {
+#ioco-top-panel #click-here-for-advanced {
   text-align: center;
   font-size: 12px;
   color: rgba(255,255,255,0.5);
@@ -945,10 +945,10 @@ h1 {
   opacity: 0.4;
   cursor: pointer;
 }
-#iokit-top-panel #click-here-for-advanced .adv-close {
+#ioco-top-panel #click-here-for-advanced .adv-close {
   display: none;
 }
-#iokit-top-panel:hover #click-here-for-advanced {
+#ioco-top-panel:hover #click-here-for-advanced {
   opacity: 1;
 }
 #search-container #search-form {
@@ -1021,30 +1021,30 @@ h1 {
   top: 12px;
   right: 14px;
 }
-#iokit-search-results {
+#ioco-search-results {
   list-style: none;
   margin: 0;
 }
-#iokit-search-results li {
+#ioco-search-results li {
   margin: 5px 0;
   padding: 5px;
   border-bottom: 1px solid #ddd;
 }
-#iokit-search-results li .title {
+#ioco-search-results li .title {
   margin: 0;
 }
-#iokit-search-results li .updated-date {
+#ioco-search-results li .updated-date {
   font-size: 12px;
   color: #555;
   margin-top: 4px;
 }
-#iokit-search-results li .icn {
+#ioco-search-results li .icn {
   margin: 3px 5px 0 0;
 }
-#iokit-search-results li:last-child {
+#ioco-search-results li:last-child {
   border: none;
 }
-#iokit-main-panel {
+#ioco-main-panel {
   position: absolute;
   top: 50px;
   left: 0;
@@ -1052,7 +1052,7 @@ h1 {
   bottom: 0;
   background-color: #333;
 }
-#iokit-dashboard {
+#ioco-dashboard {
   position: absolute;
   top: 0;
   left: 0;
@@ -1064,11 +1064,11 @@ h1 {
   right: 10px;
   color: #ccc;
 }
-#iokit-dashboard h1.title {
+#ioco-dashboard h1.title {
   font-size: 32px;
   font-weight: 100;
 }
-#iokit-main-content {
+#ioco-main-content {
   position: absolute;
   top: 10px;
   left: 75px;
@@ -1076,23 +1076,23 @@ h1 {
   bottom: 10px;
   background-color: #f8f8f8;
 }
-#iokit-main-content h1.title {
+#ioco-main-content h1.title {
   font-size: 32px;
   color: #777;
   font-weight: 100;
 }
-#iokit-main-content .main-control,
-#iokit-main-content .main-control-r {
+#ioco-main-content .main-control,
+#ioco-main-content .main-control-r {
   position: absolute;
   top: 12px;
   right: 10px;
 }
-#iokit-main-content .main-control-l {
+#ioco-main-content .main-control-l {
   position: absolute;
   top: 12px;
   left: 10px;
 }
-#iokit-main-content .iokit-sidebar {
+#ioco-main-content .ioco-sidebar {
   position: absolute;
   top: 0;
   left: 0;
@@ -1100,14 +1100,14 @@ h1 {
   width: 250px;
   background: #eaeaea;
 }
-#iokit-main-content .iokit-sidebar .title {
+#ioco-main-content .ioco-sidebar .title {
   font-weight: 100;
   font-size: 16px;
   margin: 5px 10px;
   padding: 0 5px;
   border-bottom: 1px solid #ccc;
 }
-#iokit-main-content .iokit-content {
+#ioco-main-content .ioco-content {
   position: absolute;
   top: 0;
   left: 250px;
@@ -1116,10 +1116,10 @@ h1 {
   border-left: 1px solid #ccc;
   padding: 10px;
 }
-#iokit-main-content .iokit-content h1 {
+#ioco-main-content .ioco-content h1 {
   font-weight: 100;
 }
-#iokit-main-content .iokit-content .click-for-details {
+#ioco-main-content .ioco-content .click-for-details {
   position: absolute;
   top: 0;
   left: 0;
@@ -1133,89 +1133,89 @@ h1 {
   font-size: 14px;
   color: #999;
 }
-#iokit-account-info {
+#ioco-account-info {
   position: absolute;
   top: 10px;
   left: 0;
 }
-#iokit-account-info .userpic,
-#iokit-account-info .userpic img {
+#ioco-account-info .userpic,
+#ioco-account-info .userpic img {
   width: 96px;
   height: 96px;
   border: none;
 }
-#iokit-account-info .userpic img {
+#ioco-account-info .userpic img {
   filter: #808080;
   filter: url("/images/ff-greyscale-filter.svg#grayscale");
   -webkit-filter: grayscale(1);
   -o-filter: grayscale(100%);
 }
-#iokit-account-info .user-actions {
+#ioco-account-info .user-actions {
   background-color: #222;
   border-bottom: 1px solid #000;
   margin-top: -5px;
   height: 24px;
   width: 100%;
 }
-#iokit-account-info .user-actions a {
+#ioco-account-info .user-actions a {
   float: left;
   margin: 2px 0;
   opacity: 0.3;
   padding: 0 10px;
 }
-#iokit-account-info .user-actions a.edit {
+#ioco-account-info .user-actions a.edit {
   border-right: 1px solid #555;
 }
-#iokit-account-info .user-actions a:hover {
+#ioco-account-info .user-actions a:hover {
   opacity: 1;
 }
-ul#iokit-menubar {
+ul#ioco-menubar {
   position: absolute;
   top: 150px;
   left: 0;
   bottom: 10px;
   list-style: none;
 }
-ul#iokit-menubar li {
+ul#ioco-menubar li {
   margin: 0;
   height: 25px;
   padding: 2px 5px 2px 24px;
   min-width: 68px;
 }
-ul#iokit-menubar li img.icon {
+ul#ioco-menubar li img.icon {
   background-size: 24px;
   width: 24px;
   height: 24px;
   opacity: 0.7;
 }
-ul#iokit-menubar li .desc {
+ul#ioco-menubar li .desc {
   color: #fff;
   opacity: 0.3;
   font-size: 14px;
   margin: 2px 0 0 10px;
 }
-ul#iokit-menubar li.active {
+ul#ioco-menubar li.active {
   background-color: #111;
 }
-ul#iokit-menubar li.active img.icon {
+ul#ioco-menubar li.active img.icon {
   opacity: 0.8;
 }
-ul#iokit-menubar li:hover img.icon {
+ul#ioco-menubar li:hover img.icon {
   opacity: 1;
 }
-ul#iokit-menubar li:hover .desc {
+ul#ioco-menubar li:hover .desc {
   opacity: 0.8;
 }
-ul#iokit-menubar li .loader {
+ul#ioco-menubar li .loader {
   width: 16px;
   height: 16px;
   margin: 4px 0 0 0;
 }
-ul#iokit-menubar li .loader .circle {
+ul#ioco-menubar li .loader .circle {
   width: 16px;
   height: 16px;
 }
-ul#iokit-menubar li .loader .circle:after {
+ul#ioco-menubar li .loader .circle:after {
   width: 3px;
   height: 3px;
 }
@@ -1254,7 +1254,7 @@ ul#iokit-menubar li .loader .circle:after {
   -o-transition: width 0.6s ease;
   transition: width 0.6s ease;
 }
-#iokit-modal {
+#ioco-modal {
   position: absolute;
   top: 0;
   left: 0;
@@ -1268,26 +1268,26 @@ ul#iokit-menubar li .loader .circle:after {
   margin: auto;
   z-index: 1000;
 }
-#iokit-modal .modal-win-ctrl {
+#ioco-modal .modal-win-ctrl {
   position: absolute;
   top: 9px;
   padding: 0;
   opacity: 0.5;
 }
-#iokit-modal .modal-win-ctrl:hover {
+#ioco-modal .modal-win-ctrl:hover {
   opacity: 1;
 }
-#iokit-modal .close-icn {
+#ioco-modal .close-icn {
   top: 5px;
   font-size: 20px;
 }
-#iokit-modal .modal-title {
+#ioco-modal .modal-title {
   position: absolute;
   top: 10px;
   left: 10px;
   font-weight: 900;
 }
-#iokit-modal .modal-inner-wrapper {
+#ioco-modal .modal-inner-wrapper {
   position: absolute;
   top: 0;
   left: 0;
@@ -1297,7 +1297,7 @@ ul#iokit-menubar li .loader .circle:after {
   overflow: auto;
   border-top: 1px solid #ddd;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav {
   position: absolute;
   top: 0;
   left: 0;
@@ -1309,22 +1309,22 @@ ul#iokit-menubar li .loader .circle:after {
   list-style: none;
   padding: 20px 0;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav li {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav li {
   padding: 5px;
   font-weight: 300;
   cursor: pointer;
   border-left: 5px solid transparent;
   font-size: 0.9em;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav li:hover {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav li:hover {
   background-color: #eaeaea;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav li.active {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .sidebar-nav li.active {
   border-color: #d44a26;
   font-weight: 900;
   color: #d44a26;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .sidebar-content {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .sidebar-content {
   position: absolute;
   top: 0;
   left: 0;
@@ -1333,13 +1333,13 @@ ul#iokit-menubar li .loader .circle:after {
   left: 160px;
   overflow: auto;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .sidebar-content >div {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .sidebar-content >div {
   display: none;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .offset-details-view {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .offset-details-view {
   margin-right: 220px;
 }
-#iokit-modal .modal-inner-wrapper .modal-sidebar .modal-details-view {
+#ioco-modal .modal-inner-wrapper .modal-sidebar .modal-details-view {
   width: 240px;
   position: absolute;
   top: 0;
@@ -1347,7 +1347,7 @@ ul#iokit-menubar li .loader .circle:after {
   bottom: 0;
   border-left: 1px solid #ddd;
 }
-#iokit-modal.arrange-left {
+#ioco-modal.arrange-left {
   margin: 0;
   left: 0;
   bottom: 0;
@@ -1363,25 +1363,25 @@ ul#iokit-menubar li .loader .circle:after {
   -ms-transition-duration: 0.3s;
   transition-duration: 0.3s;
 }
-#iokit-modal.arrange-left .sidebar-nav {
+#ioco-modal.arrange-left .sidebar-nav {
   display: none;
 }
-#iokit-modal.arrange-left .modal-details-view {
+#ioco-modal.arrange-left .modal-details-view {
   display: none;
 }
-#iokit-modal.arrange-left .modal-sidebar .sidebar-content {
+#ioco-modal.arrange-left .modal-sidebar .sidebar-content {
   left: 0;
 }
-#iokit-modal.arrange-left .modal-sidebar .offset-details-view {
+#ioco-modal.arrange-left .modal-sidebar .offset-details-view {
   margin-right: 0;
 }
-#iokit-modal.arrange-left .modal-title {
+#ioco-modal.arrange-left .modal-title {
   display: none;
 }
-#iokit-modal.arrange-left .web-files-control div {
+#ioco-modal.arrange-left .web-files-control div {
   display: none;
 }
-#iokit-modal.arrange-left .selected-counter {
+#ioco-modal.arrange-left .selected-counter {
   display: none;
 }
 .side-tabs .side-tabs-nav {
@@ -1430,7 +1430,7 @@ ul#iokit-menubar li .loader .circle:after {
 .side-tabs .side-tabs-content >div {
   display: none;
 }
-#iokit-modal-overlay {
+#ioco-modal-overlay {
   position: absolute;
   top: 0;
   left: 0;
@@ -1543,7 +1543,7 @@ input[type=password]:hover {
   outline: medium none;
   transition: none 0s ease 0s;
 }
-.iokit-docklet {
+.ioco-docklet {
   width: 200px;
   height: 200px;
   position: relative;
@@ -1552,7 +1552,7 @@ input[type=password]:hover {
   color: #fff;
   padding: 20px;
 }
-.iokit-docklet .loader {
+.ioco-docklet .loader {
   position: absolute;
   top: 0;
   left: 0;
@@ -1561,16 +1561,16 @@ input[type=password]:hover {
   height: 40px;
   color: #fff;
 }
-.iokit-docklet h1.messages-count {
+.ioco-docklet h1.messages-count {
   font-size: 40px;
   font-weight: 100;
   margin-bottom: 5px;
 }
-.iokit-docklet h2.messages-text {
+.ioco-docklet h2.messages-text {
   font-size: 14px;
   font-weight: 100;
 }
-.iokit-docklet .action-btn {
+.ioco-docklet .action-btn {
   position: absolute;
   top: 8px;
   right: 40px;
@@ -1579,10 +1579,10 @@ input[type=password]:hover {
   font-size: 12px;
   cursor: pointer;
 }
-.iokit-docklet .action-btn:hover {
+.ioco-docklet .action-btn:hover {
   color: #555;
 }
-.iokit-docklet .close-icn {
+.ioco-docklet .close-icn {
   top: 8px;
   padding: 2px 8px;
 }
@@ -1598,38 +1598,38 @@ input[type=password]:hover {
 .close-icn:hover {
   color: #555;
 }
-.iokit-vertical-tabs .tab-container {
+.ioco-vertical-tabs .tab-container {
   top: 100px;
   margin-left: 0;
 }
-.iokit-vertical-tabs .tab-container .tab {
+.ioco-vertical-tabs .tab-container .tab {
   height: 20px;
   font-size: 16px;
   font-family: 'SegoeUI', sans-serif;
   background-color: #ddd;
   padding: 10px 20px 15px;
 }
-.iokit-vertical-tabs .tab-container .tab:hover {
+.ioco-vertical-tabs .tab-container .tab:hover {
   background-color: #444;
   color: #fff;
 }
-.iokit-vertical-tabs .tab-content-container {
+.ioco-vertical-tabs .tab-content-container {
   top: 100px;
 }
-.iokit-tree.outer-decoration {
+.ioco-tree.outer-decoration {
   margin: 5px;
 }
-.iokit-tree li {
+.ioco-tree li {
   margin: 0 0 5px 2px;
 }
-.iokit-tree li a {
+.ioco-tree li a {
   text-decoration: none;
   color: #333;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.iokit-tree > ul {
+.ioco-tree > ul {
   list-style: none;
   position: absolute;
   top: 70px;
@@ -1639,15 +1639,15 @@ input[type=password]:hover {
   padding-bottom: 10px;
   overflow: auto;
 }
-.iokit-tree > ul ul {
+.ioco-tree > ul ul {
   list-style: none;
   margin: 5px 0 0 10px;
 }
-.iokit-tree .placeholder {
+.ioco-tree .placeholder {
   outline: 1px dashed #d44a26;
   border-radius: 1px;
 }
-.iokit-tree .tree-item {
+.ioco-tree .tree-item {
   background-color: #f3f3f3;
   background-image: -moz-linear-gradient(center top, #f3f3f3, #efefef);
   background-image: -webkit-gradient(linear, left top, left bottom, from(#f3f3f3), to(#efefef));
@@ -1670,28 +1670,28 @@ input[type=password]:hover {
   position: relative;
   overflow: hidden;
 }
-.iokit-tree .tree-item:hover {
+.ioco-tree .tree-item:hover {
   box-shadow: -1px 1px 2px rgba(0,0,0,0.3);
 }
-.iokit-tree .tree-item:hover .tree-trigger {
+.ioco-tree .tree-item:hover .tree-trigger {
   opacity: 1;
 }
-.iokit-tree .tree-item .title {
+.ioco-tree .tree-item .title {
   font-size: 14px;
 }
-.iokit-tree .tree-item a.show-details-arr {
+.ioco-tree .tree-item a.show-details-arr {
   padding-left: 3px;
   border-left: 1px solid rgba(0,0,0,0.1);
   line-height: 22px;
   margin: -3px 5px 0 8px;
   cursor: pointer;
 }
-.iokit-tree .tree-item a.show-details-arr .icn {
+.ioco-tree .tree-item a.show-details-arr .icn {
   margin-top: 2px;
   float: right;
   opacity: 0.3;
 }
-.iokit-tree .tree-item.selected {
+.ioco-tree .tree-item.selected {
   box-shadow: -1px 1px 2px rgba(0,0,0,0.3) inset;
   background-color: #118be7;
   background-image: -moz-linear-gradient(center top, #118be7, #007ad6);
@@ -1699,16 +1699,16 @@ input[type=password]:hover {
   background-repeat: repeat-x;
   color: #fff;
 }
-.iokit-tree .tree-item.selected a {
+.ioco-tree .tree-item.selected a {
   color: #fff;
 }
-.iokit-tree .tree-item.selected .children-caret {
+.ioco-tree .tree-item.selected .children-caret {
   border-color: transparent transparent transparent rgba(255,255,255,0.5);
 }
-.iokit-tree .tree-item.selected .show-options-trigger .caret {
+.ioco-tree .tree-item.selected .show-options-trigger .caret {
   border-color: rgba(255,255,255,0.5) transparent transparent transparent;
 }
-.iokit-tree .tree-item.show-options {
+.ioco-tree .tree-item.show-options {
   -webkit-transition-property: all;
   -moz-transition-property: all;
   -o-transition-property: all;
@@ -1721,27 +1721,27 @@ input[type=password]:hover {
   transition-duration: 0.3s;
   height: 45px;
 }
-.iokit-tree .tree-item .published-status {
+.ioco-tree .tree-item .published-status {
   opacity: 0.3;
   margin-right: 25px;
 }
-.iokit-tree .tree-item .published-status.unlocked {
+.ioco-tree .tree-item .published-status.unlocked {
   opacity: 0;
 }
-.iokit-tree .tree-item .tree-trigger {
+.ioco-tree .tree-item .tree-trigger {
   cursor: pointer;
 }
-.iokit-tree .tree-item .tree-trigger {
+.ioco-tree .tree-item .tree-trigger {
   opacity: 0;
 }
-.iokit-tree .tree-item .show-options-trigger {
+.ioco-tree .tree-item .show-options-trigger {
   top: 5px;
   right: 5px;
   position: absolute;
   width: 30px;
   height: 30px;
 }
-.iokit-tree .tree-item .show-options-trigger .caret {
+.ioco-tree .tree-item .show-options-trigger .caret {
   border-color: rgba(0,0,0,0.5) transparent transparent transparent;
   border-style: solid;
   border-width: 5px;
@@ -1751,11 +1751,11 @@ input[type=password]:hover {
   top: 11px;
   right: 8px;
 }
-.iokit-tree .tree-item .tree-item-control {
+.ioco-tree .tree-item .tree-item-control {
   margin-top: 12px;
   text-align: right;
 }
-.iokit-tree .tree-item .tree-item-control .btn {
+.ioco-tree .tree-item .tree-item-control .btn {
   padding: 6px 2px 0;
   margin-right: 2px;
   border: none;
@@ -1763,10 +1763,10 @@ input[type=password]:hover {
   box-shadow: none;
   opacity: 0.5;
 }
-.iokit-tree .tree-item .tree-item-control .btn:hover {
+.ioco-tree .tree-item .tree-item-control .btn:hover {
   opacity: 1;
 }
-.iokit-tree .tree-item .children-caret {
+.ioco-tree .tree-item .children-caret {
   border-color: transparent transparent transparent rgba(0,0,0,0.5);
   border-style: solid;
   border-width: 5px;
@@ -1775,7 +1775,7 @@ input[type=password]:hover {
   float: left;
   margin: 4px;
 }
-.iokit-tree .tree-item .children-caret.open {
+.ioco-tree .tree-item .children-caret.open {
   transform: rotate(45deg);
   -webkit-transition-property: all;
   -moz-transition-property: all;
@@ -1788,29 +1788,29 @@ input[type=password]:hover {
   -ms-transition-duration: 0.5;
   transition-duration: 0.5;
 }
-.iokit-tree .tree-item .children-caret.loading {
+.ioco-tree .tree-item .children-caret.loading {
   animation-iteration-count: infinite;
   animation-name: orbit;
   animation-duration: 2s;
 }
-.iokit-tree .tree-controls {
+.ioco-tree .tree-controls {
   height: 16px;
   padding: 0 5px;
 }
-.iokit-tree .tree-controls .btn {
+.ioco-tree .tree-controls .btn {
   background: none;
   box-shadow: none;
   border: none;
   opacity: 0.8;
   float: left;
 }
-.iokit-tree .tree-controls .btn:hover {
+.ioco-tree .tree-controls .btn:hover {
   opacity: 1;
 }
-.iokit-tree .tree-controls .enableable {
+.ioco-tree .tree-controls .enableable {
   opacity: 0.2;
 }
-.iokit-tree .tree-controls .enableable.enabled {
+.ioco-tree .tree-controls .enableable.enabled {
   opacity: 0.8;
 }
 .second-sidebar {
@@ -1820,7 +1820,7 @@ input[type=password]:hover {
   left: 10px;
   bottom: 10px;
 }
-.second-sidebar .iokit-tree-list {
+.second-sidebar .ioco-tree-list {
   overflow: auto;
   position: absolute;
   bottom: 0;
@@ -2018,23 +2018,23 @@ input[type=password]:hover {
   color: #000;
   opacity: 0.7;
 }
-.iokit-controls,
-.iokit-editor-controls {
+.ioco-controls,
+.ioco-editor-controls {
   height: 25px;
   margin: 5px 10px 0 0;
 }
-.iokit-controls .btn,
-.iokit-editor-controls .btn {
+.ioco-controls .btn,
+.ioco-editor-controls .btn {
   background: none;
   box-shadow: none;
   border: none;
   opacity: 0.5;
 }
-.iokit-controls .btn:hover,
-.iokit-editor-controls .btn:hover {
+.ioco-controls .btn:hover,
+.ioco-editor-controls .btn:hover {
   opacity: 1;
 }
-.iokit-editor-content {
+.ioco-editor-content {
   margin: 5px;
   padding: 5px;
   overflow: auto;
@@ -2089,18 +2089,18 @@ input[type=password]:hover {
   padding: 7px 0 12px;
   cursor: pointer;
 }
-.iokit-form label {
+.ioco-form label {
   font-weight: 100;
   font-size: 14px;
   color: #555;
 }
-.iokit-form input[type=text] {
+.ioco-form input[type=text] {
   width: 100%;
 }
-.iokit-form table td {
+.ioco-form table td {
   padding-right: 10px;
 }
-.iokit-form table td:last-child {
+.ioco-form table td:last-child {
   padding: 0;
 }
 /* ------------------------------------------------ tipys */

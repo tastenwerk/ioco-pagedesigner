@@ -18,37 +18,37 @@
   * after modal has been rendered.
   *
   * @example
-  * iokit.modal('close')
+  * ioco.modal('close')
   * closes the modal.
   */
   function modal( html, options ){
 
     function closeModal(){
-      $('.iokit-modal').fadeOut(300);
+      $('.ioco-modal').fadeOut(300);
       setTimeout( function(){
-        $('.iokit-modal').remove();
+        $('.ioco-modal').remove();
       }, 300);
       $(window).off( 'resize', checkModalHeight );
     }
 
     function checkModalHeight(){
-      if( $('#iokit-modal').height() > $(window).height() - 40 )
-        $('#iokit-modal').animate({ height: $(window).height() - 40 }, 200);
+      if( $('#ioco-modal').height() > $(window).height() - 40 )
+        $('#ioco-modal').animate({ height: $(window).height() - 40 }, 200);
       else
-        $('#iokit-modal').animate({ height: $('#iokit-modal').data('origHeight') }, 200);
+        $('#ioco-modal').animate({ height: $('#ioco-modal').data('origHeight') }, 200);
     }
 
     function setupModalActions(){
-      if( $('#iokit-modal .modal-sidebar').length > 0 ){
-        $('#iokit-modal .modal-sidebar > .sidebar-nav li').on('click', function(){
+      if( $('#ioco-modal .modal-sidebar').length > 0 ){
+        $('#ioco-modal .modal-sidebar > .sidebar-nav li').on('click', function(){
           $(this).closest('ul').find('.active').removeClass('active');
-          $('#iokit-modal .sidebar-content > div').hide();
-          $($('#iokit-modal .sidebar-content > div')[$(this).index()]).show();
+          $('#ioco-modal .sidebar-content > div').hide();
+          $($('#ioco-modal .sidebar-content > div')[$(this).index()]).show();
           $(this).addClass('active');
         }).first().click();
       }
       if( options && options.completed && typeof(options.completed) === 'function' )
-        setTimeout(function(){ options.completed( $('#iokit-modal') ); }, 500 );
+        setTimeout(function(){ options.completed( $('#ioco-modal') ); }, 500 );
     }
 
     if( html === 'close' )
@@ -58,49 +58,49 @@
       html = null;
     }
 
-    $('.iokit-modal').remove();
-    $('body').append('<div id="iokit-modal-overlay" class="iokit-modal"/>')
-      .append('<div id="iokit-modal" class="iokit-modal"><div class="modal-inner-wrapper" /></div>');
+    $('.ioco-modal').remove();
+    $('body').append('<div id="ioco-modal-overlay" class="ioco-modal"/>')
+      .append('<div id="ioco-modal" class="ioco-modal"><div class="modal-inner-wrapper" /></div>');
     var closeModalBtn = $('<a class="close-icn">&times;</a>');
-    $('#iokit-modal').prepend(closeModalBtn);
+    $('#ioco-modal').prepend(closeModalBtn);
     if( options.windowControls ){
       var countWinCtrlBtns = 1;
       for( ctrl in options.windowControls ){
         var winCtrlBtn = $('<a winCtrl="'+ctrl+'" class="modal-win-ctrl live-tipsy" href="#" original-title="'+options.windowControls[ctrl].title+'"><span class="icn '+options.windowControls[ctrl].icn+'" /></a>');
         winCtrlBtn.css( { right: 16*(countWinCtrlBtns++)+32 } );
-        $('#iokit-modal').prepend(winCtrlBtn);
+        $('#ioco-modal').prepend(winCtrlBtn);
         winCtrlBtn.on('click', function(e){
           e.preventDefault();
-          options.windowControls[$(this).attr('winCtrl')].callback( $('#iokit-modal') );
+          options.windowControls[$(this).attr('winCtrl')].callback( $('#ioco-modal') );
         })
       }
     }
     closeModalBtn.on('click', closeModal);
-    $('#iokit-modal-overlay').fadeIn(200).on('click', closeModal);
+    $('#ioco-modal-overlay').fadeIn(200).on('click', closeModal);
     if( options && options.title )
-      $('#iokit-modal').prepend('<span class="modal-title">'+options.title+'</span>');
+      $('#ioco-modal').prepend('<span class="modal-title">'+options.title+'</span>');
 
 
     // height configuration
     if( options && options.height && typeof(options.height) === 'number' )
-      $('#iokit-modal').css( 'height', options.height );
-    $('#iokit-modal').data('origHeight', $('#iokit-modal').height());
+      $('#ioco-modal').css( 'height', options.height );
+    $('#ioco-modal').data('origHeight', $('#ioco-modal').height());
 
     checkModalHeight();
     $(window).on( 'resize', checkModalHeight );
 
     if( options.url ){
-      $('#iokit-modal .modal-inner-wrapper').load( options.url, function(){
+      $('#ioco-modal .modal-inner-wrapper').load( options.url, function(){
         if( options && options.before && typeof(options.before) === 'function' )
-          options.before( $('#iokit-modal') );
-        $('#iokit-modal').fadeIn( 200 );
+          options.before( $('#ioco-modal') );
+        $('#ioco-modal').fadeIn( 200 );
         setupModalActions();
       });
     } else {
       html = html || options.data || options.html;
-      $('#iokit-modal .modal-inner-wrapper').html( html ).fadeIn(200);
+      $('#ioco-modal .modal-inner-wrapper').html( html ).fadeIn(200);
       if( options && options.before && typeof(options.before) === 'function' )
-        options.before( $('#iokit-modal') );
+        options.before( $('#ioco-modal') );
       setupModalActions();
     }
 
@@ -114,11 +114,11 @@
     if( typeof(msg) === 'object' ){
       if( msg.error && msg.error instanceof Array && msg.error.length > 0 )
         msg.error.forEach( function( err ){
-          iokit.notify( err, 'error' );
+          ioco.notify( err, 'error' );
         });
       if( msg.notice && msg.notice instanceof Array && msg.notice.length > 0 )
         msg.notice.forEach( function( notice ){
-          iokit.notify( notice );
+          ioco.notify( notice );
         });
       return;
     }
@@ -132,9 +132,9 @@
 
   var root = this; // window of browser
 
-  if( !root.iokit || typeof( root.iokit ) !== 'object' )
-    root.iokit = {};
-  root.iokit.notify = notify;
-  root.iokit.modal = modal;
+  if( !root.ioco || typeof( root.ioco ) !== 'object' )
+    root.ioco = {};
+  root.ioco.notify = notify;
+  root.ioco.modal = modal;
 
 })();

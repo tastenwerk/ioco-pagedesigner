@@ -4,7 +4,7 @@
 
   var emptyContainer = {
     name: 'empty-container',
-    iconClass: 'icn-plain' // use an icon from iokit-sprites
+    iconClass: 'icn-plain' // use an icon from ioco-sprites
   };
 
   // expose emptyContainer to the global namespace
@@ -14,9 +14,9 @@
     // nodejs
     module.exports = emptyContainer;
   } else {
-    if( !root.iokit.pageDesigner )
-      throw new Error('iokit.pageDesigner is not defined. Load this plugin AFTER iokit.pageDesigner has been loaded!')
-    root.iokit.pageDesigner.addPlugin( emptyContainer );
+    if( !root.ioco.pageDesigner )
+      throw new Error('ioco.pageDesigner is not defined. Load this plugin AFTER ioco.pageDesigner has been loaded!')
+    root.ioco.pageDesigner.addPlugin( emptyContainer );
   }
 
 })();

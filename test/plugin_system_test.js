@@ -1,8 +1,8 @@
 var should = require('should')
 
-var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer');
+var pageDesigner = require(__dirname+'/../public/javascripts/ioco.page-designer');
 
-describe('iokit.pageDesigner', function(){
+describe('ioco.pageDesigner', function(){
 
   describe('plugin eco system', function(){
 

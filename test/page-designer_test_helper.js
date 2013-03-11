@@ -1,6 +1,6 @@
 var fs = require('fs');
 
-var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer')
+var pageDesigner = require(__dirname+'/../public/javascripts/ioco.page-designer')
   , WebBit = pageDesigner.WebBit
   , WebPage = pageDesigner.WebPage;
 
@@ -11,9 +11,9 @@ module.exports = exports = {
   load: function( type, id, done ){
 
     if( !pageDesigner.getPluginByName('empty-container') )
-      pageDesigner.addPlugin( require(__dirname+'/../public/javascripts/iokit/pageDesigner/plugins/empty-container') );
+      pageDesigner.addPlugin( require(__dirname+'/../public/javascripts/ioco/pageDesigner/plugins/empty-container') );
     
-    var route = type === 'WebBit' ? 'web_bits' : 'web_pages';
+    var route = type === 'WebBit' ? 'webbits' : 'webpages';
     var self = this;
 
     fs.readFile( __dirname+dummyPath+route+'/'+id+'.json', function( err, jsonStr ){
@@ -40,7 +40,7 @@ module.exports = exports = {
       options = {};
     }
     var self = this; // WebBit
-    var url = __dirname+dummyPath+'web_bits'+'/'+id+'.json';
+    var url = __dirname+dummyPath+'webbits'+'/'+id+'.json';
     fs.readFile( url, function( err, jsonStr ){
       callback( null, new self( JSON.parse(jsonStr), options.lang, options.fallbackLang ) );
     });
@@ -52,7 +52,7 @@ module.exports = exports = {
       options = {};
     }
     var self = this; // WebPage
-    var url = __dirname+dummyPath+'web_pages'+'/'+id+'.json';
+    var url = __dirname+dummyPath+'webpages'+'/'+id+'.json';
     fs.readFile( url, function( err, jsonStr ){
       callback( null, new self( JSON.parse(jsonStr), options.lang, options.fallbackLang ) );
     });

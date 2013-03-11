@@ -1,5 +1,5 @@
 /**
- * ioPageDesigner
+ * iocoPageDesigner
  * extensive page designer
  *
  * (c) TASTENWERK 2013
@@ -21,9 +21,9 @@
    *
    */
   pageDesigner.options = {
-    webBitUrl: '/web_bits',
+    webBitUrl: '/webbits',
     webBitUrlData: null,
-    webPageUrl: '/web_pages',
+    webPageUrl: '/webpages',
     webPageUrlData: null,
     fallbackLang: 'en',
     translate: function( val ){ return val; },
@@ -101,6 +101,10 @@
     }
   }
 
+  pageDesigner.genUUID = function pdGenUUID(){
+    return new Date().getTime().toString(36);
+  }
+
   /**
    * observe a given property
    */
@@ -168,6 +172,8 @@
       if( i === 'content' )
         this.setLang( options.lang || this.fallbackLang, { fallbackLang: this.fallbackLang } );
     }
+
+    this.properties = this.properties || {};
 
   };
 
@@ -266,13 +272,13 @@
    * initialized SubWebBits removed. This leaves e.g. one
    * single WebBit inside this WebBit form:
    *
-   *     <div class="iokit-web-bit" data-id="<webBitId>">
+   *     <div class="ioco-web-bit" data-id="<webBitId>">
    *       content of web bit here
    *     </div>
    *
    * into:
    *
-   *     <div class="iokit-web-bit" data-id="<webBitId>"></div>
+   *     <div class="ioco-web-bit" data-id="<webBitId>"></div>
    *
    * and writes it to the content property
    *
@@ -316,7 +322,7 @@
         pageDesigner.$(this).replaceWith( tmpWebBits[id].render( $(this) ) );
       else
         this.html('ERROR: WebBit ' + this.attr('data-web-bit-name') + ' not found');
-      pageDesigner.$(this).addClass('iokit-web-bit');
+      pageDesigner.$(this).addClass('ioco-web-bit');
     });
 
     if( isNode )
@@ -344,10 +350,14 @@
     if( overwriteClasses.length < 1 )
       $box.addClass( this.properties.cssClasses );
 
-    $box.prepend( pageDesigner.client.utils.renderBoxControls( plugin ) )
+    if( this.root )
+      $box.addClass('root')
+    else
+      $box.prepend( pageDesigner.client.utils.renderBoxControls( plugin ) )
+    $box
       .attr('data-web-bit-id',this._id)
       .attr('data-web-bit-name',this.name)
-      .addClass('iokit-web-bit')
+      .addClass('ioco-web-bit')
       .data('webBit', this)
       .data('plugin', pageDesigner.getPluginByName( this.pluginName ));
 
@@ -377,7 +387,7 @@
         $box.removeClass('hovered');
       })
       .on('click', function(e){
-        $pageDesigner = $(this).closest('.iokit-page-designer')
+        $pageDesigner = $(this).closest('.ioco-page-designer')
         if( $(e.target).hasClass('box-controls') || $(e.target).closest('.box-controls').length )
           return;
         e.stopPropagation();
@@ -398,29 +408,29 @@
         opacity: 0.3,
         cursor: 'move',
         revert: function( validDrop ){
-          $('.iokit-page-designer-drop-desc').fadeOut( 300, function(){ $(this).remove() });
+          $('.ioco-page-designer-drop-desc').fadeOut( 300, function(){ $(this).remove() });
           if( validDrop )
             return false;
-          $(document).find('.iokit-web-bit').removeClass('highlight').removeClass('highlight-left');
+          $(document).find('.ioco-web-bit').removeClass('highlight').removeClass('highlight-left');
           return true;
         },
         drag: pageDesigner.client.utils.decorateDraggedBox
       })
       .droppable({
-        accept: '.design-btn,.iokit-web-bit-from-library,.iokit-web-bit',
+        accept: '.design-btn,.ioco-web-bit-from-library,.ioco-web-bit',
         tolerance: 'pointer',
         greedy: true,
         over: function( e, ui ){
           ui.draggable.data("current-droppable", $(this));
           console.log('entering', $(this), ui.draggable);
-          $('.iokit-page-designer-drop-desc').remove();
-          $('body').append($('<div/>').addClass('iokit-page-designer-drop-desc')
+          $('.ioco-page-designer-drop-desc').remove();
+          $('body').append($('<div/>').addClass('ioco-page-designer-drop-desc')
                                 .attr('data-web-bit-id', $box.data('webBit').id)
                                 .text($box.data('webBit').name));
         },
         out: function( e, ui ){
           $(this).removeClass('highlight').removeClass('highlight-left');
-          $('.iokit-page-designer-drop-desc[data-web-bit-id='+$box.data('webBit').id+']').fadeOut( 300, function(){ $(this).remove() });
+          $('.ioco-page-designer-drop-desc[data-web-bit-id='+$box.data('webBit').id+']').fadeOut( 300, function(){ $(this).remove() });
         },
         drop: pageDesigner.client.utils.droppedBox
       });
@@ -544,8 +554,13 @@
         } else
           callback( err, self ); 
       });
-    else
-      throw new Error( 'no rootWebBit found' );
+    else{
+      this.rootWebBit = new pageDesigner.WebBit({_id: pageDesigner.genUUID(),
+                                              name: 'root web bit', 
+                                              root: true, 
+                                              pluginName: 'empty-container'});
+      callback( null, self );
+    }
   };
 
   /**
@@ -636,14 +651,14 @@
    * pageDesigner.client
    *
    * object holding jQuery plugin to build
-   * $(selector).ioPageDesigner( options );
+   * $(selector).iocoPageDesigner( options );
    *
    * and its private subfunctions
    */
   pageDesigner.client = {};
 
   /**
-   * $.fn.ioPageDesigner( options )
+   * $.fn.iocoPageDesigner( options )
    *
    * initializes a given jQuery dom object as a page designer
    * object.
@@ -652,13 +667,13 @@
    * documentation on http://github.com/tastenwerk/iopagedesigner/wiki
    * for usage
    */
-  pageDesigner.client.jQueryPlugin = function ioPageDesignerJQueryPlugin( options ){
+  pageDesigner.client.jQueryPlugin = function iocoPageDesignerJQueryPlugin( options ){
 
     var $this = this;
 
     if( $this.attr('data-io-page-designer-initialized') )
       return false;
-    $this.attr('data-io-page-designer-initialized', true).addClass('iokit-page-designer');
+    $this.attr('data-io-page-designer-initialized', true).addClass('ioco-page-designer');
 
     this.options = options;
     this.utils = pageDesigner.client.utils;
@@ -669,7 +684,7 @@
       pageDesigner.options[i] = options[i];
 
     $this.data('activeBoxId', null);
-    this.$pageContent = $('<div/>').addClass('iokit-page-content').append( $this.html() );
+    this.$pageContent = $('<div/>').addClass('ioco-page-content').append( $this.html() );
 
     this.utils.renderToolbar.call( this );
 
@@ -691,7 +706,7 @@
             options.notify( 'error', err );
         });
       else if( typeof( this.options.webPage ) === 'object' )
-        webPage.initialize( function( err, webPage ){
+        options.webPage.initialize( function( err, webPage ){
           options.webPage = webPage
           $this.$pageContent.append( webPage.render() );
         });
@@ -709,8 +724,8 @@
    * defaults
    */
   pageDesigner.client.utils.defaults = {
-    webBitUrl: '/web_bits',
-    webPageUrl: '/web_pages',
+    webBitUrl: '/webbits',
+    webPageUrl: '/webpages',
     /**
      * could be replaced with i18n-tools like
      * $.i18n.t
@@ -719,15 +734,15 @@
     /**
      * notification function
      *
-     * default: iokit.notify
+     * default: ioco.notify
      */
-    notify: typeof(iokit) === 'object' && iokit.notify || null
+    notify: typeof(ioco) === 'object' && ioco.notify || null
   };
 
   /**
    * toolbar
    *
-   * renders ioPageDesigner toolbar
+   * renders iocoPageDesigner toolbar
    *
    * @public false
    *
@@ -736,7 +751,7 @@
    */
   pageDesigner.client.utils.renderToolbar = function renderPageDesignerToolbar(){
     
-    this.$toolbar = $('<div/>').addClass('iokit-page-designer-toolbar')
+    this.$toolbar = $('<div/>').addClass('ioco-page-designer-toolbar')
       .attr('draggable', true)
       .append(
         $('<div/>').addClass('switch-btns')
@@ -746,7 +761,7 @@
           .append($('<a/>').attr('href', '#page-designer-tools').text('Tools'))
       )
       .append(
-        $('<div/>').addClass('iokit-logo draggable-handle')
+        $('<div/>').addClass('ioco-logo draggable-handle')
       )
       .append( this.utils.renderPluginsContainer.call( this ) )
       .append( this.utils.renderFormatContainer.call( this ) )
@@ -787,7 +802,7 @@
         .append($('<p class="desc">').text( pageDesigner.t('Drag and drop items into workspace') ) )
         .append($('<div class="overflow-area"/>').data('subtract-from-height', 103));
 
-    $.getJSON( (pageDesigner.options.webBitUrl || '/web_bits') + '/library.json', function(json){
+    $.getJSON( (pageDesigner.options.webBitUrl || '/webbits') + '/library.json', function(json){
       if( json ){
 
         // sort the array by category
@@ -808,13 +823,13 @@
             curCategory = webBit.category;
           }
           var li = $('<li/>')
-              .addClass('iokit-web-bit-from-library').attr('data-id', webBit._id)
+              .addClass('ioco-web-bit-from-library').attr('data-id', webBit._id)
               .text(webBit.name)
               .data('plugin', pageDesigner.getPluginByName(webBit.pluginName))
               .data('webBit', webBit)
               .draggable({
                 cursor: "move",
-                appendTo: '.iokit-page-content',
+                appendTo: '.ioco-page-content',
                 cursorAt: { top: -5, left: -5 },
                 helper: function( e ) {
                   return $('<div/>').addClass('tool-helper').text(pageDesigner.t($(this).data('webBit').name));
@@ -867,10 +882,10 @@
   pageDesigner.client.utils.applyPluginActions = function applyPluginActions( $pluginBtn, plugin ){
     return $pluginBtn.draggable({
       cursor: "move",
-      appendTo: '.iokit-page-content',
+      appendTo: '.ioco-page-content',
       cursorAt: { top: -5, left: -5 },
       helper: function( e ) {
-        return $('<div/>').addClass('iokit-toolbar-plugin tool-helper').text(pageDesigner.t(plugin.name));
+        return $('<div/>').addClass('ioco-toolbar-plugin tool-helper').text(pageDesigner.t(plugin.name));
       },
       revert: function( validDrop ){
         if( validDrop )
@@ -916,20 +931,20 @@
   pageDesigner.client.utils.droppedBox = function droppedBox( e, ui ){
 
     var $targetWebBit = $(this)
-      , $pageContent = $targetWebBit.closest('.iokit-page-content')
+      , $pageContent = $targetWebBit.closest('.ioco-page-content')
       , attachMethod = null;
 
     if( $targetWebBit.hasClass('highlight-left') )
-      if( $targetWebBit.parent('.iokit-web-bit').length > 0 )
+      if( $targetWebBit.parent('.ioco-web-bit').length > 0 )
         attachMethod = 'before';
       else
         attachMethod = 'prepend';
     else
       attachMethod = 'append';
 
-    $(document).find('.iokit-web-bit').removeClass('highlight').removeClass('highlight-left');
+    $(document).find('.ioco-web-bit').removeClass('highlight').removeClass('highlight-left');
 
-    if( ui.draggable.hasClass('iokit-web-bit-from-library') || ui.draggable.hasClass('iokit-web-bit') )
+    if( ui.draggable.hasClass('ioco-web-bit-from-library') || ui.draggable.hasClass('ioco-web-bit') )
       // a WebBit has been moved from the toolkit
       // library OR a rendered WebBit has been moved here
       $targetWebBit[attachMethod]( $(ui.draggable).data('webBit').render() );
@@ -951,7 +966,7 @@
       $targetWebBit[attachMethod]( webBit.render() );
     }
     ui.draggable.remove();
-    $('.iokit-page-designer-drop-desc').remove();
+    $('.ioco-page-designer-drop-desc').remove();
   }
 
   /**
@@ -987,8 +1002,8 @@
     var closeBtn = $('<a/>').addClass('box-control tooltip detach-box').html('&times;')
         .attr('title', pageDesigner.options.translate('web.page_designer.detach-web_bit'))
         .on('click', function(e){
-          var $box = $(e.target).closest('.iokit-web-bit')
-            , $parentBox = $box.parent('.iokit-web-bit')
+          var $box = $(e.target).closest('.ioco-web-bit')
+            , $parentBox = $box.parent('.ioco-web-bit')
             , parent = $parentBox.data('webBit');
           $parentBox.data('webBit').removeChild( $box.data('webBit'), function( err ){
             if( err )
@@ -1008,7 +1023,7 @@
     var propBtn = $('<a/>').addClass('box-control tooltip prop-btn').append($('<span/>').addClass('icn icn-properties'))
         .attr('title', pageDesigner.options.translate('web.page_designer.web_bit-properties'))
         .on('click', function(e){
-          pageDesigner.client.utils.renderPropertiesModal( $(this).closest('.iokit-web-bit') );
+          pageDesigner.client.utils.renderPropertiesModal( $(this).closest('.ioco-web-bit') );
         });
 
     var moveBtn = $('<a/>').addClass('box-control move-btn move-enabled tooltip')
@@ -1049,14 +1064,14 @@
 
   /**
    * renders a properties modal
-   * window supported by iokit.modal
+   * window supported by ioco.modal
    *
    * @param {jQueryObject} [$box] - the box the properties modal is related to
    *
    */
   pageDesigner.client.utils.renderPropertiesModal = function renderPropertiesModal( $box ){
 
-    iokit.modal({ 
+    ioco.modal({ 
       title: pageDesigner.options.translate('web.page_designer.web_bit-properties'),
       html: pageDesigner.client.templates.propertiesModal( $box ),
       completed: function( html ){
@@ -1071,7 +1086,7 @@
           callback: function( $modal ){
             var webBit = $box.data('webBit');
             webBit.properties = webBit.properties || {};
-            $box.attr('class', 'iokit-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val());
+            $box.attr('class', 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val());
             var cssVal = ace.edit($modal.find('#cssEditor').get(0)).getValue();
             if( cssVal.length > 0 )
               $box.attr('css', JSON.parse(cssVal) );
@@ -1166,7 +1181,7 @@
                     .append($('<label/>').text('CSS Classes'))
                     .append('<br />')
                     .append($('<input type="text" name="cssClasses" placeholder="e.g.: span2 float-left" value="'+
-            $box.attr('class').replace(/[\ ]*iokit-web-bit|ui-droppable|ui-draggable|active|hovered[\ ]*/g,'')+'" />'))
+            $box.attr('class').replace(/[\ ]*ioco-web-bit|ui-droppable|ui-draggable|active|hovered[\ ]*/g,'')+'" />'))
                   ).append($('<p/>')
                     .append($('<label/>').text('CSS Rules for the box (not for children) in JSON notation'))
                     .append('<br />')
@@ -1297,11 +1312,11 @@
     module.exports = pageDesigner;
     isNode = true;
   } else {
-    if( !root.iokit || typeof( root.iokit ) !== 'object' )
-      root.iokit = {};
-    root.iokit.pageDesigner = pageDesigner;
+    if( !root.ioco || typeof( root.ioco ) !== 'object' )
+      root.ioco = {};
+    root.ioco.pageDesigner = pageDesigner;
     pageDesigner.$ = jQuery;
-    jQuery.fn.ioPageDesigner = pageDesigner.client.jQueryPlugin;
+    jQuery.fn.iocoPageDesigner = pageDesigner.client.jQueryPlugin;
   }
 
 })();

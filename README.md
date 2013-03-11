@@ -1,17 +1,17 @@
-# ioPageDesigner (not released yet)
+# iocoPageDesigner (not released yet)
 
 A powerful JavaScript web tool to build, setup, design and work with web pages in a
 very intuitive manner.
 
-ioPageDesigner can be used as a plugin in [iokit](http://github.com/tastenwerk/iokit)
+iocoPageDesigner can be used as a plugin in [ioco](http://github.com/tastenwerk/ioco)
 or can be build-in in any kind of CMS providing storage and view methods.
 
 Before you continue, take a look at the demo site to get a first impression about
-ioPageDesigner: 
+iocoPageDesigner: 
 
 # Demo
 
-http://tastenwerk.com/iokit/pageDesigner/demo
+http://tastenwerk.com/ioco/pageDesigner/demo
 
 # Philosophy
 
@@ -34,12 +34,12 @@ to play around with WebBits.
 
 ## Install with nodejs:
     
-    npm install iopagedesigner
+    npm install ioco-pagedesigner
 
 # Integration
 
-Basically you won't need much more than the iokit.page-designer.min.js and it's according
-stylesheet. But: To get the ease of all the features of ioPageDesigner, you should copy over
+Basically you won't need much more than the ioco.page-designer.min.js and it's according
+stylesheet. But: To get the ease of all the features of iocoPageDesigner, you should copy over
 all the 3rdparty stuff (or adapt to your already build-in libraries).
 
 ## Requirements
@@ -58,7 +58,7 @@ html:
 javascript:
 
     $(document).ready( function(){
-      $('#mypage').ioPageDesigner();
+      $('#mypage').iocoPageDesigner();
     });
 
 This builds a page designer component on top of the mypage div (which gets wrapped)
@@ -75,13 +75,13 @@ implementation of pageDesigner in the demo directory:
 Override the loadById() interface of both WebPage and WebBit:
 
     pageDesigner.WebPage.loadById = function loadWebPageById( id, callback ){
-      fs.readFile( __dirname+'/web_pages/'+id+'.json', function( err, jsonStr ){
+      fs.readFile( __dirname+'/webpages/'+id+'.json', function( err, jsonStr ){
         callback( null, new self( JSON.parse(jsonStr) ) );
       });
     }
 
     pageDesigner.WebPage.loadById = function loadWebPageById( id, callback ){
-      fs.readFile( __dirname+'/web_pages/'+id+'.json', function( err, jsonStr ){
+      fs.readFile( __dirname+'/webpages/'+id+'.json', function( err, jsonStr ){
         callback( null, new self( JSON.parse(jsonStr) ) );
       });
     }

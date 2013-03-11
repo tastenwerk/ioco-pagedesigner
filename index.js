@@ -1,11 +1,14 @@
 module.exports = exports = {
 
-  statics: {
-    public: __dirname + '/public'
-  },
+  pageDesigner: {
 
-  pageDesignerJSPlugins: [ '/javascripts/widgets/io-page-designer/plain-container.js',
-                           '/javascripts/widgets/io-page-designer/image-browser.js',
-                           '/javascripts/widgets/io-page-designer/text-content.js' ]
+    statics: {
+      public: __dirname + '/public'
+    },
+
+    pageDesignerJSPlugins: [ '/javascripts/ioco/pageDesigner/plugins/empty-container.js',
+                             '/javascripts/ioco/pageDesigner/plugins/text-editor.js' ]
+    
+  }
 
 };

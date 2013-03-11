@@ -1,5 +1,5 @@
 {
-  "name": "iopagedesigner",
+  "name": "ioco-pagedesigner",
   "version": "0.1.0",
   "description": "build, design web pages and let your editors do the rest",
   "homepage": "http://github.com/tastenwerk/iopagedesigner",
@@ -15,10 +15,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tastenwerk/iopagedesigner.git"
+    "url": "https://github.com/tastenwerk/ioco-pagedesigner.git"
   },
   "bugs": {
-    "url": "https://github.com/tastenwerk/iopagedesigner/issues"
+    "url": "https://github.com/tastenwerk/ioco-pagedesigner/issues"
   },
   "license": "GPL-3",
   "dependencies": {

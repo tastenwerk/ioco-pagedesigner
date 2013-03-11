@@ -2,12 +2,12 @@
 
   var textEditor = {
     name: 'text-editor',
-    iconClass: 'icn-justifyFull', // use an icon from iokit-sprites
+    iconClass: 'icn-justifyFull', // use an icon from ioco-sprites
     defaultContent: 'Enter your text here',
     addControls: [
       {
         iconClass: 'icn-pencil',
-        hoverTitle: iokit.pageDesigner.translate('Edit text'),
+        hoverTitle: ioco.pageDesigner.translate('Edit text'),
         editorId: 'editor-'+(new Date()).getTime().toString(36),
         action: function( e, $box ){
 
@@ -43,7 +43,7 @@
     ],
     addProperties: [
       {
-        title: iokit.pageDesigner.translate('Language'),
+        title: ioco.pageDesigner.translate('Language'),
         html: 'languages plugin'
       }
     ],
@@ -60,9 +60,9 @@
     // nodejs
     module.exports = textEditor;
   } else {
-    if( !this.iokit.pageDesigner )
-      throw new Error('iokit.pageDesigner is not defined. Load this plugin AFTER iokit.pageDesigner has been loaded!')
-    this.iokit.pageDesigner.addPlugin( textEditor );
+    if( !this.ioco.pageDesigner )
+      throw new Error('ioco.pageDesigner is not defined. Load this plugin AFTER ioco.pageDesigner has been loaded!')
+    this.ioco.pageDesigner.addPlugin( textEditor );
   }
 
 })();

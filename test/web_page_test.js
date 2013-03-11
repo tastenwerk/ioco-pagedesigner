@@ -1,9 +1,9 @@
 var should = require('should')
 
-var pageDesigner = require(__dirname+'/../public/javascripts/iokit.page-designer')
+var pageDesigner = require(__dirname+'/../public/javascripts/ioco.page-designer')
   , testHelper = require(__dirname+'/page-designer_test_helper');
 
-describe('iokit.pageDesigner', function(){
+describe('ioco.pageDesigner', function(){
 
   describe('WebPage', function(){
     
