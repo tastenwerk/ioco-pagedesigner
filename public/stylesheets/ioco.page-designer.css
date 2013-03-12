@@ -209,8 +209,8 @@ body .ioco-page-content {
   height: 100%;
   position: relative;
 }
-html .ioco-page-content.tool-helper,
-body .ioco-page-content.tool-helper {
+html .ioco-page-content .tool-helper,
+body .ioco-page-content .tool-helper {
   width: 30%;
   font-size: 40px;
   color: #333;

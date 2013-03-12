@@ -965,7 +965,8 @@
                                               content: (plugin.defaultContent ? plugin.defaultContent : '') });
       $targetWebBit[attachMethod]( webBit.render() );
     }
-    ui.draggable.remove();
+    if( !ui.draggable.hasClass('design-btn') )
+      ui.draggable.remove();
     $('.ioco-page-designer-drop-desc').remove();
   }
 
