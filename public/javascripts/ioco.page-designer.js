@@ -25,6 +25,7 @@
     webBitUrlData: null,
     webPageUrl: '/webpages',
     webPageUrlData: null,
+    _csrf: typeof( ioco ) ? ioco._csrf : null,
     fallbackLang: 'en',
     translate: function( val ){ return val; },
     debug: 3 // 0 ... no debug at all
@@ -178,6 +179,28 @@
   };
 
   /**
+   * create a webBit and store it to the server
+   *
+   * @param {Object} attrs - attribute properties for new webbit
+   *
+   * @param {function(err, webbit)} - callback function
+   *
+   */
+  pageDesigner.WebBit.create = function( attrs, callback ){
+    $.ajax({ url: pageDesigner.options.webBitUrl,
+             type: 'post',
+             data: { _csrf: pageDesigner.options._csrf,
+                    webbit: attrs },
+             success: function( response ){
+                if( response.success )
+                  return callback( null, new pageDesigner.WebBit( response.data ) );
+                ioco.notify( pageDesigner.translate('creation.failed', {name: attrs.name}) );
+                callback( err )
+             }
+    });
+  }
+
+  /**
    * sets the language of the renderedContent object to the given parameters
    *
    * this only works, if the content is not a string, but an object with
@@ -311,7 +334,7 @@
   pageDesigner.WebBit.prototype.render = function renderWebBit( $box ){
     if( !$box )
       $box = pageDesigner.$('<div/>');
-    $box.append(this.renderedContent);
+    $box.append(pageDesigner.$('<div class="box-content">').append(this.renderedContent));
     var tmpWebBits = {};
     for( var i in this.webBits )
       tmpWebBits[this.webBits[i]._id] = this.webBits[i];
@@ -319,11 +342,13 @@
     $box.find('[data-web-bit-id]').each(function(){
       var id = pageDesigner.$(this).attr('data-web-bit-id');
       if( tmpWebBits[id] )
-        pageDesigner.$(this).replaceWith( tmpWebBits[id].render( $(this) ) );
+        pageDesigner.$(this).replaceWith( tmpWebBits[id].render( pageDesigner.$(this) ) );
       else
         this.html('ERROR: WebBit ' + this.attr('data-web-bit-name') + ' not found');
       pageDesigner.$(this).addClass('ioco-web-bit');
     });
+    
+    Object.defineProperty( this, "$box", { value: $box, configurable: true });
 
     if( isNode )
       return $box.toString();
@@ -353,7 +378,7 @@
     if( this.root )
       $box.addClass('root')
     else
-      $box.prepend( pageDesigner.client.utils.renderBoxControls( plugin ) )
+      $box.prepend( pageDesigner.client.utils.renderBoxControls( $box, plugin ) )
     $box
       .attr('data-web-bit-id',this._id)
       .attr('data-web-bit-name',this.name)
@@ -377,12 +402,13 @@
    **
    */
   pageDesigner.WebBit.prototype.applyActionsForBox = function applyActionsForBox( $box ){
+    var self = this;
     return $box
-      .on('mouseenter', function(e){
+      .on('mouseover', function(e){
         e.stopPropagation();
         $('.hovered').removeClass('hovered');
         $box.addClass('hovered');
-      }).on('mouseleave', function(e){
+      }).on('mouseout', function(e){
         e.stopPropagation();
         $box.removeClass('hovered');
       })
@@ -391,12 +417,21 @@
         if( $(e.target).hasClass('box-controls') || $(e.target).closest('.box-controls').length )
           return;
         e.stopPropagation();
+
         if( $box.hasClass('active') ){
           $pageDesigner.data('activeBoxId', null);
           $box.removeClass('active');
         } else {
-          $('.active').removeClass('active');
-          $pageDesigner.data('activeBoxId',this._id);
+
+          // check if there is a current box
+          // and call deactivate on that box' plugin
+          var curBoxId = $pageDesigner.data('activeBoxId')
+            , $curBox = $('[data-web-bit-id='+curBoxId+']');
+          if( $curBox.length && typeof($curBox.data('plugin').on) === 'function' )
+            $curBox.data('plugin').on('deactivate', $curBox);
+
+          $pageDesigner.find('.active').removeClass('active');
+          $pageDesigner.data('activeBoxId', self._id);
           $box.addClass('active');
         }
       })
@@ -502,6 +537,42 @@
   }
 
   /**
+   * save a WebBit
+   * this refreshes the webBit's content
+   * property
+   * and stores it to the server path
+   *
+   * the server path can be configured by the webBitPath option
+   *
+   * @param {function( err )} - an optional callback function to be called
+   * when finished
+   *
+   */
+  pageDesigner.WebBit.prototype.save = function saveWebBit( callback ){
+    if( this.$box ){
+      this.content = this.$box.find('.box-content').html();
+      var childrenWebBits = this.content.find('.ioco-web-bit')
+        , doneWebBits = 0
+        , error;
+      function saveNextWebBit(){
+        if( childrenWebBits.length > doneWebBits )
+          $(childrenWebBits[doneWebBits]).data('webBit').save( function( err ){
+            error = err || error;
+            $(childrenWebBits[doneWebBits]).html('');
+            doneWebBits++;
+            saveNextWebBit();
+          });
+        else{
+          console.log('done saving', this.content);
+          callback( error );
+        }
+      }
+      saveNextWebBit();
+    }
+
+  }
+
+  /**
    * define WebPage model. A WebPage is the top most root
    * component holding nested WebBits.
    *
@@ -554,13 +625,29 @@
         } else
           callback( err, self ); 
       });
-    else{
-      this.rootWebBit = new pageDesigner.WebBit({_id: pageDesigner.genUUID(),
-                                              name: 'root web bit', 
-                                              root: true, 
-                                              pluginName: 'empty-container'});
-      callback( null, self );
-    }
+    else
+      pageDesigner.WebBit.create({
+                          name: 'root web bit', 
+                          root: true, 
+                          pluginName: 'empty-container'
+                        }, function( err, webBit ){
+                          if( err ) return callback( err );
+                          self.rootWebBitId = webBit._id;
+                          console.log(JSON.parse(JSON.stringify(self)), pageDesigner.options.webPageUrl);
+                          $.ajax({ url: pageDesigner.options.webPageUrl+'/'+self._id, data: { _csrf: pageDesigner.options._csrf, webpage: { rootWebBitId: webBit._id } },
+                                   type: 'put',
+                                   success: function( response ){
+                                     if( !response.success ) return callback( err );
+                                     self.rootWebBit = webBit;
+                                     if( pageDesigner.options.on )
+                                       pageDesigner.options.on( 'createRootWebBit', self, function( err ){
+                                         callback( err, self );                                   }
+                                       });
+                                     else
+                                       callback( null, self );
+                          });
+                        }
+      );
   };
 
   /**
@@ -604,6 +691,16 @@
     if( this.rootWebBit )
       return this.rootWebBit.render();
     return 'no root WebBit';
+  }
+
+  /**
+   * save a WebPage
+   *
+   * does not much more than calling save on the rootWebBit
+   *
+   */
+  pageDesigner.WebPage.prototype.save = function saveWebPage(){
+    this.rootWebBit.save();
   }
 
 
@@ -818,7 +915,7 @@
         for( var i=0,jsonWebBit; jsonWebBit=json[i]; i++ ){
           var webBit = new pageDesigner.WebBit( jsonWebBit );
           if( curCategory === null || (webBit.category !== curCategory )){
-            libContainer.find('.overflow-area').append($('<h2/>').text( webBit.category || (_options.i18n ? $.i18n.t('web.page_designer.uncategorized') : 'uncategorized') ))
+            libContainer.find('.overflow-area').append($('<h2/>').text( webBit.category || pageDesigner.t('uncategorized') ))
               .append('<ul/>');
             curCategory = webBit.category;
           }
@@ -955,7 +1052,8 @@
       var boxName = prompt(pageDesigner.t('WebBit Name'));
       if( !boxName || boxName.length < 1 )
         return;
-      var webBit = new pageDesigner.WebBit({  name: boxName, 
+      var webBit = new pageDesigner.WebBit({  _id: pageDesigner.genUUID(),
+                                              name: boxName, 
                                               properties: { js: '', 
                                                             cssClasses: 'float-left span1',
                                                             cssStyles: {},
@@ -963,7 +1061,7 @@
                                               pluginName: plugin.name,
                                               category: '',
                                               content: (plugin.defaultContent ? plugin.defaultContent : '') });
-      $targetWebBit[attachMethod]( webBit.render() );
+      $targetWebBit.find('.box-content')[attachMethod]( webBit.render() );
     }
     if( !ui.draggable.hasClass('design-btn') )
       ui.draggable.remove();
@@ -993,12 +1091,14 @@
    * a jquery dom with actions (close, delete, prperties) and
    * plugin functions
    *
+   * @param {jQueryDom} [$box] - the box jquery object
+   *
    * @param {Object} [plugin] a plugin object
    *
    * @returns {Object} [jQueryDom] of box controls
    *
    */
-  pageDesigner.client.utils.renderBoxControls = function renderBoxControls( plugin ){
+  pageDesigner.client.utils.renderBoxControls = function renderBoxControls( $box, plugin ){
 
     var closeBtn = $('<a/>').addClass('box-control tooltip detach-box').html('&times;')
         .attr('title', pageDesigner.options.translate('web.page_designer.detach-web_bit'))
@@ -1017,8 +1117,12 @@
       .attr('title', pageDesigner.options.translate('save'))
       .append($('<span/>').addClass('icn icn-save'))
       .on('click', function(e){
-        options.webBit.content = options.box.find('.box-content').html();
-        saveWebBit( options.box, options.webBit );
+        $box.data('webBit').save( function( err ){
+          if( err )
+            ioco.notify(pageDesigner.t('saving.failed', {name: $box.data('webBit').name}));
+          else
+            ioco.notify(pageDesigner.t('saved', {name: $box.data('webBit').name}));
+        });
       });
 
     var propBtn = $('<a/>').addClass('box-control tooltip prop-btn').append($('<span/>').addClass('icn icn-properties'))
@@ -1043,14 +1147,14 @@
     if( plugin.addControls && plugin.addControls instanceof Array )
       plugin.addControls.forEach( function(controlDef){
         var controlBtn = $('<a/>').addClass('box-control')
-        if( controlDef.icon )
-          controlBtn.append($('<span/>').addClass('icn '+controlDef.icon));
+        if( controlDef.iconClass )
+          controlBtn.append($('<span/>').addClass('icn '+controlDef.iconClass));
         else if( controlDef.title )
           controlBtn.text( controlDef.title )
         if( controlDef.hoverTitle )
           controlBtn.addClass('tooltip').attr('title', controlDef.hoverTitle);
         if( typeof(controlDef.action) === 'function' )
-          controlBtn.on('click', function( e ){ controlDef.action( options.box, e ) });
+          controlBtn.on('click', function( e ){ controlDef.action( $box, e ) });
         controls.append(controlBtn);
       });
 
@@ -1211,16 +1315,16 @@
     var metaDiv = $('<div class="web-bit-props"/>')
                   .append($('<h1 class="title"/>').text('META'))
                   .append($('<p/>')
-                    .append($('<label/>').text( pageDesigner.options.translate('name') ) )
+                    .append($('<label/>').text( pageDesigner.t('Name') ) )
                     .append('<br />')
                     .append($('<input type="text" name="name" class="fill-width" />').val( webBit.name ))
                   )
                   .append($('<p/>')
                     .append($('<input type="checkbox" name="libraryItem" />').attr('checked', webBit.properties.libraryItem))
-                    .append($('<label/>').text( pageDesigner.options.translate('web.page_designer.library') ) )
+                    .append($('<label/>').text( pageDesigner.t('Library') ) )
                   )
                   .append($('<p/>')
-                    .append($('<label/>').text( pageDesigner.options.translate('web.page_designer.category') ) )
+                    .append($('<label/>').text( pageDesigner.t('Category') ) )
                     .append('<br />')
                     .append($('<input type="text" name="category" class="fill-width" />').val( webBit.category ))
                   );

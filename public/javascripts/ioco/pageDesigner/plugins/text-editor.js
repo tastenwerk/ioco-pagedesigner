@@ -4,18 +4,20 @@
     name: 'text-editor',
     iconClass: 'icn-justifyFull', // use an icon from ioco-sprites
     defaultContent: 'Enter your text here',
+    preventClickDeactivate: true,
     addControls: [
       {
         iconClass: 'icn-pencil',
-        hoverTitle: ioco.pageDesigner.translate('Edit text'),
+        title: ioco.pageDesigner.translate('Edit text'),
         editorId: 'editor-'+(new Date()).getTime().toString(36),
-        action: function( e, $box ){
+        action: function( $box, e ){
 
           var editorId = this.editorId;
 
           function initEditor(){
             CKEDITOR.disableAutoInline = true;
             CKEDITOR.basePath = '/javascripts/3rdparty/ckeditor/';
+            $box.addClass('edit-mode');
             $box.find('.box-content').attr('contenteditable', true).attr('id', editorId );
             CKEDITOR.config.toolbar = [
               [ 'Cut','Copy','Paste','PasteText','PasteFromWord'],
@@ -47,9 +49,14 @@
         html: 'languages plugin'
       }
     ],
-    onDeactivate: function( $box ){
-      if( typeof( CKEDITOR ) === 'object' )
-        CKEDITOR.remove( this.addControls[0].editorId );
+    on: function( action, $box ){
+      if( action === 'deactivate' ){
+        $box.removeClass('edit-mode');
+        if( typeof( CKEDITOR ) === 'object' && CKEDITOR.instances[ this.addControls[0].editorId ] ){
+          CKEDITOR.instances[ this.addControls[0].editorId ].destroy();
+          $box.find('.box-content').attr('contenteditable', false);
+        }
+      }
     }
   }
 

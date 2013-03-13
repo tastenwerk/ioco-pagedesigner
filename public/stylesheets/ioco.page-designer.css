@@ -39,7 +39,7 @@
 }
 .ioco-page-designer-toolbar .ioco-logo {
   width: 38px;
-  height: 19px;
+  height: 14px;
   position: absolute;
   top: 5px;
   left: 7px;
@@ -112,7 +112,7 @@
 }
 .ioco-page-designer-toolbar .switch-btns {
   position: absolute;
-  left: -110px;
+  left: -114px;
   top: 150px;
   width: 200px;
   transform: rotate(270deg);
@@ -229,22 +229,11 @@ html .ioco-page-content .ioco-web-bit,
 body .ioco-page-content .ioco-web-bit {
   position: relative;
   z-index: 1;
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  user-select: none;
 }
 html .ioco-page-content .ioco-web-bit.root,
 body .ioco-page-content .ioco-web-bit.root {
   min-width: 100px;
   min-height: 200px;
-}
-html .ioco-page-content .ioco-web-bit.edit-mode,
-body .ioco-page-content .ioco-web-bit.edit-mode {
-  -moz-user-select: auto;
-  -khtml-user-select: auto;
-  -webkit-user-select: auto;
-  user-select: auto;
 }
 html .ioco-page-content .ioco-web-bit.hovered,
 body .ioco-page-content .ioco-web-bit.hovered {
@@ -300,7 +289,7 @@ body .ioco-page-content .ioco-web-bit .box-controls a.box-control {
 }
 html .ioco-page-content .ioco-web-bit .box-controls a.box-control.detach-box,
 body .ioco-page-content .ioco-web-bit .box-controls a.box-control.detach-box {
-  padding: 3px 5px;
+  padding: 0 8px;
 }
 html .ioco-page-content .ioco-web-bit .box-controls a.box-control .icn,
 body .ioco-page-content .ioco-web-bit .box-controls a.box-control .icn {
@@ -383,6 +372,7 @@ body .ioco-page-content .ioco-web-bit.span2,
 html .ioco-page-content .ioco-web-bit.span3,
 body .ioco-page-content .ioco-web-bit.span3 {
   margin: 1%;
+  min-height: 150px;
 }
 html .ioco-page-content .ioco-web-bit.span1,
 body .ioco-page-content .ioco-web-bit.span1 {
