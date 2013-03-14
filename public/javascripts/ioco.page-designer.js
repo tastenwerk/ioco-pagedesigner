@@ -641,10 +641,11 @@
                                      self.rootWebBit = webBit;
                                      if( pageDesigner.options.on )
                                        pageDesigner.options.on( 'createRootWebBit', self, function( err ){
-                                         callback( err, self );                                   }
+                                         callback( err, self );
                                        });
                                      else
                                        callback( null, self );
+                                  }
                           });
                         }
       );
