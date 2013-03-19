@@ -6,12 +6,16 @@ var pageDesigner = require(__dirname+'/../public/javascripts/ioco.page-designer'
 
 var dummyPath = '/../public/demo/dummy/';
 
+pageDesigner.options.debug = 0;
+
 module.exports = exports = {
 
   load: function( type, id, done ){
 
     if( !pageDesigner.getPluginByName('empty-container') )
       pageDesigner.addPlugin( require(__dirname+'/../public/javascripts/ioco/pageDesigner/plugins/empty-container') );
+    if( !pageDesigner.getPluginByName('text-editor') )
+      pageDesigner.addPlugin( require(__dirname+'/../public/javascripts/ioco/pageDesigner/plugins/text-editor') );
     
     var route = type === 'WebBit' ? 'webbits' : 'webpages';
     var self = this;

@@ -7,7 +7,9 @@ module.exports = exports = {
     },
 
     pageDesignerJSPlugins: [ '/javascripts/ioco/pageDesigner/plugins/empty-container.js',
-                             '/javascripts/ioco/pageDesigner/plugins/text-editor.js' ]
+                             '/javascripts/ioco/pageDesigner/plugins/text-editor.js' ],
+
+    translations: __dirname+'/public/locales'
     
   }
 

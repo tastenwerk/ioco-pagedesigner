@@ -8,7 +8,7 @@
     addControls: [
       {
         iconClass: 'icn-pencil',
-        title: ioco.pageDesigner.translate('Edit text'),
+        title: 'Edit text',
         editorId: 'editor-'+(new Date()).getTime().toString(36),
         action: function( $box, e ){
 
@@ -45,7 +45,7 @@
     ],
     addProperties: [
       {
-        title: ioco.pageDesigner.translate('Language'),
+        title: 'Language',
         html: 'languages plugin'
       }
     ],

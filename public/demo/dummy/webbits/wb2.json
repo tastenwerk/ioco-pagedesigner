@@ -1,7 +1,7 @@
 {
   "_id": "wb2",
   "_type": "WebBit",
-  "pluginName": "empty-container",
+  "pluginName": "text-editor",
   "name": "1 of 3 Columns",
   "acl": {
     "a00000000000": "r"

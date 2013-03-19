@@ -239,6 +239,10 @@ html .ioco-page-content .ioco-web-bit.hovered,
 body .ioco-page-content .ioco-web-bit.hovered {
   outline: 2px dashed #ddd;
 }
+html .ioco-page-content .ioco-web-bit.changed,
+body .ioco-page-content .ioco-web-bit.changed {
+  background: rgba(200,50,50,0.5);
+}
 html .ioco-page-content .ioco-web-bit.highlight-left,
 body .ioco-page-content .ioco-web-bit.highlight-left {
   outline: none;

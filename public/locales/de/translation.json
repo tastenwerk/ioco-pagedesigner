@@ -18,13 +18,18 @@
       "span8": "100% der Seitenbreite",
       "detach-web_bit": "Dieses WebBit auskoppeln",
       "web_bit-properties": "WebBit Eigenschaften",
+      "webbit": {
+        "failed_saving": "Konnte WebBit '__name__' nicht speichern"
+      },
       "move": "Positionieren",
       "edit_page_source": "Seitenquelltext bearbeiten",
       "library": "Bibliothek",
       "library_desc": "Ziehen Sie ein WebBit in einen Container um es dort anzuhängen",
+      "template": "Vorlage",
       "category": "Kategorie",
       "uncategorized": "Unkategorisiert",
       "templates": "Vorlagen",
+      "save": "Speicher",
       "meta": "Meta Info",
       "meta_keys": "Meta Schlüsselwörter",
       "meta_desc": "Meta Beschreibung",
