@@ -625,7 +625,7 @@
                },
                success: function( json ){
                  if( !json.success )
-                   ioco.notify( pageDesigner.translate('ioco.page_designer.failed_saving', {name: self.name}))
+                   ioco.notify( pageDesigner.translate('ioco.page_designer.webbit.failed_saving', {name: self.name}))
                  saveNextWebBit();
                }
       });
