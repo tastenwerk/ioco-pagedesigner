@@ -34,10 +34,6 @@ describe('ioco.pageDesigner', function(){
           (function(){ new WebBit( { pluginName: 'empty' } ) }).should.throw(/name key must be present/);
         });
 
-        it( 'won\'t create a new WebBit with an unknown plugin', function(){
-          (function(){ new WebBit( { pluginName: 'unknonw' } ) }).should.throw(/pluginName not found in _plugins registry/);
-        });
-
         describe( '@renderedContent', function(){
 
           it( 'takes a content attribute and turns it into renderedContent observable method, which will used for the initialized WebBit information', function(){

@@ -1,16 +1,27 @@
+pageDesigner = require( __dirname + '/public/javascripts/ioco.page-designer' );
+
 module.exports = exports = {
 
-  pageDesigner: {
+  ioco: {
 
-    statics: {
-      public: __dirname + '/public'
-    },
+    plugins: {
 
-    pageDesignerJSPlugins: [ '/javascripts/ioco/pageDesigner/plugins/empty-container.js',
-                             '/javascripts/ioco/pageDesigner/plugins/text-editor.js' ],
+      pageDesigner: {
 
-    translations: __dirname+'/public/locales'
-    
-  }
+        statics: {
+          public: __dirname + '/public'
+        },
+
+        pageDesignerJSPlugins: [ '/javascripts/ioco/pageDesigner/plugins/empty-container.js',
+                                 '/javascripts/ioco/pageDesigner/plugins/text-editor.js' ],
+
+        translations: __dirname+'/public/locales'
+        
+      }
+
+    }
+  },
+
+  lib: pageDesigner
 
 };

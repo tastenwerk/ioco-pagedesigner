@@ -18,11 +18,14 @@
       "span8": "100% der Seitenbreite",
       "detach-web_bit": "Dieses WebBit auskoppeln",
       "web_bit-properties": "WebBit Eigenschaften",
+      "disable_specific_css": "CSS-Styles innerhalb diese Seite deaktivieren",
       "webbit": {
         "failed_saving": "Konnte WebBit '__name__' nicht speichern"
       },
       "move": "Positionieren",
       "edit_page_source": "Seitenquelltext bearbeiten",
+      "tools": "Werkzeuge",
+      "grid": "Gitter",
       "library": "Bibliothek",
       "library_desc": "Ziehen Sie ein WebBit in einen Container um es dort anzuhängen",
       "template": "Vorlage",
