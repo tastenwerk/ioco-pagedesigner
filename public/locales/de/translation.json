@@ -22,6 +22,8 @@
       "webbit": {
         "failed_saving": "Konnte WebBit '__name__' nicht speichern"
       },
+      "page_settings": "Seite",
+      "page_settings_title": "Globale Einstellungen für diese Seite",
       "move": "Positionieren",
       "edit_page_source": "Seitenquelltext bearbeiten",
       "tools": "Werkzeuge",
@@ -29,13 +31,16 @@
       "library": "Bibliothek",
       "library_desc": "Ziehen Sie ein WebBit in einen Container um es dort anzuhängen",
       "template": "Vorlage",
+      "include_js": "Javascript einbinden",
+      "include_css": "CSS einbinden",
+      "no_robots": "Suchmaschinen sollen diese Seite ignorieren",
+      "keywords": "Schlüsselwörter",
+      "description": "Beschreibung",
       "category": "Kategorie",
       "uncategorized": "Unkategorisiert",
       "templates": "Vorlagen",
       "save": "Speicher",
       "meta": "Meta Info",
-      "meta_keys": "Meta Schlüsselwörter",
-      "meta_desc": "Meta Beschreibung",
       "plugins": {
         "plain-container": {
           "title": "Leerer Container"

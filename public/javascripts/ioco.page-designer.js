@@ -604,6 +604,7 @@
     if( this.$box ){
       var $tmpContent = this.$box.find('.box-content').clone();
       $tmpContent.find('.ioco-web-bit').each( function(){
+        $(this).removeClass('active').removeClass('hovered');
         $(this).html('');
       });
       this.content = $tmpContent.html();
@@ -1331,10 +1332,17 @@
           else
             webBit.$box.css( JSON.parse(cssVal) );
           webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
-          webBit.template = $modal.find('input[name=templateItem]').is(':checked');
           webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
           webBit.name = $modal.find('input[name=name]').val();
           webBit.category = $modal.find('input[name=category]').val();
+          if( webBit.root ){
+            webBit.template = $modal.find('input[name=templateItem]').is(':checked');
+            webBit.properties.includeCSS = $modal.find('[name="include-css"]').val();
+            webBit.properties.includeJS = $modal.find('[name="include-js"]').val();
+            webBit.properties.metaDescription = $modal.find('[name="meta-description"]').val();
+            webBit.properties.metaKeywords = $modal.find('[name="meta-keywords"]').val();
+            webBit.properties.metaNoRobots = $modal.find('[name="meta-no-robots"]').val();
+          }
           var newContent = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
           if( webBit.content !== newContent )
             changed = true && webBit.setContent( newContent );
@@ -1416,7 +1424,7 @@
    * content for the modal dialog sticked together by iterating
    * through plugins
    */
-  pageDesigner.client.templates.propertiesModal = function( $box ){
+  pageDesigner.client.templates.propertiesModal = function propertiesModal( $box ){
 
     var webBit = $box.data('webBit')
       , plugin = $box.data('plugin');
@@ -1497,21 +1505,47 @@
                     .append('<br />')
                     .append($('<input type="text" name="name" class="fill-width" />').val( webBit.name ))
                   );
-    if( !webBit.root )
+    if( !webBit.root ){
       metaDiv.append($('<p/>')
         .append($('<input type="checkbox" name="libraryItem" />').attr('checked', webBit.library))
         .append($('<label/>').text( pageDesigner.t('Library') ) )
       )
-    metaDiv.append($('<p/>')
-      .append($('<label/>').text( pageDesigner.t('Category') ) )
-      .append('<br />')
-      .append($('<input type="text" name="category" class="fill-width" />').val( webBit.category ))
-    );
-    if( webBit.root )
+      .append($('<p/>')
+        .append($('<label/>').text( pageDesigner.t('Category') ) )
+        .append('<br />')
+        .append($('<input type="text" name="category" class="fill-width" />').val( webBit.category ))
+      );
+    } else {
       metaDiv.append($('<p/>')
         .append($('<input type="checkbox" name="templateItem" />').attr('checked', webBit.template))
-        .append($('<label/>').text( pageDesigner.t('Template') ) )
+        .append($('<label/>').text( pageDesigner.t('ioco.page_designer.template') ) )
       )
+      .append($('<p/>')
+        .append($('<label/>').text( pageDesigner.t('ioco.page_designer.include_css') ) )
+        .append('<br />')
+        .append($('<input type="text" name="include-css" placeholder="/stylesheets/ioco.css" class="fill-width" />').val( webBit.properties.includeCSS ))
+      )
+      .append($('<p/>')
+        .append($('<label/>').text( pageDesigner.t('ioco.page_designer.include_js') ) )
+        .append('<br />')
+        .append($('<input type="text" name="include-js" placeholder="/javascripts/ioco.core.js" class="fill-width" />').val( webBit.properties.includeJS ))
+      )
+      .append($('<hr/>'))
+      .append($('<p/>')
+        .append($('<label/>').text( pageDesigner.t('ioco.page_designer.keywords') ) )
+        .append('<br />')
+        .append($('<input type="text" name="meta-keywords" placeholder="theatre dance politics ..." class="fill-width" />').val( webBit.properties.metaKeywords ))
+      )
+      .append($('<p/>')
+        .append($('<label/>').text( pageDesigner.t('ioco.page_designer.description') ) )
+        .append('<br />')
+        .append($('<input type="text" name="meta-description" placeholder="description outlining content of page" class="fill-width" />').val( webBit.properties.metaDescription ))
+      )
+      .append($('<p/>')
+        .append($('<input type="checkbox" name="meta-no-robots" />').attr('checked', webBit.properties.metaNoRobots))
+        .append($('<label/>').text( pageDesigner.t('ioco.page_designer.no_robots') ) )
+      );
+    }
 
     // set ace editor for textareas if ace option is enabled
     if( typeof(ace) === 'object' ){

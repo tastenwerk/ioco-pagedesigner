@@ -1,3 +1,6 @@
+.ioco-page-designer {
+  height: 100%;
+}
 .ioco-page-designer-drop-desc {
   position: absolute;
   top: 0;
@@ -234,6 +237,7 @@ html .ioco-page-content .ioco-web-bit.root,
 body .ioco-page-content .ioco-web-bit.root {
   min-width: 100px;
   min-height: 200px;
+  height: 100%;
 }
 html .ioco-page-content .ioco-web-bit.hovered,
 body .ioco-page-content .ioco-web-bit.hovered {
