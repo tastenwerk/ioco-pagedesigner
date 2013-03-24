@@ -75,7 +75,6 @@
    * * on.activate - function to be called when a WebBit of this plugin type is created
    * * on.init = function to be called when a WebBit of this plugin type is initialized (on load time on creation time)
    * * on.deactivate
-   * * on.cleanup
    *
    * @returns itself
    *
@@ -125,10 +124,10 @@
    * @param {String} [val] - the value string to be translated
    *
    */
-  pageDesigner.t = pageDesigner.translate = function translate( val ){
+  pageDesigner.t = pageDesigner.translate = function translate( val, keys ){
     if( this.options.i18n )
-      return $.i18n.t( val );
-    return pageDesigner.options.translate(val);
+      return $.i18n.t( val, keys );
+    return pageDesigner.options.translate( val, keys );
   }
 
   /**
@@ -152,6 +151,7 @@
 
     options = options || {};
 
+    Object.defineProperty( this, "tmpCssClasses", { value: '', writable: true });
     Object.defineProperty( this, "renderedContent", { value: '', writable: true });
     Object.defineProperty( this, "webBits", { value: [], writable: true });
     Object.defineProperty( this, "revision", { value: options.revision || null, configurable: true });
@@ -321,8 +321,6 @@
    *
    */
   pageDesigner.WebBit.prototype.setContent = function setContentOfWebBit( val ){
-    // TODO: update the content attribute
-    // cleanup from tidied html code bits
     var $procContent = pageDesigner.$('<div>'+val+'</div>');
     var self = this;
     this.renderedContent = val;
@@ -359,15 +357,9 @@
 
     var self = this;
 
-    var css = this.$box.find('>.box-content > style').html();
-    var id = this.$box.attr('id');
-    var classes = this.$box.attr('class');
     var changed = this.$box.hasClass('changed');
 
     function restoreStyles(){
-      self.$box.find('>.box-content').prepend( $('<style/>').html( css ) );
-      self.$box.attr('class', classes || '');
-      self.$box.attr('id', id || '');
       changed && self.$box.addClass('changed');
     }
 
@@ -424,10 +416,12 @@
    */
   pageDesigner.WebBit.prototype.render = function renderWebBit( $box ){
 
-    console.log('starting to render ', this.name);
-    var self = this;  
+    var self = this;
+
     if( !$box )
       $box = pageDesigner.$('<div/>');
+
+    var tmpCssClasses = $box.attr('class');
 
     function finalizeRender(){
       var tmpWebBits = {};
@@ -452,8 +446,11 @@
 
       function applyCSS(){
         if( self.properties.css && self.properties.css.length > 0 ){
-          cssVal = self.properties.css;
-          var cssVal = '[data-web-bit-id="'+self._id+'"] '+cssVal;
+          var cssVal = self.properties.css;
+          if( cssVal.indexOf('#this{') === 0 )
+            cssVal = '[data-web-bit-id="'+self._id+'"]'+cssVal.replace('#this{','{');
+          else
+            cssVal = '[data-web-bit-id="'+self._id+'"] '+cssVal;
           cssVal = cssVal.replace(/\n/g,'\n[data-web-bit-id="'+self._id+'"] ');
           $box.prepend( pageDesigner.$('<style/>').html( cssVal ) );
         }
@@ -461,22 +458,32 @@
 
       function applyJS(){
         if( self.properties.js && self.properties.js.length > 0 ){
-          jsVal = self.properties.js;
-          $box.prepend( pageDesigner.$('<script type="text/javascript"/>').html( jsVal ) );
+          jsVal = 'function box'+self._id+'Action( $box ){ if( pageDesigner.options.debug > 0 ) console.log(\'[pageDesigner] [webBit:'+self.name+'] executing inner js code\');\n' + 
+                    self.properties.js + 
+                    '\nif( pageDesigner.options.debug > 0 ) console.log(\'[pageDesigner] [webBit:'+self.name+'] execution end\');\n' + 
+                    '} box'+self._id+'Action( $(\'[data-web-bit-id='+self._id+']\') );';
+          $box.prepend( pageDesigner.$('<script id="js-action-'+self._id+'" type="text/javascript"/>').html( jsVal ) );
         }
+      }
+
+      function applyDefaults(){
+
+        $box.attr('id', self.properties.cssId);
+        $box.attr('class', self.tmpCssClasses || tmpCssClasses);
+
+        applyCSS();
+        applyJS();
+
       }
 
       Object.defineProperty( self, "$box", { value: $box, configurable: true });
 
-      applyCSS();
-      applyJS();
-
+      applyDefaults();
+    
       if( isNode )
         return $box.toString();
       return self.decorateBox( $box );
     }
-
-    console.log('we are having serverproc content', self.serverProcContent );
 
     if( self.api.url && self.serverProcContent )
       $box.append( pageDesigner.$('<div class="box-content">').append( self.serverProcContent ) );
@@ -497,6 +504,9 @@
    *
    */
   pageDesigner.WebBit.prototype.decorateBox = function decorateBox( $box ){
+    if( this.locked && pageDesigner.options.roles && !pageDesigner.options.roles.designer )
+      return $box;
+
     var plugin = pageDesigner.getPluginByName( this.pluginName );
     if( !plugin && pageDesigner.options.debug > 0 )
       console.log('[pageDesigner] ERROR: Plugin ', this.pluginName, 'was not found for ', this.name);
@@ -549,6 +559,9 @@
       })
       .on('click', function(e){
         $pageDesigner = $(this).closest('.ioco-page-designer')
+        if( self.root && pageDesigner.options.disableRootWebBitControls )
+          return;
+
         if( $(e.target).hasClass('box-controls') || $(e.target).closest('.box-controls').length )
           return;
         e.stopPropagation();
@@ -695,7 +708,7 @@
     if( this.$box ){
       var $tmpContent = this.$box.find('.box-content').clone();
       $tmpContent.find('.ioco-web-bit').each( function(){
-        $(this).removeClass('active').removeClass('hovered');
+        $(this).removeClass('active').removeClass('hovered').removeClass('ui-droppable').removeClass('ui-draggable');
         $(this).html('');
       });
       this.content = $tmpContent.html();
@@ -1435,7 +1448,7 @@
   pageDesigner.client.utils.renderPropertiesModal = function renderPropertiesModal( $box ){
 
     ioco.modal({ 
-      title: pageDesigner.translate('ioco.page_designer.web_bit-properties_for', {name: $box.data('webBit').name}),
+      title: pageDesigner.t('ioco.page_designer.web_bit-properties_for', {name: $box.data('webBit').name}),
       html: pageDesigner.client.templates.propertiesModal( $box ),
       completed: function( html ){
         html.find('#cssEditor').css({ height: html.find('.sidebar-content').height() - 195, top: 190});
@@ -1451,49 +1464,57 @@
           var changed = false;
           var webBit = $box.data('webBit');
           webBit.properties = webBit.properties || {};
-          var newClasses = 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val();
-          webBit.$box.attr('class', newClasses);
-          webBit.$box.attr('id', $modal.find('input[name=cssId]').val());
-          var cssVal = ace.edit($modal.find('#cssEditor').get(0)).getValue();
-          if( cssVal.length < 1 )
-            webBit.properties.css = '';
-          else
-            webBit.properties.css = cssVal;
 
-          //webBit.$box.css( JSON.parse(cssVal) );
-
-          webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
-          webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
           webBit.name = $modal.find('input[name=name]').val();
-          webBit.category = $modal.find('input[name=category]').val();
 
-          if( webBit.root ){
-            webBit.template = $modal.find('input[name=templateItem]').is(':checked');
-            webBit.properties.includeCSS = $modal.find('[name="include-css"]').val();
-            webBit.properties.includeJS = $modal.find('[name="include-js"]').val();
-            webBit.properties.metaDescription = $modal.find('[name="meta-description"]').val();
-            webBit.properties.metaKeywords = $modal.find('[name="meta-keywords"]').val();
-            webBit.properties.metaNoRobots = $modal.find('[name="meta-no-robots"]').val();
+          // in case we have roles enabled, only web designer will
+          // be able to save these sections
+          if( !pageDesigner.options.roles || pageDesigner.options.roles.designer ){
+
+            webBit.category = $modal.find('input[name=category]').val();
+            webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
+            webBit.properties.cssId = $modal.find('input[name=cssId]').val();
+            webBit.properties.css = ace.edit($modal.find('#cssEditor').get(0)).getValue();
+            webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
+            var newClasses = 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val();
+            webBit.tmpCssClasses = newClasses;
+
+            if( webBit.root ){
+              webBit.template = $modal.find('input[name=templateItem]').is(':checked');
+              webBit.properties.includeCSS = $modal.find('[name="include-css"]').val();
+              webBit.properties.includeJS = $modal.find('[name="include-js"]').val();
+              webBit.properties.metaDescription = $modal.find('[name="meta-description"]').val();
+              webBit.properties.metaKeywords = $modal.find('[name="meta-keywords"]').val();
+              webBit.properties.metaNoRobots = $modal.find('[name="meta-no-robots"]').val();
+              webBit.locked = $modal.find('[name="locked"]').val();
+            } else {
+              var apiData = ace.edit($modal.find('#apiDataEditor').get(0)).getValue();
+              if( webBit.api.data !== apiData )
+                ( changed = true ) && webBit.setRemoteContent( { data: apiData } );
+              var postProcTemplateContent = ace.edit($modal.find('#postProcTemplateEditor').get(0)).getValue();
+              if( webBit.api.postProcTemplate !== postProcTemplateContent )
+                ( changed = true ) && webBit.setRemoteContent( { postProcTemplate: postProcTemplateContent } );
+
+              if( $modal.find('[name=api_url]').length && $modal.find('[name=api_url]').val() != webBit.api.url )
+                ( changed = true ) && webBit.setRemoteContent( { url: $modal.find('[name=api_url]').val() })
+
+            }
+
           }
 
-          var newContent = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
-          if( webBit.content !== newContent )
-            changed = true && webBit.setContent( newContent );
+          var plugin = $box.data('plugin');
 
-          var postProcTemplateContent = ace.edit($modal.find('#postProcTemplateEditor').get(0)).getValue();
-          if( webBit.postProcTemplateContent !== postProcTemplateContent )
-            changed = true && webBit.setRemoteContent( { postProcTemplate: postProcTemplateContent } );
+          // plugin can define, if htmlEditor should be enabled for normal users
+          if( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer )){
+            var newContent = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
+            if( webBit.api.postProcTemplate.length < 1 )
+              if( webBit.content !== newContent )
+                ( changed = true ) && webBit.setContent( newContent );
+          }
 
-          var apiData = ace.edit($modal.find('#apiDataEditor').get(0)).getValue();
-          if( webBit.api.data !== apiData )
-            changed = true && webBit.setRemoteContent( { data: apiData } );
-
-          if( $modal.find('[name=api_url]').length && $modal.find('[name=api_url]').val() != webBit.api.url )
-            changed = true && webBit.setRemoteContent( { url: $modal.find('[name=api_url]').val() })
+          changed && webBit.markChanged();
 
           webBit.refreshContent();
-          //webBit.properties.cssClasses = $modal.find('#cssClasses').val();
-          changed && webBit.markChanged();
         }
       }/*,
       windowControls: {
@@ -1582,20 +1603,20 @@
 
     var cssDisabled = $box.attr('style').length < 20;
     var cssDiv = $('<div class="web-bit-props"/>')
-                  .append($('<h1 class="title"/>').text('Style definitions'))
+                  .append($('<h1 class="title"/>').text( pageDesigner.t('ioco.page_designer.style_definitions')))
                   .append($('<p/>')
-                    .append($('<label/>').text('CSS Classes'))
+                    .append($('<label/>').text( pageDesigner.t('ioco.page_designer.css_classes')))
                     .append('<br />')
                     .append($('<input type="text" name="cssClasses" placeholder="e.g.: span2 float-left" value="'+
-            $.trim( $box.attr('class').replace(/[\ ]*ioco-web-bit|ui-droppable|ui-draggable|active|hovered[\ ]*/g,'') )+'" />')
+            $.trim( $box.attr('class').replace(/[\ ]*ioco-web-bit|ui-droppable|ui-draggable|root|active|hovered[\ ]*/g,'') )+'" />')
                   )
                   .append($('<p/>')
                     .append($('<label/>').text('CSS ID'))
                     .append('<br />')
-                    .append($('<input type="text" name="cssId" value="'+($box.attr('id') || '')+'" />'))
+                    .append($('<input type="text" name="cssId" value="'+(webBit.properties.cssId || '')+'" />'))
                   )
             ).append($('<p/>')
-              .append($('<label/>').text('CSS Rules for the box (not for children) in JSON notation'))
+              .append($('<label/>').text( pageDesigner.t('ioco.page_designer.styles_for_this_box') ))
               .append('<br />')
               .append($('<div id="cssEditor" class="ace-editor"/>'))
             );
@@ -1661,6 +1682,10 @@
         .append($('<label/>').text( pageDesigner.t('Category') ) )
         .append('<br />')
         .append($('<input type="text" name="category" class="fill-width" />').val( webBit.category ))
+      )
+      .append($('<p/>')
+        .append($('<input type="checkbox" name="locked" />').attr('checked', webBit.locked))
+        .append($('<label/>').text( pageDesigner.t('ioco.page_designer.webbit.locked') ) )
       );
     } else {
       metaDiv.append($('<p/>')
@@ -1696,12 +1721,16 @@
 
     // set ace editor for textareas if ace option is enabled
     if( typeof(ace) === 'object' ){
-      aceEditor = ace.edit( htmlDiv.find('#htmlEditor').get(0) );
-      aceEditor.getSession().setMode("ace/mode/html");
-      aceEditor.getSession().setUseWrapMode(true);
-      aceEditor.getSession().setWrapLimitRange(80, 80);
-      if( webBit.content )
-        aceEditor.setValue( webBit.content );
+      htmlEditor = ace.edit( htmlDiv.find('#htmlEditor').get(0) );
+      htmlEditor.getSession().setMode("ace/mode/html");
+      htmlEditor.getSession().setUseWrapMode(true);
+      htmlEditor.getSession().setWrapLimitRange(80, 80);
+      if( webBit.api.postProcTemplate && webBit.api.postProcTemplate.length > 0 ){
+        htmlEditor.setValue( pageDesigner.t('ioco.page_designer.disabled_see_api') )
+        htmlEditor.setReadOnly( true );
+      } else
+        if( webBit.content )
+          htmlEditor.setValue( webBit.content );
     }
 
     // set ace editor for textareas if ace option is enabled
@@ -1749,20 +1778,35 @@
                   .append($('<h1 class="title"/>').text('ACL'));
 
     var sidebar = $('<ul class="sidebar-nav"/>')
-        .append($('<li/>').text( pageDesigner.translate('ioco.page_designer.meta') ) )
-        .append($('<li/>').text( 'HTML' ))
-        .append($('<li/>').text( 'CSS' ))
-        .append($('<li/>').text( 'JS' ));
+        .append($('<li/>').text( pageDesigner.translate('ioco.page_designer.meta') ) );
+
+
+    // plugin can define, if htmlEditor should be enabled for normal users
+    if( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))
+      sidebar.append($('<li/>').text( 'HTML' ));
+
+    if( !pageDesigner.options.roles || pageDesigner.options.roles.designer ){
+      sidebar.append($('<li/>').text( 'CSS' ))
+      .append($('<li/>').text( 'JS' ));
+    }
 
     var sidebarContent = $('<div class="sidebar-content"/>')
         .append(metaDiv)
-        .append(htmlDiv)
+
+    // plugin can define, if htmlEditor should be enabled for normal users
+    if( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))
+      sidebarContent.append(htmlDiv);
+
+    if( !pageDesigner.options.roles || pageDesigner.options.roles.designer ){
+      sidebarContent
         .append(cssDiv)
         .append(jsDiv);
 
-    if( !webBit.root ){
-      sidebar.append($('<li/>').text( 'API' ));
-      sidebarContent.append(apiDiv);
+      if( !webBit.root ){
+        sidebar.append($('<li/>').text( 'API' ));
+        sidebarContent.append(apiDiv);
+      }
+
     }
 
     if( plugin.addProperties && plugin.addProperties instanceof Array )

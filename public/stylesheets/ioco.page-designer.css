@@ -239,11 +239,6 @@ body .ioco-page-content .ioco-web-bit.root {
   min-height: 200px;
   height: 100%;
 }
-html .ioco-page-content .ioco-web-bit.root .box-controls,
-body .ioco-page-content .ioco-web-bit.root .box-controls {
-  right: auto;
-  left: 20px;
-}
 html .ioco-page-content .ioco-web-bit.hovered,
 body .ioco-page-content .ioco-web-bit.hovered,
 html .ioco-page-content .ioco-web-bit.outlined,
@@ -281,7 +276,7 @@ html .ioco-page-content .ioco-web-bit .box-controls,
 body .ioco-page-content .ioco-web-bit .box-controls {
   position: absolute;
   top: 5px;
-  right: 5px;
+  left: 20px;
   display: none;
   height: 24px;
   background: #eee;
