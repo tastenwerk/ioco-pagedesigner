@@ -12,7 +12,7 @@ WEB_TRANSITION()
 
 .ioco-page-designer
   height: 100%
-  
+
 .ioco-page-designer-drop-desc
   position: absolute
   top: 0
@@ -219,24 +219,27 @@ html, body
         min-height: 200px
         height: 100%
 
+        .box-controls
+          right: auto
+          left: 20px
+
       //&.edit-mode
       //  -moz-user-select: auto
       //  -khtml-user-select: auto
       //  -webkit-user-select: auto
       //  user-select: auto
 
-      &.hovered
+      &.hovered, &.outlined
         outline: 2px dashed #ddd
 
       &.changed
         background: rgba( 200, 50, 50, 0.5 )
 
       &.highlight-left
-        outline: none;
         border-left: 20px solid #8a0
 
       &.highlight
-        background-color: #fc6
+        background-color: rgba( 200, 150, 70, 0.3 )
 
       &.clearfix
         zoom: 1

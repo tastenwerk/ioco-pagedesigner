@@ -17,8 +17,7 @@
       "span7": "7 Boxen breit",
       "span8": "100% der Seitenbreite",
       "detach-web_bit": "Dieses WebBit auskoppeln",
-      "web_bit-properties": "WebBit Eigenschaften",
-      "disable_specific_css": "CSS-Styles innerhalb diese Seite deaktivieren",
+      "web_bit-properties_for": "Eigenschaften von __name__",
       "webbit": {
         "failed_saving": "Konnte WebBit '__name__' nicht speichern"
       },
@@ -41,6 +40,11 @@
       "templates": "Vorlagen",
       "save": "Speicher",
       "meta": "Meta Info",
+      "api": {
+        "url": "Controlleraufruf (z.B.: WebpageController.getMenu, /api/webpages:getMenu",
+        "data": "Übergabeparameter für Controller",
+        "post_proc_template": "Scripting"
+      },
       "plugins": {
         "plain-container": {
           "title": "Leerer Container"

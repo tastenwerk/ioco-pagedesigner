@@ -239,8 +239,15 @@ body .ioco-page-content .ioco-web-bit.root {
   min-height: 200px;
   height: 100%;
 }
+html .ioco-page-content .ioco-web-bit.root .box-controls,
+body .ioco-page-content .ioco-web-bit.root .box-controls {
+  right: auto;
+  left: 20px;
+}
 html .ioco-page-content .ioco-web-bit.hovered,
-body .ioco-page-content .ioco-web-bit.hovered {
+body .ioco-page-content .ioco-web-bit.hovered,
+html .ioco-page-content .ioco-web-bit.outlined,
+body .ioco-page-content .ioco-web-bit.outlined {
   outline: 2px dashed #ddd;
 }
 html .ioco-page-content .ioco-web-bit.changed,
@@ -249,12 +256,11 @@ body .ioco-page-content .ioco-web-bit.changed {
 }
 html .ioco-page-content .ioco-web-bit.highlight-left,
 body .ioco-page-content .ioco-web-bit.highlight-left {
-  outline: none;
   border-left: 20px solid #8a0;
 }
 html .ioco-page-content .ioco-web-bit.highlight,
 body .ioco-page-content .ioco-web-bit.highlight {
-  background-color: #fc6;
+  background-color: rgba(200,150,70,0.3);
 }
 html .ioco-page-content .ioco-web-bit.clearfix,
 body .ioco-page-content .ioco-web-bit.clearfix {
