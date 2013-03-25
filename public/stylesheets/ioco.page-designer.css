@@ -202,6 +202,20 @@
   left: 0;
   font-size: 11px;
 }
+.ioco-modal .sidebar-content .web-bit-props table.revisions {
+  width: 100%;
+}
+.ioco-modal .sidebar-content .web-bit-props table.revisions td {
+  border-bottom: 1px solid #eee;
+  padding: 5px 2px;
+}
+.ioco-modal .sidebar-content .web-bit-props table.revisions td.revision {
+  width: 5em;
+  text-align: right;
+}
+.ioco-modal .sidebar-content .web-bit-props table.revisions tr:last-child td {
+  border: none;
+}
 html,
 body {
   height: 100%;

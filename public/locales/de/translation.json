@@ -45,6 +45,7 @@
       "styles_for_this_box": "CSS für dieses WebBit. #this selektiert die box selbst",
       "disabled_see_api": "HTML Editor ist deaktiviert. Inhalte werden über API geladen",
       "meta": "Meta Info",
+      "revisions": "Revisionen",
       "api": {
         "url": "Controlleraufruf (z.B.: WebpageController.getMenu, /api/webpages:getMenu",
         "data": "Übergabeparameter für Controller",

@@ -28,6 +28,7 @@
     _csrf: typeof( ioco ) !== 'undefined' ? ioco._csrf : null,
     fallbackLang: 'en',
     i18n: false,
+    revisions: false,
     translate: function( val ){ return val; },
     debug: 3 // 0 ... no debug at all
              // 1 ... errors on console.log
@@ -154,7 +155,7 @@
     Object.defineProperty( this, "tmpCssClasses", { value: '', writable: true });
     Object.defineProperty( this, "renderedContent", { value: '', writable: true });
     Object.defineProperty( this, "webBits", { value: [], writable: true });
-    Object.defineProperty( this, "revision", { value: options.revision || null, configurable: true });
+    //Object.defineProperty( this, "revision", { value: options.revision || null, configurable: true });
     Object.defineProperty( this, "lang", { value: options.lang, configurable: true });
     Object.defineProperty( this, "fallbackLang", {
       value: options.fallbackLang || pageDesigner.options.fallbackLang,
@@ -785,7 +786,7 @@
       throw new Error('a name key must be present in order to create a WebBit');
 
     Object.defineProperty( this, "rootWebBit", { value: {}, writable: true });
-    Object.defineProperty( this, "revision", { value: options.revision, configurable: true });
+    //Object.defineProperty( this, "revision", { value: options.revision, configurable: true });
     Object.defineProperty( this, "lang", { value: options.lang, configurable: true });
     Object.defineProperty( this, "fallbackLang", {
       value: options.fallbackLang || pageDesigner.options.fallbackLang,
@@ -1772,7 +1773,32 @@
     }
 
     var revisionsDiv = $('<div class="web-bit-props"/>')
-                  .append($('<h1 class="title"/>').text('Revisions'));
+                  .append($('<h1 class="title"/>').text( pageDesigner.t('ioco.page_designer.revisions') ))
+                  .append($('<table/>').addClass('revisions'));
+
+    if( pageDesigner.options.revisions )
+      $.getJSON( pageDesigner.options.webBitUrl+'/'+webBit._id+'/revisions.json', function( json ){
+        if( json ){
+          for( var i in json )
+            revisionsDiv.find('table.revisions').prepend( 
+              $('<tr/>')
+                .append(
+                  $('<td class="revision"/>').text( json[i].revision ) 
+                )
+                .append(
+                  $('<td/>').text( typeof(moment) === 'undefined' ? json[i].createdAt : moment(json[i].createdAt).format('ddd, DD. MM. YYYY HH:mm') ) 
+                )
+                .append(
+                  $('<td/>').text( pageDesigner.options.usersCache && 
+                                  pageDesigner.options.usersCache[json[i]._createdBy] &&
+                                  pageDesigner.options.usersCache[json[i]._createdBy].name.nick || json[i]._createdBy )
+                )
+                .append(
+                  $('<td/>').text( 'actions' ) 
+                )
+              );
+        }
+      });
 
     var accessDiv = $('<div class="web-bit-props"/>')
                   .append($('<h1 class="title"/>').text('ACL'));

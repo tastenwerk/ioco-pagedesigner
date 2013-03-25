@@ -15,24 +15,36 @@ http://tastenwerk.com/ioco/pageDesigner/demo
 
 # Philosophy
 
-Every tinies web content is a WebBit. Not every single html tag, but semantic logical
-content. A WebBit is a visual element, let's say
-a text block, a navigation bar or an image gallery. You can create such
-bits - as many as you like - and use them whereever and how often you like,
-place them inside each other, lock them for editors and version control them
-(if implemented in the backend).
+Every <div> block is a WebBit. A WebBit is a structural connected to a plugin, which
+decides the view, control mechanism and maybe also access level of the webbit. A
+webpage consists of one or many WebBits. A WebBit can be reused as a libary item, a
+WebPage can be configured as a template. If a new webpage is created, WebBits of the
+chosen WebPage are copied into the new WebPage, so you get a fully designed (and text-filled)
+Webpage.
+
+# Features
+
+* CRUD webpages
+* multilingual support
+* revision support (must be maintained on serverside)
+* highly adaptable plugin system
+
+# Who uses it?
+
+Well, we at TASTENWERK. Our clients can be found on our webpage's portfolio site. Our own 
+Website is run by ioco, ioco-web and iocoPageDesigner.
 
 # Installation
 
 ## Quick standalone starting:
     
-    git clone git@github.com:tastenwerk/iopagedesigner.git
+    git clone git@github.com:tastenwerk/ioco-pagedesigner.git
 
 copy over the /demo folder to a local or remote web server and run it. You will be
 provided with a demo marked up page which does not store but gives you the opportunity
 to play around with WebBits.
 
-## Install with nodejs:
+## Install with nodejs (not yet):
     
     npm install ioco-pagedesigner
 
@@ -70,7 +82,7 @@ content from the db or the filesystem. Find a full working example with a file s
 implementation of pageDesigner in the demo directory:
 
 
-    var pageDesigner = require('iopagedesigner');
+    var pageDesigner = require('ioco-pagedesigner');
 
 Override the loadById() interface of both WebPage and WebBit:
 
@@ -91,6 +103,22 @@ Override the loadById() interface of both WebPage and WebBit:
       // all nested WebBits are available starting from the 
       // myPage.rootWebBit
     });
+
+
+### Templates
+
+With iocoPageDesigner you can create templates and reuse them. A template can be a production page
+or a page just holding the template.
+
+All the template's webbits get copied and are available as a demonstration of how the page might
+look like. Text can just be modified.
+
+### Revisions
+
+If iocoPageDesigner is provided with the revisions: true option. This is mainly
+just an interaction frontend for the server (dealing with the revisions)
+
+
 
 # Contributors
 
