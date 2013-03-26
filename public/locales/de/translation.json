@@ -46,6 +46,9 @@
       "disabled_see_api": "HTML Editor ist deaktiviert. Inhalte werden über API geladen",
       "meta": "Meta Info",
       "revisions": "Revisionen",
+      "comment": "Kommentar",
+      "switch_to_revision": "Revision __revision__ verwenden",
+      "delete_revision": "Revision __revision__ löschen",
       "api": {
         "url": "Controlleraufruf (z.B.: WebpageController.getMenu, /api/webpages:getMenu",
         "data": "Übergabeparameter für Controller",

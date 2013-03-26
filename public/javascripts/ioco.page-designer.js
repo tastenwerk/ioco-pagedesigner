@@ -1531,6 +1531,11 @@
 
   }
 
+  pageDesigner.client.utils.setupModalProperties = function( $modal, webBit ){
+    if( webBit.api.postProcTemplate )
+      ace.edit( $modal.find('#postProcTemplateEditor').get(0) ).setValue( webBit.api.postProcTemplate );
+  }
+
   /**
    * helper
    */
@@ -1740,8 +1745,6 @@
       tmplEditor.getSession().setMode("ace/mode/jade");
       tmplEditor.getSession().setUseWrapMode(true);
       tmplEditor.getSession().setWrapLimitRange(80, 80);
-      if( webBit.api.postProcTemplate )
-        tmplEditor.setValue( webBit.api.postProcTemplate );
     }
 
     // set ace editor for textareas if ace option is enabled
@@ -1782,6 +1785,8 @@
           for( var i in json )
             revisionsDiv.find('table.revisions').prepend( 
               $('<tr/>')
+                .attr('revision', json[i].revision)
+                .addClass( json[i].current ? 'current' : '' )
                 .append(
                   $('<td class="revision"/>').text( json[i].revision ) 
                 )
@@ -1794,7 +1799,81 @@
                                   pageDesigner.options.usersCache[json[i]._createdBy].name.nick || json[i]._createdBy )
                 )
                 .append(
-                  $('<td/>').text( 'actions' ) 
+                  $('<td class="comment"/>')
+                    .append($('<span/>').addClass('icn icn-comments pull-left')
+                      .on('click', function( e ){
+                        var self = this;
+                        var comment = prompt( pageDesigner.t('ioco.page_designer.comment'), $(this).next().text() );
+                        if( comment && comment.length > 0 ){
+                          var revision = $(this).closest('tr').attr('revision');
+                          $.ajax({ url: pageDesigner.options.webBitUrl+'/'+webBit._id+'/revisions/'+revision+'/comment',
+                                   data: { _csrf: pageDesigner.options._csrf,
+                                           comment: comment },
+                                   type: 'put',
+                                   success: function( response ){
+                                     if( response.success )
+                                       $(self).next().text( comment );
+                                     else if( response.error )
+                                       ioco.notify( { error: [response.error] });
+                                     else
+                                       ioco.notify( { error: ['unknown error on server when trying to save comment'] });
+                                   }
+                          });
+                        }
+                      })
+                    )
+                    .append($('<span/>').text( json[i].comment ))
+                )
+                .append(
+                  $('<td/>').addClass('actions').append(
+                    $('<span/>').addClass('icn icn-history').on('click', function(e){
+                        var self = this;
+                        var revision = $(this).closest('tr').attr('revision');
+                        if( confirm( pageDesigner.t('ioco.page_designer.switch_to_revision', {revision: revision}) ) ){
+                          $.ajax({ url: pageDesigner.options.webBitUrl+'/'+webBit._id+'/revisions/'+revision+'/switch',
+                                   data: { _csrf: pageDesigner.options._csrf },
+                                   type: 'put',
+                                   success: function( response ){
+                                     if( response.success ){
+                                       $(self).closest('table').find('.current').removeClass('current');
+                                       $(self).closest('tr').addClass('current');
+                                       if( response.revision ){
+                                          for( var i in response.revision.data )
+                                            webBit[i] = response.revision.data[i];
+                                          pageDesigner.client.utils.setupModalProperties( $(self).closest('.modal-inner-wrapper'), webBit );
+                                        }
+                                     }
+                                     else if( response.error )
+                                       ioco.notify( { error: [response.error] });
+                                     else
+                                       ioco.notify( { error: ['unknown error on server when trying to switch to this revision'] });
+                                   }
+                          });
+                        }
+                      })
+                  ).append(
+                    $('<span/>').addClass('icn icn-trash').on('click', function(e){
+                      var self = this;
+                      var revision = $(this).closest('tr').attr('revision');
+                      if( confirm( pageDesigner.t('ioco.page_designer.delete_revision', {revision: revision}) ) ){
+                        $.ajax({ url: pageDesigner.options.webBitUrl+'/'+webBit._id+'/revisions/'+revision,
+                                 data: { _csrf: pageDesigner.options._csrf },
+                                 type: 'delete',
+                                 success: function( response ){
+                                   if( response.success ){
+                                     $(self).closest('tr').effect('highlight',500)
+                                     setTimeout( function(){ $(self).closest('tr').remove() }, 500 );
+                                   }
+                                   else if( response.error )
+                                     ioco.notify( { error: [response.error] });
+                                   else
+                                     ioco.notify( { error: ['unknown error on server when trying to delete this revision'] });
+                                 }
+                        });
+                      }
+
+                    })
+                  )
                 )
               );
         }
@@ -1858,6 +1937,8 @@
       .append(sidebar)
       .append(sidebarContent);
     
+    pageDesigner.client.utils.setupModalProperties(html, webBit );
+
     return html;
   }
 

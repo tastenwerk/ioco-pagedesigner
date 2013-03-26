@@ -184,15 +184,27 @@ WEB_TRANSITION()
 
       table.revisions
         width: 100%
+        border-spacing: 0
         td
           border-bottom: 1px solid #ddd
           padding: 5px 2px
           &.revision
             width: 4em
             text-align: center
-        tr:last-child
-          td
-            border: none
+          &.actions
+            visibility: hidden
+            span.icn
+              cursor: pointer
+        tr
+          &:last-child
+            td
+              border: none
+          &.current
+            background-color: #82E61E
+          &:hover
+            .actions
+              visibility: visible
+
 
 html, body
 

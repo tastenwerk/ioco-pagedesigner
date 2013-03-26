@@ -204,17 +204,30 @@
 }
 .ioco-modal .sidebar-content .web-bit-props table.revisions {
   width: 100%;
+  border-spacing: 0;
 }
 .ioco-modal .sidebar-content .web-bit-props table.revisions td {
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #ddd;
   padding: 5px 2px;
 }
 .ioco-modal .sidebar-content .web-bit-props table.revisions td.revision {
-  width: 5em;
-  text-align: right;
+  width: 4em;
+  text-align: center;
+}
+.ioco-modal .sidebar-content .web-bit-props table.revisions td.actions {
+  visibility: hidden;
+}
+.ioco-modal .sidebar-content .web-bit-props table.revisions td.actions span.icn {
+  cursor: pointer;
 }
 .ioco-modal .sidebar-content .web-bit-props table.revisions tr:last-child td {
   border: none;
+}
+.ioco-modal .sidebar-content .web-bit-props table.revisions tr.current {
+  background-color: #82e61e;
+}
+.ioco-modal .sidebar-content .web-bit-props table.revisions tr:hover .actions {
+  visibility: visible;
 }
 html,
 body {
