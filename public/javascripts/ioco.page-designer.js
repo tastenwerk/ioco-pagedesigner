@@ -382,8 +382,10 @@
                     self.serverProcContent = json.serverProcContent;
                     self.$box.replaceWith( self.render() );
                     restoreStyles();
-                  } else{
-                    ioco.notify('error', 'server did not respond with valid content');
+                  } else if( json.error ){
+                    ioco.notify( {error: json.error} );
+                  } else {
+                    ioco.notify( { error: ['server did not respond with valid content'] });
                     console.log('[iocoPageDesigner] [ERROR] server did not respond with valid content', json);
                   }
               }
@@ -593,7 +595,7 @@
         cursor: 'move',
         revert: function( validDrop ){
           $('.ioco-page-designer-drop-desc').fadeOut( 300, function(){ $(this).remove() });
-          $pageDesigner.find('.ioco-web-bit').removeClass('outlined');
+          $('.ioco-web-bit:visible').removeClass('outlined');
           $(document).find('.ioco-web-bit').removeClass('highlight').removeClass('highlight-left');
           if( validDrop )
             return false;
@@ -601,10 +603,10 @@
         },
         drag: pageDesigner.client.utils.decorateDraggedBox,
         start: function(){
-          $pageDesigner.find('.ioco-web-bit').addClass('outlined');
+          $('.ioco-web-bit:visible').addClass('outlined');
         },
         stop: function(){
-          $pageDesigner.find('.ioco-web-bit').removeClass('outlined');
+          $('.ioco-web-bit:visible').removeClass('outlined');
         }
       })
       .droppable({
@@ -709,7 +711,7 @@
     if( this.$box ){
       var $tmpContent = this.$box.find('.box-content').clone();
       $tmpContent.find('.ioco-web-bit').each( function(){
-        $(this).removeClass('active').removeClass('hovered').removeClass('ui-droppable').removeClass('ui-draggable');
+        $(this).removeClass('active').removeClass('hovered').removeClass('ui-droppable').removeClass('ui-draggable').removeClass('changed');
         $(this).html('');
       });
       this.content = $tmpContent.html();
@@ -1275,8 +1277,7 @@
     if( $targetWebBit.data('webBit').root && attachMethod === 'before' )
       attachMethod = 'prepend';
 
-    $(document).find('.ioco-web-bit').removeClass('highlight').removeClass('highlight-left');
-    $pageDesigner.find('.ioco-web-bit').removeClass('outlined');
+    $(document).find('.ioco-web-bit').removeClass('highlight').removeClass('highlight-left').removeClass('outlined');
     
     $('.ioco-page-designer-drop-desc').remove();
 
@@ -1433,7 +1434,7 @@
     if( !webBit.root )
       controls.append(closeBtn);
 
-    controls.find('.tooltip').tooltipster({ touchDevice: false });
+    //controls.find('.tooltip').tooltipster({ touchDevice: false });
 
     return controls;
 
@@ -1614,7 +1615,7 @@
                     .append($('<label/>').text( pageDesigner.t('ioco.page_designer.css_classes')))
                     .append('<br />')
                     .append($('<input type="text" name="cssClasses" placeholder="e.g.: span2 float-left" value="'+
-            $.trim( $box.attr('class').replace(/[\ ]*ioco-web-bit|ui-droppable|ui-draggable|root|active|hovered[\ ]*/g,'') )+'" />')
+            $.trim( $box.attr('class').replace(/[\ ]*ioco-web-bit|ui-droppable|ui-draggable|root|active|hovered|changed[\ ]*/g,'') )+'" />')
                   )
                   .append($('<p/>')
                     .append($('<label/>').text('CSS ID'))
