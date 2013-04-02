@@ -494,7 +494,7 @@
       return self.decorateBox( $box );
     }
 
-    if( self.api.url && self.serverProcContent )
+    if( self.api && self.api.url && self.serverProcContent )
       $box.append( pageDesigner.$('<div class="box-content">').append( self.serverProcContent ) );
     else
       $box.append(pageDesigner.$('<div class="box-content">').append(self.renderedContent));
