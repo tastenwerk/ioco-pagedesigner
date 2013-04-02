@@ -450,11 +450,17 @@
       function applyCSS(){
         if( self.properties.css && self.properties.css.length > 0 ){
           var cssVal = self.properties.css;
-          if( cssVal.indexOf('#this{') === 0 )
-            cssVal = '[data-web-bit-id="'+self._id+'"]'+cssVal.replace('#this{','{');
-          else
-            cssVal = '[data-web-bit-id="'+self._id+'"] '+cssVal;
-          cssVal = cssVal.replace(/\n/g,'\n[data-web-bit-id="'+self._id+'"] ');
+          if( self.properties.cssId && self.properties.cssId.length > 0 ){
+            cssVal = cssVal;
+            //cssVal = '#'+self.properties.cssId+' '+cssVal;
+            //cssVal = cssVal.replace(/\n/g,'\n#'+self.properties.cssId+' ');
+          } else {
+            if( cssVal.indexOf('#this{') === 0 )
+              cssVal = '[data-web-bit-id="'+self._id+'"]'+cssVal.replace('#this{','{');
+            else
+              cssVal = '[data-web-bit-id="'+self._id+'"] '+cssVal;
+            cssVal = cssVal.replace(/\n/g,'\n[data-web-bit-id="'+self._id+'"] ');
+          }
           $box.prepend( pageDesigner.$('<style/>').html( cssVal ) );
         }
       }
@@ -1388,7 +1394,7 @@
           if( err )
             ioco.notify(pageDesigner.t('saving.failed', {name: $box.data('webBit').name}));
           else
-            ioco.notify(pageDesigner.t('saved', {name: $box.data('webBit').name}));
+            ioco.notify(pageDesigner.t('saving.ok', {name: $box.data('webBit').name}));
         });
       });
 
@@ -1476,10 +1482,16 @@
             webBit.category = $modal.find('input[name=category]').val();
             webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
             webBit.properties.cssId = $modal.find('input[name=cssId]').val();
-            webBit.properties.css = ace.edit($modal.find('#cssEditor').get(0)).getValue();
+            var newCss = ace.edit($modal.find('#cssEditor').get(0)).getValue();
+            if( webBit.properties.css != newCss)
+              (changed = true) && ( webBit.properties.css = newCss );
             webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
             var newClasses = 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val();
-            webBit.tmpCssClasses = newClasses;
+            if( webBit.tmpCssClasses != newClasses ){
+              if( webBit._parent )
+                ( webBit._parent.changed = true ) && webBit._parent.markChanged();
+              webBit.tmpCssClasses = newClasses;
+            }
 
             if( webBit.root ){
               webBit.template = $modal.find('input[name=templateItem]').is(':checked');
