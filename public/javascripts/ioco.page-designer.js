@@ -267,7 +267,11 @@
    * @param {function( err, webbit )} - callback
    *
    */
-  pageDesigner.WebBit.loadById = function loadWebBitById( id, callback ){
+  pageDesigner.WebBit.loadById = function loadWebBitById( id, req, res, callback ){
+    if( typeof( req ) === 'function' ){
+      callback = req;
+      req = null;
+    }
     if( isNode )
       throw new Error('WebBit.loadById in NodeJS mode interface needs to be implemented by overriding this function. See documentation');
     else
@@ -479,6 +483,7 @@
 
         $box.attr('id', self.properties.cssId);
         $box.attr('class', self.tmpCssClasses || tmpCssClasses);
+        //self.tmpCssClasses = tmpCssClasses;
 
         applyCSS();
         applyJS();
@@ -814,12 +819,16 @@
    * and recursively initialize all associated WebBits
    *
    */
-  pageDesigner.WebPage.prototype.initialize = function initializeWebPage( callback ){
+  pageDesigner.WebPage.prototype.initialize = function initializeWebPage( req, res, callback ){
+    if( typeof( req ) === 'function' ){
+      callback = req;
+      req = null;
+    }
     var self = this;
     if( pageDesigner.options.debug > 2 )
       console.log('[pageDesigner] trying to load root web bit', this.rootWebBitId );
     if( this.rootWebBitId )
-      pageDesigner.WebBit.loadById( this.rootWebBitId, function( err, webBit ){
+      pageDesigner.WebBit.loadById( this.rootWebBitId, req, res, function( err, webBit ){
         if( webBit ){
           webBit._parent = this;
           self.rootWebBit = webBit;
@@ -1311,13 +1320,15 @@
                                     root: false,
                                     library: false,
                                     template: false,
-                                    properties: { js: '', 
+                                    properties: plugin.defaults && plugin.defaults.properties || { js: '', 
                                                   cssClasses: 'float-left span1',
                                                   cssStyles: {} },
+                                    api: plugin.defaults && plugin.defaults.api || null,
                                     pluginName: plugin.name,
                                     category: '',
                                     content: (plugin.defaultContent ? plugin.defaultContent : '') }, 
                         function( err, webBit ){
+
                           webBit._parent = $targetWebBit.data('webBit');
                           if( err ) return callback( err );
                           if( !webBit._parent )
@@ -1614,6 +1625,7 @@
     var webBit = $box.data('webBit')
       , plugin = $box.data('plugin');
 
+      console.log(webBit.api);
     if( typeof(ace) === 'object' ){
       ace.config.set("modePath", "/javascripts/3rdparty/ace");
       ace.config.set("workerPath", "/javascripts/3rdparty/ace");
@@ -1767,7 +1779,7 @@
       apiDataEditor.getSession().setUseWrapMode(true);
       apiDataEditor.getSession().setWrapLimitRange(80, 80);
       if( webBit.api.data )
-        apiDataEditor.setValue( webBit.api.data );
+        apiDataEditor.setValue( JSON.stringify(webBit.api.data) );
     }
 
     var jsDiv = $('<div class="web-bit-props"/>')
