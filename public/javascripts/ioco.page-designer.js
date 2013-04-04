@@ -1323,7 +1323,7 @@
                                     properties: plugin.defaults && plugin.defaults.properties || { js: '', 
                                                   cssClasses: 'float-left span1',
                                                   cssStyles: {} },
-                                    api: plugin.defaults && plugin.defaults.api || null,
+                                    api: plugin.defaults && plugin.defaults.api || { postProcTemplate: '', data: {}, url: '' },
                                     pluginName: plugin.name,
                                     category: '',
                                     content: (plugin.defaultContent ? plugin.defaultContent : '') }, 
@@ -1514,8 +1514,8 @@
               webBit.locked = $modal.find('[name="locked"]').val();
             } else {
               var apiData = ace.edit($modal.find('#apiDataEditor').get(0)).getValue();
-              if( webBit.api.data !== apiData )
-                ( changed = true ) && webBit.setRemoteContent( { data: apiData } );
+              if( webBit.api.data && webBit.api.data.length > 0 && webBit.api.data !== apiData )
+                ( changed = true ) && webBit.setRemoteContent( { data: JSON.parse(apiData) } );
               var postProcTemplateContent = ace.edit($modal.find('#postProcTemplateEditor').get(0)).getValue();
               if( webBit.api.postProcTemplate !== postProcTemplateContent )
                 ( changed = true ) && webBit.setRemoteContent( { postProcTemplate: postProcTemplateContent } );
@@ -1532,7 +1532,7 @@
           // plugin can define, if htmlEditor should be enabled for normal users
           if( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer )){
             var newContent = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
-            if( webBit.api.postProcTemplate.length < 1 )
+            if( webBit.api.postProcTemplate && webBit.api.postProcTemplate.length < 1 )
               if( webBit.content !== newContent )
                 ( changed = true ) && webBit.setContent( newContent );
           }
