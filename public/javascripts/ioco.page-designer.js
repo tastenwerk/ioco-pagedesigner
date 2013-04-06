@@ -267,10 +267,10 @@
    * @param {function( err, webbit )} - callback
    *
    */
-  pageDesigner.WebBit.loadById = function loadWebBitById( id, req, res, callback ){
-    if( typeof( req ) === 'function' ){
-      callback = req;
-      req = null;
+  pageDesigner.WebBit.loadById = function loadWebBitById( id, tmpAttrs, req, res, callback ){
+    if( typeof( tmpAttrs ) === 'function' ){
+      callback = tmpAttrs;
+      tmpAttrs = null;
     }
     if( isNode )
       throw new Error('WebBit.loadById in NodeJS mode interface needs to be implemented by overriding this function. See documentation');
@@ -499,7 +499,7 @@
       return self.decorateBox( $box );
     }
 
-    if( self.api && self.api.url && self.serverProcContent )
+    if( self.serverProcContent )
       $box.append( pageDesigner.$('<div class="box-content">').append( self.serverProcContent ) );
     else
       $box.append(pageDesigner.$('<div class="box-content">').append(self.renderedContent));
@@ -646,7 +646,11 @@
    * initializes all associated WebBits and applies styles
    *
    */
-  pageDesigner.WebBit.prototype.initialize = function initializeWebBit( callback ){
+  pageDesigner.WebBit.prototype.initialize = function initializeWebBit( req, res, callback ){
+    if( typeof( req ) === 'function' ){
+      callback = req;
+      req = null;
+    }
     var self = this;
     self.webBits = [];
     var $procContent = pageDesigner.$('<div>'+self.content+'</div>');
@@ -666,7 +670,7 @@
     function initNextWebBit(){
       if( webBitIds.length === 0 || initialized > webBitIds.length - 1 )
         return callback( (errors > 0 && errors + ' WebBits could not be initialized in ' + self.name || null), self );
-        pageDesigner.WebBit.loadById( webBitIds[initialized], function( err, webBit ){
+        pageDesigner.WebBit.loadById( webBitIds[initialized], null, req, res, function( err, webBit ){
           initialized++;
           if( webBit ){
             webBit._parent = self;
@@ -828,11 +832,11 @@
     if( pageDesigner.options.debug > 2 )
       console.log('[pageDesigner] trying to load root web bit', this.rootWebBitId );
     if( this.rootWebBitId )
-      pageDesigner.WebBit.loadById( this.rootWebBitId, req, res, function( err, webBit ){
+      pageDesigner.WebBit.loadById( this.rootWebBitId, null, req, res, function( err, webBit ){
         if( webBit ){
           webBit._parent = this;
           self.rootWebBit = webBit;
-          self.rootWebBit.initialize( function( err, webBit ){ callback( err, self ); } );
+          self.rootWebBit.initialize( req, res, function( err, webBit ){ callback( err, self ); } );
         } else
           callback( err, self ); 
       });
@@ -1482,6 +1486,7 @@
         if( action === 'close' ){
           var changed = false;
           var webBit = $box.data('webBit');
+          var plugin = $box.data('plugin');
           webBit.properties = webBit.properties || {};
 
           webBit.name = $modal.find('input[name=name]').val();
@@ -1494,15 +1499,16 @@
             webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
             webBit.properties.cssId = $modal.find('input[name=cssId]').val();
             var newCss = ace.edit($modal.find('#cssEditor').get(0)).getValue();
-            if( webBit.properties.css != newCss)
+            if( newCss.length > 0 && webBit.properties.css != newCss)
               (changed = true) && ( webBit.properties.css = newCss );
             webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
             var newClasses = 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val();
-            if( webBit.tmpCssClasses != newClasses ){
+            /*if( webBit.tmpCssClasses != newClasses ){
               if( webBit._parent )
                 ( webBit._parent.changed = true ) && webBit._parent.markChanged();
               webBit.tmpCssClasses = newClasses;
-            }
+            }*/
+            webBit.tmpCssClasses = newClasses;
 
             if( webBit.root ){
               webBit.template = $modal.find('input[name=templateItem]').is(':checked');
@@ -1512,7 +1518,7 @@
               webBit.properties.metaKeywords = $modal.find('[name="meta-keywords"]').val();
               webBit.properties.metaNoRobots = $modal.find('[name="meta-no-robots"]').val();
               webBit.locked = $modal.find('[name="locked"]').val();
-            } else {
+            } else if( webBit.api && !plugin.serverSide ) {
               var apiData = ace.edit($modal.find('#apiDataEditor').get(0)).getValue();
               if( webBit.api.data && webBit.api.data.length > 0 && webBit.api.data !== apiData )
                 ( changed = true ) && webBit.setRemoteContent( { data: JSON.parse(apiData) } );
@@ -1683,7 +1689,7 @@
                   .append($('<p/>')
                     .append($('<label/>').text( pageDesigner.t('ioco.page_designer.api.url') ) )
                     .append('<br />')
-                    .append($('<input type="text" name="api_url" class="fill-width" />').val( webBit.api.url ))
+                    .append($('<input type="text" name="api_url" class="fill-width" />').val( webBit.api.url ).attr('disabled', ('serverSide' in plugin) ))
                   )
                   .append($('<p/>')
                     .append($('<label/>').text( pageDesigner.t('ioco.page_designer.api.data') ) )
@@ -1770,6 +1776,7 @@
       tmplEditor.getSession().setMode("ace/mode/jade");
       tmplEditor.getSession().setUseWrapMode(true);
       tmplEditor.getSession().setWrapLimitRange(80, 80);
+      tmplEditor.setReadOnly('serverSide' in plugin);
     }
 
     // set ace editor for textareas if ace option is enabled
@@ -1778,6 +1785,7 @@
       apiDataEditor.getSession().setMode("ace/mode/json");
       apiDataEditor.getSession().setUseWrapMode(true);
       apiDataEditor.getSession().setWrapLimitRange(80, 80);
+      apiDataEditor.setReadOnly('serverSide' in plugin);
       if( webBit.api.data )
         apiDataEditor.setValue( JSON.stringify(webBit.api.data) );
     }
@@ -1910,29 +1918,27 @@
     var sidebar = $('<ul class="sidebar-nav"/>')
         .append($('<li/>').text( pageDesigner.translate('ioco.page_designer.meta') ) );
 
+    var sidebarContent = $('<div class="sidebar-content"/>')
+        .append(metaDiv);
+
 
     // plugin can define, if htmlEditor should be enabled for normal users
-    if( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))
+    if( !plugin.serverSide && (plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))){
       sidebar.append($('<li/>').text( 'HTML' ));
+      sidebarContent.append(htmlDiv);
+    }
 
     if( !pageDesigner.options.roles || pageDesigner.options.roles.designer ){
       sidebar.append($('<li/>').text( 'CSS' ))
       .append($('<li/>').text( 'JS' ));
     }
 
-    var sidebarContent = $('<div class="sidebar-content"/>')
-        .append(metaDiv)
-
-    // plugin can define, if htmlEditor should be enabled for normal users
-    if( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))
-      sidebarContent.append(htmlDiv);
-
     if( !pageDesigner.options.roles || pageDesigner.options.roles.designer ){
       sidebarContent
         .append(cssDiv)
         .append(jsDiv);
 
-      if( !webBit.root ){
+      if( !webBit.root && !plugin.serverSide ){
         sidebar.append($('<li/>').text( 'API' ));
         sidebarContent.append(apiDiv);
       }

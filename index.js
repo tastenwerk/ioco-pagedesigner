@@ -23,5 +23,5 @@ module.exports = exports = {
   },
 
   lib: pageDesigner
-
+  
 };
