@@ -1536,7 +1536,7 @@
           var plugin = $box.data('plugin');
 
           // plugin can define, if htmlEditor should be enabled for normal users
-          if( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer )){
+          if( !plugin.serverSide && ( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))){
             var newContent = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
             if( webBit.api.postProcTemplate && webBit.api.postProcTemplate.length < 1 )
               if( webBit.content !== newContent )
