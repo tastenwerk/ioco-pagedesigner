@@ -326,6 +326,7 @@
    *
    */
   pageDesigner.WebBit.prototype.setContent = function setContentOfWebBit( val ){
+    console.log('settting content', val);
     var $procContent = pageDesigner.$('<div>'+val+'</div>');
     var self = this;
     this.renderedContent = val;
@@ -454,11 +455,7 @@
       function applyCSS(){
         if( self.properties.css && self.properties.css.length > 0 ){
           var cssVal = self.properties.css;
-          if( self.properties.cssId && self.properties.cssId.length > 0 ){
-            cssVal = cssVal;
-            //cssVal = '#'+self.properties.cssId+' '+cssVal;
-            //cssVal = cssVal.replace(/\n/g,'\n#'+self.properties.cssId+' ');
-          } else {
+          if( !self.root && ( !self.properties.cssId || self.properties.cssId.length <= 0 ) ){
             if( cssVal.indexOf('#this{') === 0 )
               cssVal = '[data-web-bit-id="'+self._id+'"]'+cssVal.replace('#this{','{');
             else
@@ -675,7 +672,7 @@
           if( webBit ){
             webBit._parent = self;
             self.webBits.push( webBit );
-            webBit.initialize( initNextWebBit );
+            webBit.initialize( req, res, initNextWebBit );
           } else{
             initNextWebBit();
             errors++;
@@ -1481,72 +1478,18 @@
         html.find('#postProcTemplateEditor').css({ height: html.find('.sidebar-content').height() - 265, top: 260});
 
         html.find('#jsEditor').css({ height: html.find('.sidebar-content').height() - 65, top: 60});
+
+        html.find('textarea,input[type=text]').on('keydown', function( e ){ 
+          if( (e.ctrlKey || e.metaKey) && e.keyCode === 83){ 
+            e.preventDefault(); 
+            ioco.modal('close');
+            pageDesigner.client.utils.updateEditorChanges( $box, html );
+          } 
+        });
       },
       on: function modalOn( action, $modal ){
-        if( action === 'close' ){
-          var changed = false;
-          var webBit = $box.data('webBit');
-          var plugin = $box.data('plugin');
-          webBit.properties = webBit.properties || {};
-
-          webBit.name = $modal.find('input[name=name]').val();
-
-          // in case we have roles enabled, only web designer will
-          // be able to save these sections
-          if( !pageDesigner.options.roles || pageDesigner.options.roles.designer ){
-
-            webBit.category = $modal.find('input[name=category]').val();
-            webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
-            webBit.properties.cssId = $modal.find('input[name=cssId]').val();
-            var newCss = ace.edit($modal.find('#cssEditor').get(0)).getValue();
-            if( newCss.length > 0 && webBit.properties.css != newCss)
-              (changed = true) && ( webBit.properties.css = newCss );
-            webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
-            var newClasses = 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val();
-            /*if( webBit.tmpCssClasses != newClasses ){
-              if( webBit._parent )
-                ( webBit._parent.changed = true ) && webBit._parent.markChanged();
-              webBit.tmpCssClasses = newClasses;
-            }*/
-            webBit.tmpCssClasses = newClasses;
-
-            if( webBit.root ){
-              webBit.template = $modal.find('input[name=templateItem]').is(':checked');
-              webBit.properties.includeCSS = $modal.find('[name="include-css"]').val();
-              webBit.properties.includeJS = $modal.find('[name="include-js"]').val();
-              webBit.properties.metaDescription = $modal.find('[name="meta-description"]').val();
-              webBit.properties.metaKeywords = $modal.find('[name="meta-keywords"]').val();
-              webBit.properties.metaNoRobots = $modal.find('[name="meta-no-robots"]').val();
-              webBit.locked = $modal.find('[name="locked"]').val();
-            } else if( webBit.api && !plugin.serverSide ) {
-              var apiData = ace.edit($modal.find('#apiDataEditor').get(0)).getValue();
-              if( webBit.api.data && webBit.api.data.length > 0 && webBit.api.data !== apiData )
-                ( changed = true ) && webBit.setRemoteContent( { data: JSON.parse(apiData) } );
-              var postProcTemplateContent = ace.edit($modal.find('#postProcTemplateEditor').get(0)).getValue();
-              if( webBit.api.postProcTemplate !== postProcTemplateContent )
-                ( changed = true ) && webBit.setRemoteContent( { postProcTemplate: postProcTemplateContent } );
-
-              if( $modal.find('[name=api_url]').length && $modal.find('[name=api_url]').val() != webBit.api.url )
-                ( changed = true ) && webBit.setRemoteContent( { url: $modal.find('[name=api_url]').val() })
-
-            }
-
-          }
-
-          var plugin = $box.data('plugin');
-
-          // plugin can define, if htmlEditor should be enabled for normal users
-          if( !plugin.serverSide && ( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))){
-            var newContent = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
-            if( webBit.api.postProcTemplate && webBit.api.postProcTemplate.length < 1 )
-              if( webBit.content !== newContent )
-                ( changed = true ) && webBit.setContent( newContent );
-          }
-
-          changed && webBit.markChanged();
-
-          webBit.refreshContent();
-        }
+        if( action === 'close' )
+          pageDesigner.client.utils.updateEditorChanges( $box, $modal );
       }/*,
       windowControls: {
         save: {
@@ -1565,6 +1508,81 @@
     if( webBit.api.postProcTemplate )
       ace.edit( $modal.find('#postProcTemplateEditor').get(0) ).setValue( webBit.api.postProcTemplate );
   }
+
+  /**
+   * updates webbit with changes from properties modal
+   * reads attributes from properties modal
+   *
+   * @api private
+   *
+   */
+  pageDesigner.client.utils.updateEditorChanges = function( $box, $modal ){
+    var changed = false;
+    var webBit = $box.data('webBit');
+    var plugin = $box.data('plugin');
+    webBit.properties = webBit.properties || {};
+
+    webBit.name = $modal.find('input[name=name]').val();
+
+    // in case we have roles enabled, only web designer will
+    // be able to save these sections
+    if( !pageDesigner.options.roles || pageDesigner.options.roles.designer ){
+
+      webBit.category = $modal.find('input[name=category]').val();
+      webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
+      webBit.properties.cssId = $modal.find('input[name=cssId]').val();
+      var newCss = ace.edit($modal.find('#cssEditor').get(0)).getValue();
+      if( newCss.length > 0 && webBit.properties.css != newCss)
+        (changed = true) && ( webBit.properties.css = newCss );
+      webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
+      var newClasses = 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val();
+      /*if( webBit.tmpCssClasses != newClasses ){
+        if( webBit._parent )
+          ( webBit._parent.changed = true ) && webBit._parent.markChanged();
+        webBit.tmpCssClasses = newClasses;
+      }*/
+      webBit.tmpCssClasses = newClasses;
+
+      if( webBit.root ){
+        webBit.template = $modal.find('input[name=templateItem]').is(':checked');
+        webBit.properties.includeCSS = $modal.find('[name="include-css"]').val();
+        webBit.properties.includeJS = $modal.find('[name="include-js"]').val();
+        webBit.properties.metaDescription = $modal.find('[name="meta-description"]').val();
+        webBit.properties.metaKeywords = $modal.find('[name="meta-keywords"]').val();
+        webBit.properties.metaNoRobots = $modal.find('[name="meta-no-robots"]').val();
+        webBit.locked = $modal.find('[name="locked"]').val();
+      } else if( webBit.api && !plugin.serverSide ) {
+        var apiData = ace.edit($modal.find('#apiDataEditor').get(0)).getValue();
+        if( webBit.api.data && webBit.api.data.length > 0 && webBit.api.data !== apiData )
+          ( changed = true ) && webBit.setRemoteContent( { data: JSON.parse(apiData) } );
+        var postProcTemplateContent = ace.edit($modal.find('#postProcTemplateEditor').get(0)).getValue();
+        if( webBit.api.postProcTemplate !== postProcTemplateContent )
+          ( changed = true ) && webBit.setRemoteContent( { postProcTemplate: postProcTemplateContent } );
+
+        if( $modal.find('[name=api_url]').length && $modal.find('[name=api_url]').val() != webBit.api.url )
+          ( changed = true ) && webBit.setRemoteContent( { url: $modal.find('[name=api_url]').val() })
+
+      }
+
+    }
+
+    var plugin = $box.data('plugin');
+
+    // plugin can define, if htmlEditor should be enabled for normal users
+    if( !plugin.serverSide && ( plugin.enableHTMLForAnyRole || (pageDesigner.options.roles && pageDesigner.options.roles.designer ))){
+      var newContent = ace.edit($modal.find('#htmlEditor').get(0)).getValue();
+      console.log('postproccontent', webBit.api.postProcTemplate );
+      if( !webBit.api.postProcTemplate || webBit.api.postProcTemplate.length < 1 ){
+        console.log( 'inside', webBit.content !== newContent);
+        if( webBit.content !== newContent )
+          ( changed = true ) && webBit.setContent( newContent );
+      }
+    }
+
+    changed && webBit.markChanged();
+
+    webBit.refreshContent();
+  };
 
   /**
    * helper
@@ -1638,7 +1656,7 @@
       ace.config.set("themePath", "/javascripts/3rdparty/ace");
     }
 
-    var cssDisabled = $box.attr('style').length < 20;
+    var cssDisabled = !$box.attr('style') || $box.attr('style').length < 20;
     var cssDiv = $('<div class="web-bit-props"/>')
                   .append($('<h1 class="title"/>').text( pageDesigner.t('ioco.page_designer.style_definitions')))
                   .append($('<p/>')
@@ -1912,9 +1930,6 @@
         }
       });
 
-    var accessDiv = $('<div class="web-bit-props"/>')
-                  .append($('<h1 class="title"/>').text('ACL'));
-
     var sidebar = $('<ul class="sidebar-nav"/>')
         .append($('<li/>').text( pageDesigner.translate('ioco.page_designer.meta') ) );
 
@@ -1957,12 +1972,9 @@
       }
 
     sidebar
-      .append($('<li/>').text( 'Revisions' ))
-      .append($('<li/>').text( 'Access' ))
-
+      .append($('<li/>').text( 'Revisions' ));
     sidebarContent
-      .append(revisionsDiv)
-      .append(accessDiv)
+      .append(revisionsDiv);
       
     var html = $('<div class="modal-sidebar"/>')
       .append(sidebar)
