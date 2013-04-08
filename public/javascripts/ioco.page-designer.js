@@ -585,8 +585,8 @@
           // check if there is a current box
           // and call deactivate on that box' plugin
           var curBoxId = $pageDesigner.data('activeBoxId')
-            , $curBox = $('[data-web-bit-id='+curBoxId+']');
-          if( curBoxId && $curBox.length && typeof($curBox.data('plugin').on) === 'function' )
+            , $curBox = $('[data-web-bit-id='+curBoxId+']:first');
+          if( curBoxId && $curBox && $curBox.length && typeof($curBox.data('plugin').on) === 'function' )
             $curBox.data('plugin').on('deactivate', $curBox);
 
           $pageDesigner.find('.active').removeClass('active');
@@ -1283,10 +1283,7 @@
       , attachMethod = null;
 
     if( $targetWebBit.hasClass('highlight-left') )
-      if( $targetWebBit.parent('.ioco-web-bit').length > 0 )
-        attachMethod = 'before';
-      else
-        attachMethod = 'prepend';
+      attachMethod = 'before';
     else
       attachMethod = 'append';
 
@@ -1395,6 +1392,7 @@
             if( err )
               console.log('[pageDesigner] ERROR: ', err );
             $box.remove();
+            $pageDesigner.data('activeBoxId', null);
           });
         });
 
@@ -1532,7 +1530,7 @@
       webBit.library = $modal.find('input[name=libraryItem]').is(':checked');
       webBit.properties.cssId = $modal.find('input[name=cssId]').val();
       var newCss = ace.edit($modal.find('#cssEditor').get(0)).getValue();
-      if( newCss.length > 0 && webBit.properties.css != newCss)
+      if( webBit.properties.css != newCss)
         (changed = true) && ( webBit.properties.css = newCss );
       webBit.properties.js = ace.edit($modal.find('#jsEditor').get(0)).getValue();
       var newClasses = 'ioco-web-bit ui-droppable ui-draggable active hovered '+$modal.find('input[name=cssClasses]').val();

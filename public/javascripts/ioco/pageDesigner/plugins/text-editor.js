@@ -1,3 +1,6 @@
+// double click opens ckeditor
+// esc closes editor
+// save button in editor
 (function(){
 
   var textEditor = {
