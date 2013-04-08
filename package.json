@@ -1,6 +1,6 @@
 {
   "name": "ioco-pagedesigner",
-  "version": "0.0.2",
+  "version": "0.2.0",
   "description": "build, design web pages and let your editors do the rest",
   "homepage": "http://github.com/tastenwerk/iopagedesigner",
   "author": "thorsten zerha <quaqua@tastenwerk.com>",
@@ -35,8 +35,7 @@
   },
   "contributors": [
     {
-      "name": "Jürgen Krausz",
-      "email": "jk@grafikrausz.at"
+      "name": "Jürgen Krausz"
     }
   ]
 }
