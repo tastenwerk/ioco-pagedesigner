@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <title>iocoPageDesigner DEMO</title>
+    <meta charset="utf-8">
+    <link rel='stylesheet' href='/stylesheets/3rdparty/kendo.common.min.css' />
+    <link rel='stylesheet' href='/stylesheets/3rdparty/kendo.metro.min.css' />
+    <link rel='stylesheet' href='/stylesheets/ioco.page-designer.css' />
+    <style>
+      body, html { margin: 0; padding: 0; height: 100%; font-family: 'Open Sans', sans-serif; }
+    </style>
+  </head>
+
+  <body>
+
+    <div id="demo-page-content"></div>
+
+    <script type="text/javascript" src="javascripts/3rdparty/jquery-1.8.2.min.js"></script>
+    <script type="text/javascript" src="javascripts/3rdparty/jquery-ui-1.9.1.io.min.js"></script>
+    <script type="text/javascript" src="javascripts/ioco.core.js"></script>
+
+    <script type="text/javascript">
+
+      $(function(){
+        ioco.require('page-designer');
+        ioco.require('/javascripts/jquery.ioco.page-designer.js');
+        $('#demo-page-content').iocoPageDesigner();
+      });
+
+    </script>
+
+  </body>
+</html>
