@@ -79,7 +79,9 @@
    */
   Webbit.prototype._setupDefaultAttrs = function _setupDefaultAttrs(){
     this.name = null;
-    this.views = {
+    this.revisions = {};
+    this.revisions.master = {};
+    this.revisions.master.views = {
       default: {
         includes: {},
         content: {
@@ -87,8 +89,8 @@
         }
       }
     };
-    this.config = {
-      classes: '',
+    this.revisions.master.config = {
+      classes: 'default-span',
       cssId: '',
       styles: '',
       js: ''
@@ -104,19 +106,82 @@
    *
    * @param {String} view - the view to use for rendering (if no view is given, 'default' will be used)
    * @param {String} lang - the language to use for rendering. see [Webbit] for more informations about language fallback system. If no lang is given, ioco.pageDesigner.options.defaultLang or 'default' will be used
+   * @param {Number} revision - the revision of the webbit ( if none, default will be used )
+   *
    * @api public
    */
-  Webbit.prototype.render = function renderWebbit( view, lang ){
-    var _view = this.views.default
+  Webbit.prototype.render = function renderWebbit( options ){
+    options = options || {};
+    rev = options.revision || 'master';
+    var _view = this.revisions[rev].views.default
       , _lang = ioco.pageDesigner.defaultLang || 'default'
       , content;
-    if( view in this.views )
+    if( options.view in _view )
       _view = view;
-    if( lang in _view.content )
+    if( options.lang in _view.content )
       _lang = lang;
-    content = this.views[_view].content[_lang];
-    return content;
+    return '<div class="ioco-webbit '+this.applyStyles(rev,'classes')+'"'+
+      ' data-ioco-uid="'+this.uid+'" id="'+this.applyStyles(rev,'cssId')+'">'+_view.content[_lang]+
+      '</div>';
   };
+
+  /**
+   * get webbit's styles
+   *
+   * @param {String} revision
+   * @param {String} key (classes, cssId, styles, ...)
+   *
+   * @returns {String} css classes
+   *
+   * @api private
+   */
+  Webbit.prototype.applyStyles = function applyStyles( revision, key ){
+    var config = this.revisions[revision].config;
+    return config[key];
+  }
+
+  /**
+   * get current revision or master
+   *
+   * @api public
+   */
+  Object.defineProperty( Webbit.prototype, 'revision', {
+    get: function(){
+      return this.revisions[ this._currentRevision ];
+    }
+  });
+
+  /**
+   * hold current revision name (defaults to master)
+   *
+   * @api public
+   */
+  Object.defineProperty( Webbit.prototype, '_currentRevision', {
+    value: 'master',
+    writeable: true
+  });
+  
+  /**
+   * get Plugin as an object
+   *
+   * @api public
+   */
+  Object.defineProperty( Webbit.prototype, 'plugin', {
+    get: function(){
+      return ioco.pageDesigner.getPluginByName( this.pluginName );
+    }
+  });
+
+  /**
+   * hold current designer (kendo) uid
+   *
+   * @api public
+   */
+  Object.defineProperty( Webbit.prototype, 'uid', {
+    value: '',
+    writable : true,
+    configurable : true
+  });
 
   root.ioco.Webbit = Webbit;
 

@@ -29,8 +29,8 @@
   PageDesignerBuilder.prototype.build = function buildPageDesignerBuilder(){
 
     var $div = $('<div/>').addClass('ioco-pd')
-      .append( this.renderControls() )
-      .append( this.renderWorkspace() );
+      .append( this.renderWorkspace() )
+      .append( this.renderControls() );
 
     return $div;
 
@@ -59,6 +59,7 @@
     this.renderTreeTab();
     this.renderPluginListTab();
     this.renderPrefTab();
+    this.renderRevisionsTab();
 
     this.$controlsDiv.append( this.$controlsTabs );
 
@@ -66,6 +67,7 @@
     this.$controlsDiv.append( $controlsTitle );
 
     this.setupControlEvents();
+
     return this.$controlsDiv;
 
   }
@@ -76,8 +78,98 @@
    * @api private
    */
   PageDesignerBuilder.prototype.renderWorkspace = function pdRenderWorkspace(){
-    var $workspaceDiv = $('<div/>').addClass('workspace')
-    return $workspaceDiv;
+    this.$workspaceDiv = $('<div/>').addClass('workspace');
+
+    this.$workspaceDiv.append( this.decorate( this.webpage.render(), true ) );
+
+    return this.$workspaceDiv;
+  }
+
+  /**
+   * setup drop event for given element
+   *
+   * @param {JQueryObject} - $elem
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.setupDroppable = function setupDroppable( $elem, root ){
+    var self = this;
+    $elem.addClass('ioco-droppable');
+    if( root )
+      $elem.addClass('droppable-root');
+    $elem.kendoDropTarget({
+        dragenter: function( e ){
+          console.log( 'enter', $elem );
+          $elem.prepend( $('<div class="can-drop-indicator"/>') );
+        },
+        dragleave: function( e ){
+          console.log( 'leave', $elem );
+          $elem.find('.can-drop-indicator').remove();
+        },
+        drop: function( e ){
+          var position = $elem.find('.can-drop-indicator').attr('class').replace('can-drop-indicator','').replace(' drop-','');
+          $('.can-drop-indicator').remove();
+          if( $(e.target).hasClass('plugin-item') ){
+            var pluginName = $(e.target).find('.name').text();
+            ioco.window({
+              type: 'dialog',
+              title: ioco.pageDesigner.t('Enter Name for new', {pluginName: pluginName}),
+              content: ioco.pageDesigner.t('New Webbit Name'),
+              submit: function( name ){
+                self.insertWebBit( $elem, position, new ioco.Webbit({ pluginName: pluginName, name: name } ) );
+              }
+            })
+          }
+        }
+    });
+  }
+
+  /**
+   * insert a webbit at given target
+   *
+   * @param {jqueryElem} $target
+   * @param {String} position where to insert the webbit (left, inside, right)
+   * @param {Webbit} webbit
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.insertWebBit = function insertWebBit( $target, position, webbit ){
+    
+    var target = $('[data-uid='+$target.attr('data-ioco-uid')+']');
+
+    if( position === 'inside' )
+      position = 'append';
+    else if( position === 'right' )
+      position = 'insertAfter';
+    else if( position === 'left' )
+      position = 'insertBefore';
+    else
+      ioco.log('error', 'unknown position for webbit', position);
+
+    webbit.uid = this.$controlsDiv.find('.webbits-tree').data('kendoTreeView')[position]( webbit, target ).data('uid');
+
+    console.log('uid', webbit.uid );
+
+    if( position === 'append' )
+      $target.append( this.decorate( webbit.render() ) );
+    else
+      this.decorate( webbit.render() )[position]( $target )
+  }
+
+  /**
+   * decorate a webbit and attach events
+   *
+   * @param {String} html content of webbit
+   * @param {Boolean} set this content as root content
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.decorate = function decrate( content, root ){
+    var $content = $(content)
+    if( !root )
+      $content.css('position','relative');
+    this.setupDroppable( $content, root );
+    return $content;
   }
 
   /**
@@ -173,6 +265,27 @@
   },
 
   /**
+   * render the RevisionsTab
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.renderRevisionsTab = function renderRevisionsTab(){
+
+    // append revisions tmpl script if not already appended to body
+    if( $('body').find('#webpage-revisions-template').length <= 0 )
+      $('body').append( this.webPageRevisionsTmpl );
+
+    var $revTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-revisions')
+      .append( this.webPageRevisionsHTML );
+
+    kendo.bind( $revTab.find('.webpage-revisions'), this.webpage.viewModel() );
+
+    this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-revisions') ) );
+    this.$controlsTabs.find('.tabs-content').append( $revTab );
+    
+  },
+
+  /**
    * render the plugin list tab
    *
    * @api private
@@ -185,7 +298,7 @@
     for( var i=0, plugin; plugin=ioco.pageDesigner._plugins[i]; i++ ){
       $pluginsList.find('ul').append( $('<li/>').addClass('plugin-item')
                               .append($('<span/>').addClass('k-sprite '+plugin.name))
-                              .append($('<span/>').text(plugin.name))
+                              .append($('<span/>').addClass('name').text(plugin.name))
       );
     }
 
@@ -195,17 +308,49 @@
     this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-plus') ) );
     this.$controlsTabs.find('.tabs-content').append( $pluginListTab );
 
+    this.setupPluginListEvents( $pluginsList );
+
+  }
+
+  /**
+   * setup events for plugin list tab
+   *
+   * makes plugins draggable
+   *
+   */
+  PageDesignerBuilder.prototype.setupPluginListEvents = function setupPluginListEvents( $pluginsList ){
+    var self = this;
+    $pluginsList.find('li.plugin-item').kendoDraggable({
+      hint: function( item ) {
+        return $(item).clone().addClass('dragged-plugin');
+      },
+      drag: function( e ){
+        if( !$(e.target).hasClass('ioco-droppable') )
+          return;
+        var $target = $(e.target);
+        if( e.pageX < ($target.width() / 4) && !$target.hasClass('droppable-root') )
+          $target.find('.can-drop-indicator').removeClass('drop-right').removeClass('drop-inside').addClass('drop-left');
+        else if( e.pageX > ($target.width() / 4) * 3 && !$target.hasClass('droppable-root') )
+          $target.find('.can-drop-indicator').removeClass('drop-left').removeClass('drop-inside').addClass('drop-right');
+        else
+          $target.find('.can-drop-indicator').removeClass('drop-right').removeClass('drop-left').addClass('drop-inside');
+      },
+      dragstart: function( e ){
+        self.$workspaceDiv.find('.ioco-droppable').addClass('can-drop-here');
+      },
+      dragend: function( e ){
+        self.$workspaceDiv.find('.can-drop-here').removeClass('can-drop-here');
+      }
+    });
   }
   
   PageDesignerBuilder.prototype.webPageBaseFormHTML = '<form class="webpage-base-form">'+
     '<p><label>' + ioco.pageDesigner.t('Webbits') + '</label></p>'+
-    '<div class="webbits-tree">'+
-        '<div data-role="treeview"'+
+    '<div class="webbits-tree" data-role="treeview"'+
             ' data-drag-and-drop="true"'+
             ' data-text-field="name"'+
-            ' data-spritecssclass-field="type"'+
+            ' data-spritecssclass-field="pluginName"'+
             ' data-bind="source: webbits"></div>'+
-    '</div>'+
     '</form>';
   
   PageDesignerBuilder.prototype.webPagePrefFormHTML = 
@@ -216,13 +361,26 @@
       '</p>'+
       '<p>'+
         '<label>' + ioco.pageDesigner.t('Tags') + '</label><br/>'+
-        '<input type="text" data-bind="value: config.meta.keywords" />'+
+        '<input type="text" data-bind="value: revision.config.meta.keywords" />'+
       '</p>'+
       '<p>'+
         '<label>' + ioco.pageDesigner.t('Description') + '</label><br/>'+
-        '<textarea data-bind="value: config.meta.description" />'+
+        '<textarea data-bind="value: revision.config.meta.description" />'+
       '</p>'+
     '</form>';
+
+  PageDesignerBuilder.prototype.webPageRevisionsTmpl = 
+    '<script id="webpage-revisions-template" type="text/x-kendo-template">'+
+      '<li class="revision-item">'+
+        '<strong>#: data.name #</strong></br>'+
+      '</li>'+
+    '</script>';
+
+  PageDesignerBuilder.prototype.webPageRevisionsHTML = 
+    '<div class="webpage-revisions">'+
+      '<p><label>' + ioco.pageDesigner.t('Revisions') + '</label></p>'+
+      '<ul data-bind="source: revisions" data-role="list-view" data-template="webpage-revisions-template"></ul>'+
+    '</div>';
 
   root.ioco.PageDesignerBuilder = PageDesignerBuilder;
 

@@ -36,16 +36,18 @@
    * @api private
    */
   Webpage.prototype._setupDefaultAttrs = function _setupDefaultAttrs(){
-    this.name = 'no name for webpage';
-    this.views = {
+    this.name = 'Noname';
+    this.revisions = {};
+    this.revisions.master = {};
+    this.revisions.master.views = {
       default: {
         includes: {},
         content: {
-          default: 'no content yet'
+          default: ''
         }
       }
     };
-    this.config = {
+    this.revisions.master.config = {
       classes: '',
       cssId: '',
       styles: '',
@@ -68,17 +70,36 @@
    * @param {String} lang - the language to use for rendering. see [Webpage] for more informations about language fallback system. If no lang is given, ioco.pageDesigner.options.defaultLang or 'default' will be used
    * @api public
    */
-  Webpage.prototype.render = function renderWebpage( view, lang ){
-    var _view = this.views.default
+  Webpage.prototype.render = function renderWebpage( options ){
+    options = options || {};
+    rev = options.revision || 'master';
+    var _view = this.revisions[rev].views.default
       , _lang = ioco.pageDesigner.defaultLang || 'default'
       , content;
-    if( view in this.views )
+    if( options.view in _view )
       _view = view;
-    if( lang in _view.content )
+    if( options.lang in _view.content )
       _lang = lang;
-    content = this.views[_view].content[_lang];
-    return content;
+
+    return '<div class="ioco-webpage '+this.applyStyles(rev,'classes')+'"'+
+      ' data-ioco-uid="'+this.viewModel().uid+'">'+_view.content[_lang]+
+      '</div>';
   };
+
+  /**
+   * get webpage's styles
+   *
+   * @param {String} revision
+   * @param {String} key (classes, cssId, styles, ...)
+   *
+   * @returns {String} css classes
+   *
+   * @api private
+   */
+  Webpage.prototype.applyStyles = function applyStyles( revision, key ){
+    var config = this.revisions[revision].config;
+    return config[key];
+  }
 
   /**
    * return this webpage as a kendo view model
@@ -87,34 +108,48 @@
    */
   Webpage.prototype.viewModel = function viewModel(){
 
-    if( !this._viewModel )
+    if( !this._viewModel ){
+      var revs = [];
+      for( var i in this.revisions )
+        revs.push( { name: i, data: this.revisions[i] } );
+
       this._viewModel = kendo.observable({
                 name: this.name,
-                config: this.config,
+                revision: this.revision,
                 webbits: kendo.observableHierarchy([
-                    { name: this.name, type: "webpage", expanded: true, 
-                      items: [
-                        { name: "images", type: "folder", expanded: true, items: [
-                            { name: "logo.png", type: "image" },
-                            { name: "body-back.png", type: "image" },
-                            { name: "my-photo.jpg", type: "image" }
-                        ] },
-                        { name: "resources", type: "folder", expanded: true, items: [
-                            { name: "resources", type: "folder" },
-                            { name: "zip", type: "folder" }
-                        ] },
-                        { name: "about.html", type: "html" },
-                        { name: "contacts.html", type: "html" },
-                        { name: "index.html", type: "html" },
-                        { name: "portfolio.html", type: "html" }
-                      ]
+                    { name: this.name, pluginName: "webpage", expanded: true, 
+                      items: []
                     }
-                ])
+                ]),
+              revisions: kendo.observableHierarchy( revs )
             });
+      this._viewModel.webbits[0].uid = this._viewModel.uid;
+    }
 
     return this._viewModel;
 
   }
+
+  /**
+   * get current revision or master
+   *
+   * @api public
+   */
+  Object.defineProperty( Webpage.prototype, 'revision', {
+    get: function(){
+      return this.revisions[ this._currentRevision ];
+    }
+  });
+
+  /**
+   * hold current revision name (defaults to master)
+   *
+   * @api public
+   */
+  Object.defineProperty( Webpage.prototype, '_currentRevision', {
+    value: 'master',
+    writeable: true
+  });
 
   root.ioco.Webpage = Webpage;
 
