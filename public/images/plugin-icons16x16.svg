@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.3.1 r9886"
    sodipodi:docname="plugin-icons16x16.svg"
-   inkscape:export-filename="/home/zerha/devel/node_modules/ioco-pagedesigner-TWO/public/images/plugin-icons160x160.png"
+   inkscape:export-filename="/home/zerha/devel/node_modules/ioco-pagedesigner/public/images/plugin-icons16x16.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -54,17 +54,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="15.999999"
-     inkscape:cx="20.505061"
-     inkscape:cy="144.09822"
+     inkscape:zoom="2.828427"
+     inkscape:cx="61.259366"
+     inkscape:cy="137.84287"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:snap-global="false"
-     inkscape:window-width="1600"
-     inkscape:window-height="845"
+     inkscape:window-width="1680"
+     inkscape:window-height="1022"
      inkscape:window-x="0"
-     inkscape:window-y="27"
+     inkscape:window-y="12"
      inkscape:window-maximized="1"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -109,6 +109,12 @@
      id="layer1"
      transform="translate(0,-892.36218)">
     <path
+       style="fill:#333333;fill-opacity:1;stroke:none"
+       d="m 37.000004,894.79968 8.625001,0 0,8.65625 -2.000002,2.125 -8.781249,0 0,-8.84376 z"
+       id="rect4130"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="ccccccc" />
+    <path
        sodipodi:type="arc"
        style="fill:#333333;fill-opacity:1;stroke:none"
        id="path4442"
@@ -116,7 +122,7 @@
        sodipodi:cy="8.7499933"
        sodipodi:rx="4"
        sodipodi:ry="4"
-       d="m 27.500002,8.7499933 a 4,4 0 1 1 -8,0 4,4 0 1 1 8,0 z"
+       d="m 27.500002,8.7499933 c 0,2.2091387 -1.790861,3.9999997 -4,3.9999997 -2.209139,0 -4,-1.790861 -4,-3.9999997 0,-2.209139 1.790861,-4 4,-4 2.209139,0 4,1.790861 4,4 z"
        transform="matrix(1.4424017,0,0,1.4424017,-25.646442,887.49117)" />
     <text
        xml:space="preserve"
@@ -136,7 +142,7 @@
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Arial;-inkscape-font-specification:Arial Bold">bit</tspan></text>
     <path
        transform="matrix(1.4424017,0,0,1.4424017,-9.646442,887.49117)"
-       d="m 27.500002,8.7499933 a 4,4 0 1 1 -8,0 4,4 0 1 1 8,0 z"
+       d="m 27.500002,8.7499933 c 0,2.2091387 -1.790861,3.9999997 -4,3.9999997 -2.209139,0 -4,-1.790861 -4,-3.9999997 0,-2.209139 1.790861,-4 4,-4 2.209139,0 4,1.790861 4,4 z"
        sodipodi:ry="4"
        sodipodi:rx="4"
        sodipodi:cy="8.7499933"
@@ -167,5 +173,16 @@
          inkscape:export-ydpi="44.991001"
          sodipodi:nodetypes="cc" />
     </g>
+    <path
+       inkscape:connector-curvature="0"
+       id="path4114"
+       d="m 34.077614,897.26467 8.935344,0 0,8.92517"
+       style="fill:none;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       sodipodi:nodetypes="ccc" />
+    <path
+       style="fill:none;stroke:#ffffff;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 43.17992,897.18225 2.453125,-2.45312"
+       id="path4128"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

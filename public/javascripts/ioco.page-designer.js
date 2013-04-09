@@ -10,7 +10,6 @@
 
 ( function(){
 
-
   ioco.require('3rdparty/kendo.core.min');
   ioco.require('3rdparty/kendo.data.min');
 
@@ -57,7 +56,7 @@
   };
 
   /**
-   * addPlugin
+   * register a plugin
    *
    * adds a plugin to the _plugin system
    *
@@ -77,27 +76,15 @@
    * @api public
    *
    */
-  pageDesigner.registerPlugin = function registerPlugin( plugin, callback ){
-    if( plugin && typeof(plugin) === 'string' ){
-      if( isNode ){
-        if( typeof( callback ) === 'function' )
-          callback( 'not supported in nodejs yet' );
-        else
-          return 'not supported in nodejs yet';
-      } else {
-        $.getScript( plugin, function(){
-            if( typeof(callback) === 'function' )
-              callback( null );
-        });
-      }
-    } else {
-      if( !plugin || !plugin.name || plugin.name.length < 3 )
-        throw new Error('plugin must have a name key and must be of length 3 at least')
+  pageDesigner.registerPlugin = function registerPlugin( plugin ){
+    if( typeof(plugin) === 'string' )
+      ioco.require( 'page-designer.'+plugin );
+    else if( typeof(plugin) === 'object' ){
       if( this.getPluginByName( plugin.name ) )
-        throw new Error('a plugin with that name already exists');
+        throw new Error('a plugin with name ' + plugin.name + ' already exists');
       this._plugins.push( plugin );
-      return this;
     }
+    return this;
   }
 
   /**

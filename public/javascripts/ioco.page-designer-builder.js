@@ -146,7 +146,7 @@
   PageDesignerBuilder.prototype.renderTreeTab = function renderTreeTab(){
 
     var $treeTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-tree')
-      .append( this.webPageBaseFormHTML )
+      .append( this.webPageBaseFormHTML );
 
     kendo.bind( $treeTab.find('.webpage-base-form'), this.webpage.viewModel() );
   
@@ -163,7 +163,9 @@
   PageDesignerBuilder.prototype.renderPrefTab = function renderPrefTab(){
 
     var $prefTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-preferences')
-      .append( '' )
+      .append( this.webPagePrefFormHTML );
+
+    kendo.bind( $prefTab.find('.webpage-pref-form'), this.webpage.viewModel() );
 
     this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-preferences') ) );
     this.$controlsTabs.find('.tabs-content').append( $prefTab );
@@ -177,14 +179,23 @@
    */
   PageDesignerBuilder.prototype.renderPluginListTab = function renderPluginListTab(){
 
-    var $pluginListTab = $('<div/>').addClass('.tab-content').attr('id', 'ioco-pd-tab-plugin-list')
-      .append( this.pluginsHTML )
+    var $pluginsList = $('<div/>').append('<p><label>'+ioco.pageDesigner.t('Drag and Drop plugins to the position where you want to create a new content')+'</label></p>')
+      .append($('<ul/>').addClass('plugins-list'));
+
+    for( var i=0, plugin; plugin=ioco.pageDesigner._plugins[i]; i++ ){
+      $pluginsList.find('ul').append( $('<li/>').addClass('plugin-item')
+                              .append($('<span/>').addClass('k-sprite '+plugin.name))
+                              .append($('<span/>').text(plugin.name))
+      );
+    }
+
+    var $pluginListTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-plugin-list')
+      .append( $pluginsList )
 
     this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-plus') ) );
     this.$controlsTabs.find('.tabs-content').append( $pluginListTab );
 
   }
-
   
   PageDesignerBuilder.prototype.webPageBaseFormHTML = '<form class="webpage-base-form">'+
     '<p><label>' + ioco.pageDesigner.t('Webbits') + '</label></p>'+
@@ -195,6 +206,22 @@
             ' data-spritecssclass-field="type"'+
             ' data-bind="source: webbits"></div>'+
     '</div>'+
+    '</form>';
+  
+  PageDesignerBuilder.prototype.webPagePrefFormHTML = 
+    '<form class="webpage-pref-form">'+
+      '<p>'+
+        '<label>' + ioco.pageDesigner.t('Webpage Name') + '</label><br/>'+
+        '<input type="text" data-bind="value: name" />'+
+      '</p>'+
+      '<p>'+
+        '<label>' + ioco.pageDesigner.t('Tags') + '</label><br/>'+
+        '<input type="text" data-bind="value: config.meta.keywords" />'+
+      '</p>'+
+      '<p>'+
+        '<label>' + ioco.pageDesigner.t('Description') + '</label><br/>'+
+        '<textarea data-bind="value: config.meta.description" />'+
+      '</p>'+
     '</form>';
 
   root.ioco.PageDesignerBuilder = PageDesignerBuilder;

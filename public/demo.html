@@ -21,8 +21,9 @@
     <script type="text/javascript">
 
       $(function(){
-        ioco.require('page-designer');
-        ioco.require('/javascripts/jquery.ioco.page-designer.js');
+
+        ioco.require('/javascripts/jquery.ioco.page-designer.js'); // this can also be done through a script tag.
+        ioco.pageDesigner.registerPlugin('empty-container');
         $('#demo-page-content').iocoPageDesigner();
       });
 

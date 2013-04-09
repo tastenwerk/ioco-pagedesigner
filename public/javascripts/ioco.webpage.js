@@ -49,7 +49,11 @@
       classes: '',
       cssId: '',
       styles: '',
-      js: ''
+      js: '',
+      meta: {
+        keywords: 'no keys',
+        description: 'no desc'
+      }
     }
   };
 
@@ -86,6 +90,7 @@
     if( !this._viewModel )
       this._viewModel = kendo.observable({
                 name: this.name,
+                config: this.config,
                 webbits: kendo.observableHierarchy([
                     { name: this.name, type: "webpage", expanded: true, 
                       items: [
