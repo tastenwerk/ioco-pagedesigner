@@ -1,5 +1,5 @@
 /**
- * iocoPageDesigner JQuery plugin
+ * iocoPageDesigner Builder
  *
  * (c) TASTENWERK 2013
  *
@@ -12,6 +12,8 @@
   ioco.require('webpage');
   ioco.require('webbit');
 
+  ioco.require('page-designer-properties');
+
   var root = this;
 
   /**
@@ -23,6 +25,9 @@
   function PageDesignerBuilder( options ){
 
     this.webpage = options.webpage || new ioco.Webpage();
+
+    for( var i in ioco.PageDesignerProperties.prototype )
+      this[i] = ioco.PageDesignerProperties.prototype[i];
 
   }
 
@@ -99,11 +104,9 @@
       $elem.addClass('droppable-root');
     $elem.kendoDropTarget({
         dragenter: function( e ){
-          console.log( 'enter', $elem );
           $elem.prepend( $('<div class="can-drop-indicator"/>') );
         },
         dragleave: function( e ){
-          console.log( 'leave', $elem );
           $elem.find('.can-drop-indicator').remove();
         },
         drop: function( e ){
@@ -148,8 +151,6 @@
 
     webbit.uid = this.$controlsDiv.find('.webbits-tree').data('kendoTreeView')[position]( webbit, target ).data('uid');
 
-    console.log('uid', webbit.uid );
-
     if( position === 'append' )
       $target.append( this.decorate( webbit.render() ) );
     else
@@ -169,7 +170,42 @@
     if( !root )
       $content.css('position','relative');
     this.setupDroppable( $content, root );
+    this.setupWebbitEvents( $content );
     return $content;
+  }
+
+  /**
+   * setup webbit events
+   * click selects according entry in tree and opens
+   * property window
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.setupWebbitEvents = function setupWebbitEvents( $content ){
+    var self = this;
+    $content.on('click', function( e ){
+
+      e.stopPropagation();
+      // select according tree item
+      var treeView = self.$controlsDiv.find('.webbits-tree').data('kendoTreeView')
+
+      if( $content.hasClass('active') ){
+        treeView.select( $() );
+        $content.removeClass('active');
+      } else {
+        $content.closest('.ioco-pd').find('.ioco-webbit.active,.ioco-webpage.active').removeClass('active');
+        treeView.select( treeView.findByUid( $(e.target).attr('data-ioco-uid') ) );
+        $content.addClass('active');
+        // show tree view
+        self.$controlsDiv.find('.tab-control:first').click();
+        self.$controlsDiv.find('[data-uid='+$(e.target).attr('data-ioco-uid')+']')
+      }
+
+    }).on('mouseenter', function( e ){
+      $(this).addClass('hovered');
+    }).on('mouseleave', function( e ){
+      $(this).removeClass('hovered');
+    });
   }
 
   /**
@@ -228,7 +264,7 @@
 
     $controlsDiv.find('li.tab-control:first').click();
 
-  }
+  };
 
   /**
    * render the tree tab
@@ -241,11 +277,49 @@
       .append( this.webPageBaseFormHTML );
 
     kendo.bind( $treeTab.find('.webpage-base-form'), this.webpage.viewModel() );
+
+    this.setupTreeEvents( $treeTab.find('.webbits-tree'), $treeTab.find('.webbits-tree').data('kendoTreeView') );
   
     this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-tree') ) );
     this.$controlsTabs.find('.tabs-content').append( $treeTab );
     
-  },
+  };
+
+  /**
+   * setup events for the tree
+   *
+   * @param {jQueryElem} - the jQuery elem
+   * @param {KendoTreeView} - the tree view object
+   *
+   * @api private
+   *
+   */
+  PageDesignerBuilder.prototype.setupTreeEvents = function setupTreeEvents( $tree, treeView ){
+    var $workspace = this.$workspaceDiv;
+    var self = this;
+    $tree.on('click', 'li.k-item', function(e){
+      e.stopPropagation();
+      var uid = $(this).attr('data-uid');
+      var $webbitElem = $workspace.find('.ioco-webbit[data-ioco-uid='+uid+'],.ioco-webpage[data-ioco-uid='+uid+']');
+      if( $webbitElem.hasClass('active') && !$webbitElem.hasClass('hovered') ){
+        treeView.select( $() );
+        $webbitElem.removeClass('active');
+      } else{
+        $workspace.find('.active').removeClass('active').removeClass('hovered');
+        $webbitElem.addClass('active');
+        self.showProperties( treeView.dataSource.getByUid( uid ) );
+      }
+    }).on('mouseenter', 'li.k-item', function(e){
+      e.stopPropagation();
+      var $webbitElem = $workspace.find('.ioco-webbit[data-ioco-uid='+$(this).attr('data-uid')+'],.ioco-webpage[data-ioco-uid='+$(this).attr('data-uid')+']');
+      $workspace.find('.active').removeClass('active').removeClass('hovered');
+      $webbitElem.addClass('active hovered');
+    }).on('mouseleave', 'li.k-item', function(e){
+      $workspace.find('.active').removeClass('active').removeClass('hovered');
+      var uid = $tree.find('li .k-state-selected').closest('li').attr('data-uid');
+      $workspace.find('.ioco-webbit[data-ioco-uid='+uid+'],.ioco-webpage[data-ioco-uid='+uid+']').addClass('active');
+    });
+  };
 
   /**
    * render the SettingsTab
