@@ -6,18 +6,19 @@ html, body{ background: none; }
 
 .ioco-pd label{ font-size: 12px; font-weight: 100; color: #555; }
 
-.ioco-pd .ioco-pd-icn{ width: 16px; height: 16px; display: inline-block; background-image: url('/images/ioco-pd-icons16x16.png'); }
-.ioco-pd .ioco-pd-icn-grid{ background-position: -16px -112px; }
-.ioco-pd .ioco-pd-icn-save{ background-position: -112px 0; }
-.ioco-pd .ioco-pd-icn-move{ background-position:  -80px -96px; }
-.ioco-pd .ioco-pd-icn-preferences{ background-position:  -96px 0; }
-.ioco-pd .ioco-pd-icn-revisions{ background-position: -112px -32px; }
-.ioco-pd .ioco-pd-icn-close{ background-position: -48px -112px; }
-.ioco-pd .ioco-pd-icn-undo{ background-position: -16px -64px; }
-.ioco-pd .ioco-pd-icn-redo{ background-position: -32px -64px; }
-.ioco-pd .ioco-pd-icn-tree{ background-position: -64px -112px }
-.ioco-pd .ioco-pd-icn-new{ background-position: 0 0 }
-.ioco-pd .ioco-pd-icn .ioco-pd-icn-white{ background-image: url('/images/ioco-pd-icons16x16w.png'); }
+.ioco-pd-icn{ width: 16px; height: 16px; display: inline-block; background-image: url('/images/ioco-pd-icons16x16.png'); }
+.ioco-pd-icn-grid{ background-position: -16px -112px; }
+.ioco-pd-icn-save{ background-position: -112px 0; }
+.ioco-pd-icn-move{ background-position:  -80px -96px; }
+.ioco-pd-icn-preferences{ background-position:  -96px 0; }
+.ioco-pd-icn-revisions{ background-position: -112px -32px; }
+.ioco-pd-icn-close{ background-position: -48px -112px; }
+.ioco-pd-icn-undo{ background-position: -16px -64px; }
+.ioco-pd-icn-redo{ background-position: -32px -64px; }
+.ioco-pd-icn-tree{ background-position: -64px -112px; }
+.ioco-pd-icn-pencil{ background-position: -80px 0; }
+.ioco-pd-icn-new{ background-position: 0 0 }
+.ioco-pd-icn .ioco-pd-icn-white{ background-image: url('/images/ioco-pd-icons16x16w.png'); }
 
 .ioco-pd .disabled{ opacity: 0.5; cursor: default; }
 .ioco-pd .disabled:hover{ opacity: 0.5; cursor: default; }
@@ -68,5 +69,19 @@ a.ioco-pd-btn:hover .ioco-pd-icn{ opacity: 1; }
 .ioco-pd .webpage-pref-form textarea{ width: 100%; background-color: #fff; border: 1px solid #eee; border-radius: 1px; padding: 5px 0; text-indent: 3px; font-size: 12px; }
 
 .ioco-webbit.default-span{ width: 33%; height: 200px; }
-.ioco-webbit.hovered{ outline: 3px dashed #def; outline-offset: -3px; }
-.ioco-webbit.active{ outline: 3px dashed #08a; outline-offset: -3px; }
+.ioco-webbit.decorated{ outline: 3px dashed #f0f0f0; outline-offset: -3px; }
+.ioco-webbit.decorated.hovered{ outline: 3px dashed #def; outline-offset: -3px; }
+.ioco-webbit.decorated.active{ outline: 3px dashed #08a; outline-offset: -3px; }
+
+.ioco-pd-panelbar table{ width: 100%; }
+.ioco-pd-panelbar table td:first-child{ width: 50px; padding-left: 5px; }
+.ioco-pd-panelbar hr{ border: none; border-top: 1px solid #ddd;  }
+.ioco-pd-panelbar h1{ font-size: 14px; font-weight: 100; margin: 5px 5px 0 5px; }
+.ioco-pd-panelbar table input[type=text]{ width: 100%; padding: 2px 0; text-indent: 2px; font-size: 12px; }
+
+.ioco-pd-panelbar .btn.small{ padding: 2px 5px; }
+.ioco-pd-panelbar .btn.small.pull-right{ margin-right: 5px; }
+
+.ioco-pd-editor #src-editor{ width: 100%; }
+.ioco-nobtn.k-link.k-header{ border: none; text-decoration: none; padding: 2px 5px; }
+.ioco-nobtn.k-link.k-header:hover .ioco-pd-icn{ background-image: url('/images/ioco-pd-icons16x16w.png'); }

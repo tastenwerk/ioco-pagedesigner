@@ -10,12 +10,11 @@
 
 ( function(){
 
-  ioco.require('3rdparty/kendo.core.min');
-  ioco.require('3rdparty/kendo.data.min');
-
   var root = this;
 
   var pageDesigner = {};
+
+  pageDesigner.$ = jQuery;
 
   pageDesigner.options = {
     webBitUrl: '/webbits',

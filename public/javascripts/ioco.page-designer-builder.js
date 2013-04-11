@@ -12,6 +12,12 @@
   ioco.require('webpage');
   ioco.require('webbit');
 
+  ioco.require('3rdparty/kendo.core.min');
+  ioco.require('3rdparty/kendo.data.min');
+
+
+  ioco.require('3rdparty/kendo.web.min');
+  
   ioco.require('page-designer-properties');
 
   var root = this;
@@ -168,7 +174,7 @@
   PageDesignerBuilder.prototype.decorate = function decrate( content, root ){
     var $content = $(content)
     if( !root )
-      $content.css('position','relative');
+      $content.css('position','relative').addClass('decorated');
     this.setupDroppable( $content, root );
     this.setupWebbitEvents( $content );
     return $content;
@@ -188,17 +194,19 @@
       e.stopPropagation();
       // select according tree item
       var treeView = self.$controlsDiv.find('.webbits-tree').data('kendoTreeView')
+      var uid = $(e.target).attr('data-ioco-uid');
 
       if( $content.hasClass('active') ){
         treeView.select( $() );
         $content.removeClass('active');
       } else {
         $content.closest('.ioco-pd').find('.ioco-webbit.active,.ioco-webpage.active').removeClass('active');
-        treeView.select( treeView.findByUid( $(e.target).attr('data-ioco-uid') ) );
+        treeView.select( treeView.findByUid( uid ) );
         $content.addClass('active');
         // show tree view
         self.$controlsDiv.find('.tab-control:first').click();
-        self.$controlsDiv.find('[data-uid='+$(e.target).attr('data-ioco-uid')+']')
+        self.$controlsDiv.find('[data-uid='+ uid +']');
+        self.showProperties( treeView.dataSource.getByUid( uid ) );
       }
 
     }).on('mouseenter', function( e ){

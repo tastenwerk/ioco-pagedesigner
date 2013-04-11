@@ -10,9 +10,8 @@
 ( function(){
 
   ioco.require('page-designer');
+  ioco.require('page-designer-renderer');
   ioco.require('page-designer-builder');
-
-  ioco.require('3rdparty/kendo.web.min');
 
   function pageDesignerJQueryPlugin( options ){
     options = options || {};
