@@ -42,6 +42,7 @@
   Webpage.prototype._setupDefaultAttrs = function _setupDefaultAttrs(){
     this.name = 'Noname';
     this._id = 'noidyet';
+    this._type = 'Webpage';
     this.revisions = {};
     this.revisions.master = {};
     this.revisions.master.views = {

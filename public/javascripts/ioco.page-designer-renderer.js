@@ -37,7 +37,7 @@
       _lang = lang;
 
     this.renderStyles( this.revisions[rev] );
-    return '<div class="ioco-webpage '+this.applyStyles(this.revisions[rev],'classes')+'"'+
+    return '<div class="ioco-'+(this._type === 'Webpage' ? 'webpage' : 'webbit')+' '+this.applyStyles(this.revisions[rev],'classes')+'"'+
       ' data-ioco-id="'+this._id+'"'+
       ' data-ioco-uid="'+this.viewModel().uid+'">'+_view.content[_lang]+
       '</div>';
@@ -89,11 +89,27 @@
    * @api public
    */
   PageDesignerRenderer.prototype.preview = function preview( key, value, revision ){
+    var revision = revision || this._currentRevision;
+    var cachedVal = eval('this.revisions.'+revision+'.'+key);
+    this.update( key, value, revision );
+    //eval('this.revisions.'+revision+'.'+key+' = value');
+    this.render({ revision: revision });
+    //eval('this.revisions.'+revision+'.'+key+' = cachedVal');
+    this.update( key, cachedVal, revision );
+  }
+
+  /**
+   * updates the given values of the component
+   *
+   * @param {String} key (what should be updated)
+   * @param {String} value
+   * @param {String} revision (optional)
+   *
+   * @api public
+   */
+  PageDesignerRenderer.prototype.update = function update( key, value, revision ){
     var rev = revision || this._currentRevision;
-    var cachedVal = eval('this.revisions.'+rev+'.'+key);
     eval('this.revisions.'+rev+'.'+key+' = value');
-    this.render({ revision: rev });
-    eval('this.revisions.'+rev+'.'+key+' = cachedVal');
   }
 
   root.ioco.PageDesignerRenderer = PageDesignerRenderer;

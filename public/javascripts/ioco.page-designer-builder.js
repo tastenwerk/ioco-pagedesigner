@@ -9,6 +9,8 @@
 
 ( function(){
 
+  ioco.require('page-designer-properties');
+  
   ioco.require('webpage');
   ioco.require('webbit');
 
@@ -18,7 +20,6 @@
 
   ioco.require('3rdparty/kendo.web.min');
   
-  ioco.require('page-designer-properties');
 
   var root = this;
 

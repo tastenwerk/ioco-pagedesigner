@@ -70,6 +70,14 @@
     this._setupDefaultAttrs();
     for( var i in attrs )
       this[i] = attrs[i];
+
+    for( var i in ioco.PageDesignerRenderer.prototype )
+      this[i] = ioco.PageDesignerRenderer.prototype[i];
+
+  }
+
+  Webbit.prototype.viewModel = function viewModel(){
+    return this;
   }
 
   /**
@@ -125,6 +133,10 @@
       '</div>';
   };
 
+
+  Webbit.prototype.showStylesEditor = ioco.PageDesignerProperties.showSrcEditor;
+  Webbit.prototype.showHtmlEditor = ioco.PageDesignerProperties.showSrcEditor;
+
   /**
    * get webbit's styles
    *
@@ -148,7 +160,8 @@
   Object.defineProperty( Webbit.prototype, 'revision', {
     get: function(){
       return this.revisions[ this._currentRevision ];
-    }
+    },
+    enumerable: true
   });
 
   /**
@@ -158,7 +171,8 @@
    */
   Object.defineProperty( Webbit.prototype, '_currentRevision', {
     value: 'master',
-    writeable: true
+    writeable: true,
+    enumerable: true
   });
   
   /**

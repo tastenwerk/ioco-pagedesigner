@@ -48,7 +48,7 @@
             '<td><input type="text" data-bind="value: name" /></td>'+
           '</tr>'+
             '<td><label>'+ioco.pageDesigner.t('Type')+'</label></td>'+
-            '<td><input type="text" data-bind="value: pluginName" /></td>'+
+            '<td><input type="text" disabled="disabled" data-bind="value: pluginName" /></td>'+
           '</tr>'+
         '</table>'+
         '<hr />'+
@@ -93,8 +93,7 @@
     $(document).find('.ioco-pd-editor').closest('.k-window').remove();
     var treeView = $(document).find('.webbits-tree:first').data('kendoTreeView');
     var webbit = treeView.dataSource.getByUid( $target.attr('data-uid') );
-
-    console.log('webbit is', webbit);
+    webbit = webbit.orig ? webbit.orig : webbit;
 
     var $editorContent = $(PageDesignerProperties.srcEditorContent);
 
@@ -115,17 +114,18 @@
         if( editorType === 'html' )
           srcEditor.setValue( $('.ioco-webbit[data-ioco-uid='+webbit.uid+']').html() );
         else
-          srcEditor.setValue( webbit.config[ editorType === 'css' ? 'styles' : editorType ] );
+          srcEditor.setValue( webbit.revision.config[ editorType === 'css' ? 'styles' : editorType ] );
 
         PageDesignerProperties[editorType+'SetupEvents']( srcEditor, webbit );
 
-        $win.data("kendoWindow").wrapper.find(".k-i-tick").click(function(e){
-          alert("Custom action button clicked");
-          e.preventDefault();
+        $win.data('kendoWindow').wrapper.find(".k-i-tick").click(function(e){
+          webbit.update( 'config.styles', srcEditor.getSession().getValue() );
+          webbit.render();
+          $win.data('kendoWindow').close();
         });
       },
       deactivate: function( $win ){
-        webbit.orig.render();
+        webbit.render();
       }
     });
   };
@@ -144,9 +144,30 @@
     // refresh css
     srcEditor.getSession().on("changeAnnotation", function(){
       if( srcEditor.getSession().getAnnotations().length < 1 )
-        webbit.orig.preview( 'config.styles', srcEditor.getSession().getValue() )
-      else
-        console.log('error', srcEditor.getSession().getAnnotations());
+        webbit.preview( 'config.styles', srcEditor.getSession().getValue() )
+      //else
+      //  console.log('error', srcEditor.getSession().getAnnotations());
+    });
+
+  }
+
+  /**
+   * setup events for css editor
+   *
+   * @param {object} - ace editor object
+   * @param {object} - webbit
+   *
+   * @api private
+   */
+  PageDesignerProperties.htmlSetupEvents = function htmlSetupEvents( srcEditor, webbit ){
+
+    // watch annotations. if they match,
+    // refresh css
+    srcEditor.getSession().on("changeAnnotation", function(){
+      if( srcEditor.getSession().getAnnotations().length < 1 )
+        webbit.preview( 'currentView.content', srcEditor.getSession().getValue() )
+      //else
+      //  console.log('error', srcEditor.getSession().getAnnotations());
     });
 
   }

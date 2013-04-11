@@ -85,3 +85,7 @@ a.ioco-pd-btn:hover .ioco-pd-icn{ opacity: 1; }
 .ioco-pd-editor #src-editor{ width: 100%; }
 .ioco-nobtn.k-link.k-header{ border: none; text-decoration: none; padding: 2px 5px; }
 .ioco-nobtn.k-link.k-header:hover .ioco-pd-icn{ background-image: url('/images/ioco-pd-icons16x16w.png'); }
+
+.ioco-webbit.default-span{ width: 33%; height: 200px; }
+.ioco-webbit.hovered{ outline: 3px dashed #def; outline-offset: -3px; }
+.ioco-webbit.active{ outline: 3px dashed #08a; outline-offset: -3px; }
