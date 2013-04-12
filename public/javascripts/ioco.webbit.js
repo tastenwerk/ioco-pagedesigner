@@ -71,8 +71,7 @@
     for( var i in attrs )
       this[i] = attrs[i];
 
-    for( var i in ioco.PageDesignerRenderer.prototype )
-      this[i] = ioco.PageDesignerRenderer.prototype[i];
+    ioco.PageDesignerRenderer.init.call( this );
 
   }
 
@@ -152,39 +151,6 @@
     return config[key];
   }
 
-  /**
-   * get current revision or master
-   *
-   * @api public
-   */
-  Object.defineProperty( Webbit.prototype, 'revision', {
-    get: function(){
-      return this.revisions[ this._currentRevision ];
-    },
-    enumerable: true
-  });
-
-  /**
-   * hold current revision name (defaults to master)
-   *
-   * @api public
-   */
-  Object.defineProperty( Webbit.prototype, '_currentRevision', {
-    value: 'master',
-    writeable: true,
-    enumerable: true
-  });
-  
-  /**
-   * get Plugin as an object
-   *
-   * @api public
-   */
-  Object.defineProperty( Webbit.prototype, 'plugin', {
-    get: function(){
-      return ioco.pageDesigner.getPluginByName( this.pluginName );
-    }
-  });
 
   /**
    * hold current designer (kendo) uid

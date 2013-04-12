@@ -10,6 +10,7 @@
 ( function(){
 
   ioco.require('page-designer-properties');
+  ioco.require('page-designer-drag-drop');
   
   ioco.require('webpage');
   ioco.require('webbit');
@@ -31,10 +32,16 @@
    */
   function PageDesignerBuilder( options ){
 
+    var self = this;
+
     this.webpage = options.webpage || new ioco.Webpage();
+    this.webpage.builder = { update: function( webbit, options ){ self.update( webbit, options ); } };
 
     for( var i in ioco.PageDesignerProperties.prototype )
       this[i] = ioco.PageDesignerProperties.prototype[i];
+
+    for( var i in ioco.PageDesignerDragDrop.prototype )
+      this[i] = ioco.PageDesignerDragDrop.prototype[i];
 
   }
 
@@ -98,71 +105,23 @@
   }
 
   /**
-   * setup drop event for given element
+   * update current webbit view representation in workspace
    *
-   * @param {JQueryObject} - $elem
+   * @param {Webbit} webbit - the webbit to update
+   * @param {object} options
+   *  * revision
+   *  * view
+   *  * lang
    *
-   * @api private
+   * @api public
    */
-  PageDesignerBuilder.prototype.setupDroppable = function setupDroppable( $elem, root ){
-    var self = this;
-    $elem.addClass('ioco-droppable');
-    if( root )
-      $elem.addClass('droppable-root');
-    $elem.kendoDropTarget({
-        dragenter: function( e ){
-          $elem.prepend( $('<div class="can-drop-indicator"/>') );
-        },
-        dragleave: function( e ){
-          $elem.find('.can-drop-indicator').remove();
-        },
-        drop: function( e ){
-          var position = $elem.find('.can-drop-indicator').attr('class').replace('can-drop-indicator','').replace(' drop-','');
-          $('.can-drop-indicator').remove();
-          if( $(e.target).hasClass('plugin-item') ){
-            var pluginName = $(e.target).find('.name').text();
-            ioco.window({
-              type: 'dialog',
-              title: ioco.pageDesigner.t('Enter Name for new', {pluginName: pluginName}),
-              content: ioco.pageDesigner.t('New Webbit Name'),
-              submit: function( name ){
-                self.insertWebBit( $elem, position, new ioco.Webbit({ pluginName: pluginName, name: name } ) );
-              }
-            })
-          }
-        }
-    });
+  PageDesignerBuilder.prototype.update = function update( webbit, options ){
+    options = options || {};
+    this.$workspaceDiv.find('[data-ioco-id='+webbit._id+']').replaceWith( 
+      this.decorate( webbit.render( options ), true ) 
+    );
   }
 
-  /**
-   * insert a webbit at given target
-   *
-   * @param {jqueryElem} $target
-   * @param {String} position where to insert the webbit (left, inside, right)
-   * @param {Webbit} webbit
-   *
-   * @api private
-   */
-  PageDesignerBuilder.prototype.insertWebBit = function insertWebBit( $target, position, webbit ){
-    
-    var target = $('[data-uid='+$target.attr('data-ioco-uid')+']');
-
-    if( position === 'inside' )
-      position = 'append';
-    else if( position === 'right' )
-      position = 'insertAfter';
-    else if( position === 'left' )
-      position = 'insertBefore';
-    else
-      ioco.log('error', 'unknown position for webbit', position);
-
-    webbit.uid = this.$controlsDiv.find('.webbits-tree').data('kendoTreeView')[position]( webbit, target ).data('uid');
-
-    if( position === 'append' )
-      $target.append( this.decorate( webbit.render() ) );
-    else
-      this.decorate( webbit.render() )[position]( $target )
-  }
 
   /**
    * decorate a webbit and attach events

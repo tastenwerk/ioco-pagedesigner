@@ -57,7 +57,7 @@
         '<table>'+
           '</tr>'+
             '<td><label>'+ioco.pageDesigner.t('ID')+'</label></td>'+
-            '<td><input type="text" data-bind="value: config.classes" /></td>'+
+            '<td><input type="text" data-bind="value: config.styles" /></td>'+
           '</tr>'+
           '</tr>'+
             '<td><label>'+ioco.pageDesigner.t('Classes')+'</label></td>'+
@@ -96,6 +96,7 @@
     webbit = webbit.orig ? webbit.orig : webbit;
 
     var $editorContent = $(PageDesignerProperties.srcEditorContent);
+    var srcEditor;
 
     $editorContent.find('#src-editor').css('height', $(window).height()-200);
 
@@ -111,10 +112,11 @@
         srcEditor.getSession().setUseWrapMode(true);
         srcEditor.getSession().setWrapLimitRange(80, 80);
 
+        console.log('revision', editorType, webbit.getRevision().config[ editorType === 'css' ? 'styles' : editorType ]);
         if( editorType === 'html' )
-          srcEditor.setValue( $('.ioco-webbit[data-ioco-uid='+webbit.uid+']').html() );
+          srcEditor.setValue( $('[data-ioco-uid='+webbit.uid+']').html() );
         else
-          srcEditor.setValue( webbit.revision.config[ editorType === 'css' ? 'styles' : editorType ] );
+          srcEditor.setValue( webbit.getRevision().config[ editorType === 'css' ? 'styles' : editorType ] );
 
         PageDesignerProperties[editorType+'SetupEvents']( srcEditor, webbit );
 
@@ -125,7 +127,8 @@
         });
       },
       deactivate: function( $win ){
-        webbit.render();
+        webbit.builder.update( webbit );
+        srcEditor.destroy();
       }
     });
   };
@@ -139,6 +142,7 @@
    * @api private
    */
   PageDesignerProperties.cssSetupEvents = function cssSetupEvents( srcEditor, webbit ){
+
 
     // watch annotations. if they match,
     // refresh css
@@ -163,11 +167,8 @@
 
     // watch annotations. if they match,
     // refresh css
-    srcEditor.getSession().on("changeAnnotation", function(){
-      if( srcEditor.getSession().getAnnotations().length < 1 )
-        webbit.preview( 'currentView.content', srcEditor.getSession().getValue() )
-      //else
-      //  console.log('error', srcEditor.getSession().getAnnotations());
+    srcEditor.getSession().on("change", function(){
+      webbit.preview( 'content', srcEditor.getSession().getValue(), { store: false } )
     });
 
   }

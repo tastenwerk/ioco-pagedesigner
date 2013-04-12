@@ -29,8 +29,7 @@
     for( var i in attrs )
       this[i] = attrs[i];
 
-    for( var i in ioco.PageDesignerRenderer.prototype )
-      this[i] = ioco.PageDesignerRenderer.prototype[i];
+    ioco.PageDesignerRenderer.init.call( this );
 
   }
 
@@ -82,7 +81,9 @@
                 name: this.name,
                 revision: this.revision,
                 webbits: kendo.observableHierarchy([
-                    { name: this.name, pluginName: "webpage", config: this.revision.config, expanded: true, 
+                    { name: this.name, pluginName: "webpage", 
+                      config: this.revision.config, 
+                      expanded: true, 
                       showStylesEditor: ioco.PageDesignerProperties.showSrcEditor,
                       showHtmlEditor: ioco.PageDesignerProperties.showSrcEditor,
                       orig: this,
@@ -91,35 +92,12 @@
                 ]),
               revisions: kendo.observableHierarchy( revs )
             });
-      this._viewModel.webbits[0].uid = this._viewModel.uid;
+      this.uid = this._viewModel.webbits[0].uid = this._viewModel.uid;
     }
 
     return this._viewModel;
 
   }
-
-  /**
-   * get current revision or master
-   *
-   * @api public
-   */
-  Object.defineProperty( Webpage.prototype, 'revision', {
-    get: function(){
-      return this.revisions[ this._currentRevision ];
-    },
-    enumerable: true
-  });
-
-  /**
-   * hold current revision name (defaults to master)
-   *
-   * @api public
-   */
-  Object.defineProperty( Webpage.prototype, '_currentRevision', {
-    value: 'master',
-    writeable: true,
-    enumerable: true
-  });
 
   root.ioco.Webpage = Webpage;
 
