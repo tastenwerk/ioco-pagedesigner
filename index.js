@@ -12,8 +12,8 @@ module.exports = exports = {
           public: __dirname + '/public'
         },
 
-        pageDesignerJSPlugins: [ '/javascripts/ioco/pageDesigner/plugins/empty-container.js',
-                                 '/javascripts/ioco/pageDesigner/plugins/text-editor.js' ],
+        pageDesignerJSPlugins: [ '/javascripts/ioco.page-designer.empty-container.js',
+                                 '/javascripts/ioco/page-designer.text-editor.js' ],
 
         translations: __dirname+'/public/locales'
         
@@ -22,6 +22,6 @@ module.exports = exports = {
     }
   },
 
-  lib: {}
+  lib: pageDesigner
   
 };

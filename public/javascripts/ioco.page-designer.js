@@ -11,15 +11,20 @@
 ( function(){
 
   var root = this;
+  var ioco;
 
   var pageDesigner = {};
 
-  pageDesigner.$ = jQuery;
+  var isNode = (typeof(module) === 'object');
+
+  if( !isNode )
+    ioco = root.ioco;
+
+  pageDesigner.$ = isNode ? require('cheerio') : jQuery;
 
   pageDesigner.options = {
     webBitUrl: '/webbits',
     webPageUrl: '/webpages',
-    addUrlData: { _csrf: ioco._csrf || null },
     i18n: false,
     defaultLang: null,
     fallbackLang: 'en',
@@ -99,6 +104,10 @@
     return val;
   }
 
-  root.ioco.pageDesigner = pageDesigner;
+  if( isNode ){
+    var ioco = { require: function(mod){ return require( require('path').join( __dirname, 'public', 'javascripts', mod ) ); } };
+    module.exports = exports = pageDesigner;
+  } else
+    root.ioco.pageDesigner = pageDesigner;
 
 })();

@@ -1,0 +1,75 @@
+// double click opens ckeditor
+// esc closes editor
+// save button in editor
+(function(){
+
+  var root = this;
+
+  var isNode = typeof(module) === 'object';
+
+  var plugin = {
+    name: 'text-editor',
+    iconClass: 'icn-justifyFull', // use an icon from ioco-sprites
+    defaultContent: 'Enter your text here',
+    preventClickDeactivate: true,
+    addControls: [
+      {
+        iconClass: 'icn-pencil',
+        title: 'Edit text',
+        editorId: 'editor-'+(new Date()).getTime().toString(36),
+        action: function( $box, e ){
+
+          var editorId = this.editorId;
+
+          function initEditor(){
+            CKEDITOR.disableAutoInline = true;
+            CKEDITOR.basePath = '/javascripts/3rdparty/ckeditor/';
+            $box.addClass('edit-mode');
+            $box.find('.box-content').attr('contenteditable', true).attr('id', editorId );
+            CKEDITOR.config.toolbar = [
+              [ 'Cut','Copy','Paste','PasteText','PasteFromWord'],
+              [ 'Undo','Redo' ],
+              [ 'Bold','Italic','Underline','Strike','-','RemoveFormat', 'NumberedList','BulletedList','-',
+  '-','JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock','-', 'Link','Unlink','Anchor' ]
+            ]
+            CKEDITOR.inline( editorId, {
+              on: {
+                blur: function( event ) {
+                  $box.data('webBit').content = event.editor.getData();
+                  $box.find('.box-content').html( event.editor.getData() );
+                  this.destroy();
+                }
+              }
+            });
+            $box.find('.box-content').focus();
+          }
+          if( typeof(CKEDITOR) === 'undefined')
+            $.getScript( '/javascripts/3rdparty/ckeditor/ckeditor.js', initEditor);
+          else
+            initEditor();
+        }
+      }
+    ],
+    addProperties: [
+      {
+        title: 'Language',
+        html: 'languages plugin'
+      }
+    ],
+    on: function( action, $box ){
+      if( action === 'deactivate' ){
+        $box.removeClass('edit-mode');
+        if( typeof( CKEDITOR ) === 'object' && CKEDITOR.instances[ this.addControls[0].editorId ] ){
+          CKEDITOR.instances[ this.addControls[0].editorId ].destroy();
+          $box.find('.box-content').attr('contenteditable', false);
+        }
+      }
+    }
+  }
+
+  if( isNode )
+    module.exports = exports = plugin;
+  else
+    root.ioco.pageDesigner.registerPlugin( plugin );
+
+})();

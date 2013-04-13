@@ -11,6 +11,8 @@
 
   var root = this;
 
+  var isNode = (typeof(module) === 'object');
+
   /**
    * Construct a Webbit
    *
@@ -66,12 +68,14 @@
    * @api public
    */
   function Webbit( attrs ){
-    ioco.log('initializing new Webbit with attrs: ', attrs);
     this._setupDefaultAttrs();
     for( var i in attrs )
       this[i] = attrs[i];
 
-    ioco.PageDesignerRenderer.init.call( this );
+    if( isNode )
+      require(__dirname+'/ioco.page-designer-renderer').init.call( this );
+    else
+      ioco.PageDesignerRenderer.init.call( this );
 
   }
 
@@ -106,8 +110,10 @@
   };
 
 
-  Webbit.prototype.showStylesEditor = ioco.PageDesignerProperties.showSrcEditor;
-  Webbit.prototype.showHtmlEditor = ioco.PageDesignerProperties.showSrcEditor;
+  if( !isNode ){
+    Webbit.prototype.showStylesEditor = ioco.PageDesignerProperties.showSrcEditor;
+    Webbit.prototype.showHtmlEditor = ioco.PageDesignerProperties.showSrcEditor;
+  }
 
   /**
    * hold current designer (kendo) uid
@@ -120,6 +126,9 @@
     configurable : true
   });
 
-  root.ioco.Webbit = Webbit;
+  if( isNode )
+    module.exports = exports = Webbit;
+  else
+    root.ioco.Webbit = Webbit;
 
 })();

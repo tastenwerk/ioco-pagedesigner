@@ -10,6 +10,14 @@
 ( function(){
 
   var root = this;
+  var ioco;
+
+  var isNode = (typeof(module) === 'object');
+
+  if( isNode )
+    ioco = { pageDesigner: require(__dirname+'/ioco.page-designer') };
+  else
+    ioco = root.ioco
 
   PageDesignerRenderer = function(){};
 
@@ -20,8 +28,8 @@
    */
   PageDesignerRenderer.init = function init(){
 
-    for( var i in ioco.PageDesignerRenderer.prototype )
-      this[i] = ioco.PageDesignerRenderer.prototype[i];
+    for( var i in PageDesignerRenderer.prototype )
+      this[i] = PageDesignerRenderer.prototype[i];
 
     Object.defineProperty( this, 'revision', {
       get: function(){
@@ -104,8 +112,11 @@
      * these functions are required in order to 
      * have them visible in kendo template event calls
      */
-    this.showStylesEditor = ioco.PageDesignerProperties.showSrcEditor;
-    this.showHtmlEditor = ioco.PageDesignerProperties.showSrcEditor;      
+
+    if(!isNode){
+      this.showStylesEditor = ioco.PageDesignerProperties.showSrcEditor;
+      this.showHtmlEditor = ioco.PageDesignerProperties.showSrcEditor;      
+    }
 
   }
 
@@ -203,6 +214,13 @@
       });
       ioco.pageDesigner.$(this).replaceWith( self.builder.decorate( child.render() ) );
     });
+    if( isNode ){
+      $content.find('[data-ioco-id]').each( function(){ this.attr('data-ioco-id',null); });
+      $content.find('[data-ioco-uid]').each( function(){ this.attr('data-ioco-uid',null); });
+      $content.attr('data-ioco-id',null).attr('data-ioco-uid',null);
+      if( this._scriptedContent )
+        $content.html( this._scriptedContent);
+    }
     return $content;
   };
 
@@ -223,7 +241,7 @@
         css = css.replace( m, '[data-ioco-id='+self._id+'] '+m );
       });
     css = css.replace(' #this','');
-    ioco.pageDesigner.$('head').append( $('<style/>').attr('data-ioco-id', this._id).html( css ) );
+    ioco.pageDesigner.$('head').append( ioco.pageDesigner.$('<style/>').attr('data-ioco-id', this._id).html( css ) );
   };
 
   /**
@@ -304,11 +322,26 @@
     var lang = options.lang || this._currentLang;
     var cachedVal = this.lang; //getLang( revision, view, lang );
     this.revisions[revision].views[view].content[lang] = value;
-    this.builder.update( this, options );
+    if( !isNode )
+      this.builder.update( this, options );
     if( options.store && options.store === false )
       this.revisions[revision].views[view].content[lang] = cachedVal;
   }
 
-  root.ioco.PageDesignerRenderer = PageDesignerRenderer;
+  /**
+   * override builder with real builder
+   * in nodejs we keep this as we do not want to build anything around the
+   * actual content
+   */
+  PageDesignerRenderer.prototype.builder = {
+    decorate: function( content ){
+      return content;
+    }
+  }
+
+  if( isNode )
+    module.exports = exports = PageDesignerRenderer;
+  else
+    root.ioco.PageDesignerRenderer = PageDesignerRenderer;
 
 })();

@@ -9,11 +9,16 @@
  (function(){
 
   var root = this;
+  var isNode = (typeof(module) === 'object');
 
   var plugin = {
     name: 'empty-container'
   };
 
-  root.ioco.pageDesigner.registerPlugin( plugin );
+  if( isNode )
+    module.exports = exports = plugin;
+  else
+    root.ioco.pageDesigner.registerPlugin( plugin );
+
 
 })();

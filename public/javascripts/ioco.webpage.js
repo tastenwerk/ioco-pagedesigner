@@ -11,6 +11,8 @@
 
   var root = this;
 
+  var isNode = (typeof(module) === 'object');
+
   /**
    * Construct a Webpage
    *
@@ -24,12 +26,14 @@
    * @api public
    */
   function Webpage( attrs ){
-    ioco.log('initializing new Webpage with attrs: ', attrs);
     this._setupDefaultAttrs();
     for( var i in attrs )
       this[i] = attrs[i];
 
-    ioco.PageDesignerRenderer.init.call( this );
+    if( isNode )
+      require(__dirname+'/ioco.page-designer-renderer').init.call( this );
+    else
+      ioco.PageDesignerRenderer.init.call( this );
 
   }
 
@@ -63,6 +67,10 @@
       }
     }
   };
-  root.ioco.Webpage = Webpage;
+
+  if( isNode )
+    module.exports = exports = Webpage;
+  else
+    root.ioco.Webpage = Webpage;
 
 })();
