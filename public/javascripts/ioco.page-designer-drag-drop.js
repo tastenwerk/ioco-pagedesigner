@@ -13,6 +13,43 @@
 
   PageDesignerDragDrop = function(){}
 
+  PageDesignerDragDrop.prototype.setupDraggable = function setupDraggable( $elem ){
+
+    var self = this;
+
+    $elem.find('.ioco-pd-icn-move').kendoDraggable({
+      hint: function(element) {
+         return element.closest('.ioco-webbit').clone();
+      },
+      drag: function( e ){
+        if( !$elem.hasClass('ioco-something-dragging') )
+          return;
+        if( !$(e.target).hasClass('ioco-droppable') )
+          return;
+        if( $(e.target).attr('data-ioco-uid') === $elem.attr('data-ioco-uid') )
+          return;
+        var $target = $(e.target);
+        if( e.pageX < ($target.width() / 4) && !$target.hasClass('droppable-root') )
+          $target.find('.can-drop-indicator').removeClass('drop-right').removeClass('drop-inside').addClass('drop-left');
+        else if( e.pageX > ($target.width() / 4) * 3 && !$target.hasClass('droppable-root') )
+          $target.find('.can-drop-indicator').removeClass('drop-left').removeClass('drop-inside').addClass('drop-right');
+        else
+          $target.find('.can-drop-indicator').removeClass('drop-right').removeClass('drop-left').addClass('drop-inside');
+      },
+      dragstart: function( e ){
+        if( $('.ioco-something-dragging').length )
+          return;
+        $elem.addClass('ioco-something-dragging');
+        self.$workspaceDiv.find('.ioco-droppable').addClass('can-drop-here');
+      },
+      dragend: function( e ){
+        $elem.removeClass('ioco-something-dragging');
+        self.$workspaceDiv.find('.can-drop-here').removeClass('can-drop-here');
+      }
+    });
+
+  }
+
   /**
    * setup drop event for given element
    *
@@ -20,20 +57,28 @@
    *
    * @api private
    */
-  PageDesignerDragDrop.prototype.setupDroppable = function setupDroppable( $elem, root ){
+  PageDesignerDragDrop.prototype.setupDroppable = function setupDroppable( $elem ){
     var self = this;
     $elem.addClass('ioco-droppable');
-    if( root )
+    if( $elem.hasClass('ioco-webpage') )
       $elem.addClass('droppable-root');
     $elem.kendoDropTarget({
         dragenter: function( e ){
+          if( $(e.target).attr('data-ioco-uid') ){
+            self.$controlsDiv.find('.tab-control:first').click();
+            self.treeView.select( self.treeView.findByUid( $elem.attr('data-ioco-uid') ) );
+          }
           $elem.prepend( $('<div class="can-drop-indicator"/>') );
         },
         dragleave: function( e ){
           $elem.find('.can-drop-indicator').remove();
+          self.treeView.select( $() );
         },
         drop: function( e ){
-          var position = $elem.find('.can-drop-indicator').attr('class').replace('can-drop-indicator','').replace(' drop-','');
+          var $dropIndi = $elem.find('.can-drop-indicator');
+          if( $dropIndi.length < 1 )
+            return;
+          var position = $dropIndi.attr('class').replace('can-drop-indicator','').replace(' drop-','');
           $('.can-drop-indicator').remove();
           if( $(e.target).hasClass('plugin-item') ){
             var pluginName = $(e.target).find('.name').text();
@@ -48,6 +93,12 @@
                 self.insertWebBit( $elem, position, webbit );
               }
             })
+          } else if( $(e.target).closest('.ioco-webbit') ){
+            var webbit = self.treeSource.getByUid( $(e.target).closest('.ioco-webbit').attr('data-ioco-uid') );
+            console.log( position, webbit );
+            $(e.target).remove();
+            self.remove( webbit );
+            self.insertWebBit( $elem, position, webbit );
           }
         }
     });
@@ -65,28 +116,25 @@
   PageDesignerDragDrop.prototype.insertWebBit = function insertWebBit( $target, position, webbit ){
       
     var parent
-      , $parent = $target.closest('.ioco-webbit,.ioco-webpage');
+      , newStr = '<div data-ioco-id="'+webbit._id+'"></div>';
+
+    parent = this.treeSource.getByUid( $target.attr('data-ioco-uid') );
 
     if( position === 'inside' ){
-      position = 'append';
-      $parent = $target;
-    } else if( position === 'right' )
-      position = 'insertAfter';
-    else if( position === 'left' )
-      position = 'insertBefore';
-    else
-      ioco.log('error', 'unknown position for webbit', position);
-
-    webbit.uid = this.treeView[position]( webbit, this.treeView.findByUid( $target.attr('data-ioco-uid') ) ).data('uid');
-
-    parent = this.treeSource.getByUid( $parent.attr('data-ioco-uid') );
-    console.log('inserting lang before', parent.lang);
-    if( $parent === $target )
-      parent.revisions[parent._currentRevision].views[parent._currentView].content[parent._currentLang] = parent.lang + '<div data-webbit-id="'+webbit._id+'"></div>';
-    else
-      throw Error('NOT IMPLEMENTED right, left');
-
-    console.log('inserting lang', parent.lang, parent.getLang());
+      parent.revisions[parent._currentRevision].views[parent._currentView].content[parent._currentLang] = parent.getLang() + newStr;
+    } else {
+      parent = this.treeSource.getByUid( $target.parent().attr('data-ioco-uid') );
+      var $parStr = $('<div/>').append(parent.getLang());
+      var $insertionPoint = $parStr.find('[data-ioco-id='+$target.attr('data-ioco-id')+']');
+      if( position === 'right' )
+        $(newStr).insertAfter( $insertionPoint );
+      else if( position === 'left' )
+        $(newStr).insertBefore( $insertionPoint );
+      else
+        ioco.log('error', 'unknown position for webbit', position);
+      parent.revisions[parent._currentRevision].views[parent._currentView].content[parent._currentLang] = $parStr.html();
+    }
+    parent.append( webbit );
 
     this.update( parent );
 
@@ -96,6 +144,20 @@
     else
       this.decorate( webbit.render() )[position]( $target )
     */
+  }
+
+  /**
+   * remove a given node
+   *
+   * @api private
+   */
+  PageDesignerDragDrop.prototype.remove = function remove( webbit ){
+    var $newStr = $('<div/>').append(webbit.parentNode().getLang())
+      , parent = webbit.parentNode();
+    $newStr.find('[data-ioco-id='+webbit._id+']').remove();
+    parent.revisions[parent._currentRevision].views[parent._currentView].content[parent._currentLang] = $newStr.html();
+    $('[data-ioco-uid='+webbit.uid+']').remove();
+    this.treeSource.remove( webbit );
   }
 
   root.ioco.PageDesignerDragDrop = PageDesignerDragDrop;

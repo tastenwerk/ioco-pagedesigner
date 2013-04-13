@@ -93,7 +93,7 @@
       default: {
         includes: {},
         content: {
-          default: 'no content yet'
+          default: '<h1>no content yet</h1>'
         }
       }
     };

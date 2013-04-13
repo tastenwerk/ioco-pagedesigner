@@ -57,7 +57,7 @@
             '</tr>'+
           '</table>'+
           '<hr />'+
-          '<a class="pull-right ioco-nobtn" data-editor-type="css" data-editor-title="Edit CSS Styles " data-bind="attr: {data-uid: uid}, events: { click: showStylesEditor }"><span class="ioco-pd-icn ioco-pd-icn-pencil"></span></a>'+
+          '<a class="pull-right ioco-nobtn" data-editor-type="css" data-editor-title="Edit CSS Styles " data-bind="attr: {data-uid: uid}, events: { click: showStylesEditor }"><span class="k-icon k-i-pencil"></span></a>'+
           '<h1>'+ioco.pageDesigner.t('CSS')+'</h1>'+
           '<table>'+
             '</tr>'+
@@ -70,13 +70,27 @@
             '</tr>'+
           '</table>'+
           '<hr />'+
-          '<a class="pull-right ioco-nobtn" data-editor-type="html" data-editor-title="Edit HTML Source " data-bind="attr: {data-uid: uid}, events: { click: showHtmlEditor }"><span class="ioco-pd-icn ioco-pd-icn-pencil"></span></a>'+
+          '<a class="pull-right ioco-nobtn" data-editor-type="html" data-editor-title="Edit HTML Source " data-bind="attr: {data-uid: uid}, events: { click: showHtmlEditor }"><span class="k-icon k-i-pencil"></span></a>'+
           '<h1>'+ioco.pageDesigner.t('HTML')+'</h1>'+
         '</div>'+
       '</li>'+
       '<li>'+
         ioco.pageDesigner.t('Revisions')+
         '<div>here revs</div>'+
+      '</li>'+
+      '<li>'+
+        ioco.pageDesigner.t('Administration')+
+        '<div>'+
+          '<table style="padding-top: 10px">'+
+            '<tr>'+
+              '<td><label>'+ioco.pageDesigner.t('Library')+'</label></td>'+
+              '<td><input type="checkbox" data-bind="checked: getRevision().config.library" /></td>'+
+            '</tr>'+
+              '<td><label>'+ioco.pageDesigner.t('Locked')+'</label></td>'+
+              '<td><input type="checkbox" data-bind="checked: getRevision().config.locked" /></td>'+
+            '</tr>'+
+          '</table>'+
+        '</div>'+
       '</li>'+
     '</ul>';
 
@@ -147,10 +161,8 @@
     // watch annotations. if they match,
     // refresh css
     srcEditor.getSession().on("changeAnnotation", function(){
-        if( srcEditor.getSession().getAnnotations().length < 1 ){
-          console.log('guilty')
+        if( srcEditor.getSession().getAnnotations().length < 1 )
           webbit.preview( 'config.styles', srcEditor.getSession().getValue() )
-        }
         //else
         //  console.log('error', srcEditor.getSession().getAnnotations());
     });

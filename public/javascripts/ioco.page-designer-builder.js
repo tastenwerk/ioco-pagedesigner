@@ -35,7 +35,14 @@
     var self = this;
 
     this.treeSource = new kendo.data.HierarchicalDataSource({
-      data: []
+      data: [],
+      change: function( master ){
+        if( ( master.action && master.action == 'add' && master.items.length > 0 ) || 
+            ( master.items.length > 0 && master.field && master.field.match(/getRevision|revisions|name/) ) )
+          if( self.$controlsDiv )
+            self.$controlsDiv.find('.ioco-pd-save-all').removeClass('disabled').addClass('enabled');
+        //console.log( master );
+      }
     });
 
     this.webpage = options.webpage || new ioco.Webpage();
@@ -71,9 +78,16 @@
   PageDesignerBuilder.prototype.renderControls = function pdRenderControls(){
     this.$controlsDiv = $('<div/>').addClass('controls');
 
+    var self = this;
+
+    var $saveBtn = $('<a/>').on('click', function(e){
+      e.preventDefault();
+      self.saveAll();
+    })
+
     var $mainControls = $('<div/>').addClass('ioco-pd-main-controls')
       .append( $('<a/>').addClass('ioco-pd-btn').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-close') ).attr('ioco-title', ioco.pageDesigner.t('close') ) )
-      .append( $('<a/>').addClass('ioco-pd-btn w-text disabled').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-save') ).append( $('<span/>').addClass('icn-text').text( ioco.pageDesigner.t('Save') ) ).attr('ioco-title', ioco.pageDesigner.t('save') ) )
+      .append( $saveBtn.addClass('ioco-pd-btn w-text disabled ioco-pd-save-all').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-save') ).append( $('<span/>').addClass('icn-text').text( ioco.pageDesigner.t('Save') ) ).attr('ioco-title', ioco.pageDesigner.t('save') ) )
       .append( $('<a/>').addClass('ioco-pd-btn disabled').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-redo') ).attr('ioco-title', ioco.pageDesigner.t('redo last action')) )
       .append( $('<a/>').addClass('ioco-pd-btn disabled').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-undo') ).attr('ioco-title', ioco.pageDesigner.t('undo last action')) );
 
@@ -126,10 +140,24 @@
   PageDesignerBuilder.prototype.update = function update( webbit, options ){
     options = options || {};
     this.$workspaceDiv.find('[data-ioco-id='+webbit._id+']').replaceWith( 
-      this.decorate( webbit.render( options ), true ) 
+      this.decorate( webbit.render( options ) ) 
     );
   }
 
+  /**
+   * save this builder's data
+   *
+   * this can be overridden by passing a save function to the pageDesigner options./
+   * it will be triggered through the save button (cannot be triggered externally)
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.saveAll = function saveAll(){
+    var self = this;
+    console.log('saving');
+    console.log(this.treeSource);
+    self.$controlsDiv.find('.ioco-pd-save-all').addClass('disabled').removeClass('enabled');
+  }
 
   /**
    * decorate a webbit and attach events
@@ -139,11 +167,14 @@
    *
    * @api private
    */
-  PageDesignerBuilder.prototype.decorate = function decorate( $content, root ){
-    console.log('getting in content', $content.html());
-    if( !root )
+  PageDesignerBuilder.prototype.decorate = function decorate( $content ){
+    if( $content.hasClass('ioco-webbit') ){
       $content.css('position','relative').addClass('decorated');
-    this.setupDroppable( $content, root );
+      var $moveIcn = $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-move');
+      $content.prepend( $('<div/>').addClass('ioco-pd-controls').append( $moveIcn ) );
+      this.setupDraggable( $content );
+    }
+    this.setupDroppable( $content );
     this.setupWebbitEvents( $content );
     return $content;
   }
@@ -248,10 +279,30 @@
    */
   PageDesignerBuilder.prototype.renderTreeTab = function renderTreeTab(){
 
+    var self = this;
+
     var $treeTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-tree')
       .append( this.webPageBaseFormHTML );
 
-    kendo.bind( $treeTab.find('.webpage-base-form'), { treeView: this.treeSource } );
+    $treeTab.find('.webbits-tree').kendoTreeView({
+      dataSource: this.treeSource,
+      dataTextField: 'name',
+      dataSpriteCssClassField: 'pluginName'/*,
+      dragAndDrop: true,
+      drop: function( e ){ 
+        console.log(e);
+        if( self.treeView.dataItem(e.destinationNode)._type === 'Webpage' && e.dropPosotion !== 'over' ) 
+          e.setValid(false); 
+      }*/
+    });
+
+    /*kendo.bind( $treeTab.find('.webpage-base-form'), { treeView: this.treeSource, 
+                                                       checkValid: function( e ){ 
+                                                          if( e.destinationNode._type === 'Webpage' && e.dropPosotion !== 'over' ) 
+                                                            e.setValid(false); } 
+    });
+    */
+
     this.treeView = $treeTab.find('.webbits-tree').data('kendoTreeView');
 
     this.setupTreeEvents( $treeTab.find('.webbits-tree'), this.treeSource );

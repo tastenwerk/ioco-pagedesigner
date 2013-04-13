@@ -31,8 +31,6 @@
 
     ioco.PageDesignerRenderer.init.call( this );
 
-    this.expanded = true;
-
   }
 
   /**

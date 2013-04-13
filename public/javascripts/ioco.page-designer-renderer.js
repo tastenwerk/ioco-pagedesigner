@@ -97,7 +97,8 @@
       enumerable: true
     });
 
-    this.items = this.webbits || [];
+    this.items = this.items || [];
+    this.expanded = true;
 
     /*
      * these functions are required in order to 
@@ -187,27 +188,14 @@
    */
   PageDesignerRenderer.prototype.render = function render( options ){
     options = options || {};
-    
     this.renderStyles( this.getRevision( options.revision ) );
-    return ioco.pageDesigner.$('<div class="ioco-'+(this._type === 'Webpage' ? 'webpage' : 'webbit')+' '+this.getRevision( options.revision ).config.classes+'"'+
-      ' data-ioco-id="'+this._id+'"'+
-      ' data-ioco-uid="'+this.uid+'"></div>').append( this.renderContent(options.lang) );
-  };
 
-  /**
-   * render content of webpage or webbit
-   *
-   * @param {String} lang (default: this._currentLang)
-   *
-   * @api private
-   */
-  PageDesignerRenderer.prototype.renderContent = function renderContent( lang ){
     var self = this;
-    var $content = ioco.pageDesigner.$('<div>'+this.getLang( lang )+'</div>' );
-    console.log('content', this.getLang( lang ));
-    $content.find('[data-webbit-id]').each( function(){
-      console.log('having', $(this))
-      var id = ioco.pageDesigner.$(this).attr('data-webbit-id');
+    var $content = ioco.pageDesigner.$('<div class="ioco-'+(this._type === 'Webpage' ? 'webpage' : 'webbit')+' '+this.getRevision( options.revision ).config.classes+'"'+
+      ' data-ioco-id="'+this._id+'"'+
+      ' data-ioco-uid="'+this.uid+'" />').append(this.getLang( options.lang ));
+    $content.find('[data-ioco-id]').each( function(){
+      var id = ioco.pageDesigner.$(this).attr('data-ioco-id');
       var child;
       self.items.forEach( function( item ){
         if( item._id === id )
@@ -215,9 +203,8 @@
       });
       ioco.pageDesigner.$(this).replaceWith( self.builder.decorate( child.render() ) );
     });
-    console.log( $content );
     return $content;
-  }
+  };
 
   /**
    * render styles
@@ -275,7 +262,6 @@
    * @api private
    */
   PageDesignerRenderer.prototype.updateRender = function updateRender(){
-    console.log( 'updateRender', this.revision.config );
     this.builder.update( this );
   }
 
