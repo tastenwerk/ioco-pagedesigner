@@ -43,7 +43,8 @@
               content: ioco.pageDesigner.t('New Webbit Name'),
               submit: function( name ){
                 var webbit = new ioco.Webbit({ pluginName: pluginName, name: name });
-                webbit.builder = { update: function( webbit, options ){ self.update( webbit, options ); } };
+                webbit.builder = { update: function( webbit, options ){ self.update( webbit, options ); },
+                                   decorate: function( content ){ return self.decorate( content ); } };
                 self.insertWebBit( $elem, position, webbit );
               }
             })
@@ -62,24 +63,39 @@
    * @api private
    */
   PageDesignerDragDrop.prototype.insertWebBit = function insertWebBit( $target, position, webbit ){
-    
-    var target = $('[data-uid='+$target.attr('data-ioco-uid')+']');
+      
+    var parent
+      , $parent = $target.closest('.ioco-webbit,.ioco-webpage');
 
-    if( position === 'inside' )
+    if( position === 'inside' ){
       position = 'append';
-    else if( position === 'right' )
+      $parent = $target;
+    } else if( position === 'right' )
       position = 'insertAfter';
     else if( position === 'left' )
       position = 'insertBefore';
     else
       ioco.log('error', 'unknown position for webbit', position);
 
-    webbit.uid = this.$controlsDiv.find('.webbits-tree').data('kendoTreeView')[position]( webbit, target ).data('uid');
+    webbit.uid = this.treeView[position]( webbit, this.treeView.findByUid( $target.attr('data-ioco-uid') ) ).data('uid');
 
+    parent = this.treeSource.getByUid( $parent.attr('data-ioco-uid') );
+    console.log('inserting lang before', parent.lang);
+    if( $parent === $target )
+      parent.revisions[parent._currentRevision].views[parent._currentView].content[parent._currentLang] = parent.lang + '<div data-webbit-id="'+webbit._id+'"></div>';
+    else
+      throw Error('NOT IMPLEMENTED right, left');
+
+    console.log('inserting lang', parent.lang, parent.getLang());
+
+    this.update( parent );
+
+    /*
     if( position === 'append' )
       $target.append( this.decorate( webbit.render() ) );
     else
       this.decorate( webbit.render() )[position]( $target )
+    */
   }
 
   root.ioco.PageDesignerDragDrop = PageDesignerDragDrop;

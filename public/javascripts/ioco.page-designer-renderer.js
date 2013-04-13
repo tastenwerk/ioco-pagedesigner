@@ -55,7 +55,49 @@
       enumerable: true
     });
 
-    this.webbits = this.webbits || [];
+    Object.defineProperty( this, 'config', {
+      get: function(){
+        return this.revision.config;
+      },
+      enumerable: true
+    });
+
+    Object.defineProperty( this, 'view', {
+      get: function(){
+        return this.revision.views[ this._currentView ];
+      },
+      enumerable: true
+    });
+
+    Object.defineProperty( this, 'lang', {
+      get: function(){
+        return this.view.content[ this._currentLang ];
+      },
+      enumerable: true
+    });
+
+    Object.defineProperty( this, 'revisionsArray', {
+      get: function(){
+        return Object.keys( this.revisions );
+      },
+      enumerable: true
+    });
+    
+    Object.defineProperty( this, 'viewsArray', {
+      get: function(){
+        return Object.keys( this.revision.views );
+      },
+      enumerable: true
+    });
+
+    Object.defineProperty( this, 'langArray', {
+      get: function(){
+        return Object.keys( this.view.content );
+      },
+      enumerable: true
+    });
+
+    this.items = this.webbits || [];
 
     /*
      * these functions are required in order to 
@@ -146,13 +188,36 @@
   PageDesignerRenderer.prototype.render = function render( options ){
     options = options || {};
     
-    
     this.renderStyles( this.getRevision( options.revision ) );
-    return '<div class="ioco-'+(this._type === 'Webpage' ? 'webpage' : 'webbit')+' '+this.applyStyles(this.getRevision(),'classes')+'"'+
+    return ioco.pageDesigner.$('<div class="ioco-'+(this._type === 'Webpage' ? 'webpage' : 'webbit')+' '+this.getRevision( options.revision ).config.classes+'"'+
       ' data-ioco-id="'+this._id+'"'+
-      ' data-ioco-uid="'+this.viewModel().uid+'">'+this.getLang( options.revision, options.view, options.lang )+
-      '</div>';
+      ' data-ioco-uid="'+this.uid+'"></div>').append( this.renderContent(options.lang) );
   };
+
+  /**
+   * render content of webpage or webbit
+   *
+   * @param {String} lang (default: this._currentLang)
+   *
+   * @api private
+   */
+  PageDesignerRenderer.prototype.renderContent = function renderContent( lang ){
+    var self = this;
+    var $content = ioco.pageDesigner.$('<div>'+this.getLang( lang )+'</div>' );
+    console.log('content', this.getLang( lang ));
+    $content.find('[data-webbit-id]').each( function(){
+      console.log('having', $(this))
+      var id = ioco.pageDesigner.$(this).attr('data-webbit-id');
+      var child;
+      self.items.forEach( function( item ){
+        if( item._id === id )
+          child = item;
+      });
+      ioco.pageDesigner.$(this).replaceWith( self.builder.decorate( child.render() ) );
+    });
+    console.log( $content );
+    return $content;
+  }
 
   /**
    * render styles
@@ -175,20 +240,6 @@
   };
 
   /**
-   * apply styles
-   *
-   * @param {Object} revision
-   * @param {String} key (classes, cssId, styles, ...)
-   *
-   * @returns {String} css classes
-   *
-   * @api private
-   */
-  PageDesignerRenderer.prototype.applyStyles = function applyStyles( revision, key ){
-    return revision.config[key];
-  }
-
-  /**
    * renders the webpage again without storing updates to the
    * object
    *
@@ -209,9 +260,23 @@
     var cachedVal = eval('this.getRevision(options.revision).'+key);
     this.update( key, value, options );
     //eval('this.revisions.'+revision+'.'+key+' = value');
-    this.render( options );
+    this.builder.update( this, options );
     //eval('this.revisions.'+revision+'.'+key+' = cachedVal');
     this.update( key, cachedVal, options );
+  }
+
+  /**
+   * updateRender
+   *
+   * calls a render event updating the current view
+   * with current values
+   * this is used from kendo bind events
+   *
+   * @api private
+   */
+  PageDesignerRenderer.prototype.updateRender = function updateRender(){
+    console.log( 'updateRender', this.revision.config );
+    this.builder.update( this );
   }
 
   /**
@@ -251,10 +316,9 @@
     var revision = options.revision || this._currentRevision;
     var view = options.view || this._currentView;
     var lang = options.lang || this._currentLang;
-    var cachedVal = this.getLang( revision, view, lang );
+    var cachedVal = this.lang; //getLang( revision, view, lang );
     this.revisions[revision].views[view].content[lang] = value;
     this.builder.update( this, options );
-    console.log('setting', this.revisions[revision] );
     if( options.store && options.store === false )
       this.revisions[revision].views[view].content[lang] = cachedVal;
   }

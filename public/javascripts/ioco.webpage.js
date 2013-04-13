@@ -31,6 +31,8 @@
 
     ioco.PageDesignerRenderer.init.call( this );
 
+    this.expanded = true;
+
   }
 
   /**
@@ -63,42 +65,6 @@
       }
     }
   };
-
-
-  /**
-   * return this webpage as a kendo view model
-   *
-   * @api public
-   */
-  Webpage.prototype.viewModel = function viewModel(){
-
-    if( !this._viewModel ){
-      var revs = [];
-      for( var i in this.revisions )
-        revs.push( { name: i, data: this.revisions[i] } );
-
-      this._viewModel = kendo.observable({
-                name: this.name,
-                revision: this.revision,
-                webbits: kendo.observableHierarchy([
-                    { name: this.name, pluginName: "webpage", 
-                      config: this.revision.config, 
-                      expanded: true, 
-                      showStylesEditor: ioco.PageDesignerProperties.showSrcEditor,
-                      showHtmlEditor: ioco.PageDesignerProperties.showSrcEditor,
-                      orig: this,
-                      items: []
-                    }
-                ]),
-              revisions: kendo.observableHierarchy( revs )
-            });
-      this.uid = this._viewModel.webbits[0].uid = this._viewModel.uid;
-    }
-
-    return this._viewModel;
-
-  }
-
   root.ioco.Webpage = Webpage;
 
 })();

@@ -86,6 +86,7 @@
    */
   Webbit.prototype._setupDefaultAttrs = function _setupDefaultAttrs(){
     this.name = null;
+    this._id = (new Date).getTime().toString(36); // TODO: remove this when using a real db
     this.revisions = {};
     this.revisions.master = {};
     this.revisions.master.views = {
@@ -104,53 +105,9 @@
     }
   };
 
-  /**
-   * render a webbit's html
-   *
-   * Example:
-   *
-   *     webbit.render();
-   *
-   * @param {String} view - the view to use for rendering (if no view is given, 'default' will be used)
-   * @param {String} lang - the language to use for rendering. see [Webbit] for more informations about language fallback system. If no lang is given, ioco.pageDesigner.options.defaultLang or 'default' will be used
-   * @param {Number} revision - the revision of the webbit ( if none, default will be used )
-   *
-   * @api public
-   */
-  Webbit.prototype.render = function renderWebbit( options ){
-    options = options || {};
-    rev = options.revision || 'master';
-    var _view = this.revisions[rev].views.default
-      , _lang = ioco.pageDesigner.defaultLang || 'default'
-      , content;
-    if( options.view in _view )
-      _view = view;
-    if( options.lang in _view.content )
-      _lang = lang;
-    return '<div class="ioco-webbit '+this.applyStyles(rev,'classes')+'"'+
-      ' data-ioco-uid="'+this.uid+'" id="'+this.applyStyles(rev,'cssId')+'">'+_view.content[_lang]+
-      '</div>';
-  };
-
 
   Webbit.prototype.showStylesEditor = ioco.PageDesignerProperties.showSrcEditor;
   Webbit.prototype.showHtmlEditor = ioco.PageDesignerProperties.showSrcEditor;
-
-  /**
-   * get webbit's styles
-   *
-   * @param {String} revision
-   * @param {String} key (classes, cssId, styles, ...)
-   *
-   * @returns {String} css classes
-   *
-   * @api private
-   */
-  Webbit.prototype.applyStyles = function applyStyles( revision, key ){
-    var config = this.revisions[revision].config;
-    return config[key];
-  }
-
 
   /**
    * hold current designer (kendo) uid

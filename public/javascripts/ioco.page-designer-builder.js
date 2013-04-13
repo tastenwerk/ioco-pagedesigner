@@ -34,8 +34,16 @@
 
     var self = this;
 
+    this.treeSource = new kendo.data.HierarchicalDataSource({
+      data: []
+    });
+
     this.webpage = options.webpage || new ioco.Webpage();
-    this.webpage.builder = { update: function( webbit, options ){ self.update( webbit, options ); } };
+    this.webpage.builder = { update: function( webbit, options ){ self.update( webbit, options ); },
+                             decorate: function( content ){ return self.decorate( content, true ); } };
+
+    this.treeSource.add( this.webpage );
+    this.webpage.uid = this.treeSource.data()[0].uid;
 
     for( var i in ioco.PageDesignerProperties.prototype )
       this[i] = ioco.PageDesignerProperties.prototype[i];
@@ -78,7 +86,7 @@
     this.renderTreeTab();
     this.renderPluginListTab();
     this.renderPrefTab();
-    this.renderRevisionsTab();
+    //this.renderRevisionsTab();
 
     this.$controlsDiv.append( this.$controlsTabs );
 
@@ -131,8 +139,8 @@
    *
    * @api private
    */
-  PageDesignerBuilder.prototype.decorate = function decrate( content, root ){
-    var $content = $(content)
+  PageDesignerBuilder.prototype.decorate = function decorate( $content, root ){
+    console.log('getting in content', $content.html());
     if( !root )
       $content.css('position','relative').addClass('decorated');
     this.setupDroppable( $content, root );
@@ -153,20 +161,19 @@
 
       e.stopPropagation();
       // select according tree item
-      var treeView = self.$controlsDiv.find('.webbits-tree').data('kendoTreeView')
       var uid = $(e.target).attr('data-ioco-uid');
 
       if( $content.hasClass('active') ){
-        treeView.select( $() );
+        self.treeView.select( $() );
         $content.removeClass('active');
       } else {
         $content.closest('.ioco-pd').find('.ioco-webbit.active,.ioco-webpage.active').removeClass('active');
-        treeView.select( treeView.findByUid( uid ) );
+        self.treeView.select( self.treeView.findByUid( uid ) );
         $content.addClass('active');
         // show tree view
         self.$controlsDiv.find('.tab-control:first').click();
         self.$controlsDiv.find('[data-uid='+ uid +']');
-        self.showProperties( treeView.dataSource.getByUid( uid ) );
+        self.showProperties( self.treeSource.getByUid( uid ) );
       }
 
     }).on('mouseenter', function( e ){
@@ -244,9 +251,10 @@
     var $treeTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-tree')
       .append( this.webPageBaseFormHTML );
 
-    kendo.bind( $treeTab.find('.webpage-base-form'), this.webpage.viewModel() );
+    kendo.bind( $treeTab.find('.webpage-base-form'), { treeView: this.treeSource } );
+    this.treeView = $treeTab.find('.webbits-tree').data('kendoTreeView');
 
-    this.setupTreeEvents( $treeTab.find('.webbits-tree'), $treeTab.find('.webbits-tree').data('kendoTreeView') );
+    this.setupTreeEvents( $treeTab.find('.webbits-tree'), this.treeSource );
   
     this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-tree') ) );
     this.$controlsTabs.find('.tabs-content').append( $treeTab );
@@ -275,7 +283,7 @@
       } else{
         $workspace.find('.active').removeClass('active').removeClass('hovered');
         $webbitElem.addClass('active');
-        self.showProperties( treeView.dataSource.getByUid( uid ) );
+        self.showProperties( self.treeSource.getByUid( uid ) );
       }
     }).on('mouseenter', 'li.k-item', function(e){
       e.stopPropagation();
@@ -299,7 +307,7 @@
     var $prefTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-preferences')
       .append( this.webPagePrefFormHTML );
 
-    kendo.bind( $prefTab.find('.webpage-pref-form'), this.webpage.viewModel() );
+    kendo.bind( $prefTab.find('.webpage-pref-form'), this.treeSource.getByUid(this.webpage.uid) );
 
     this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-preferences') ) );
     this.$controlsTabs.find('.tabs-content').append( $prefTab );
@@ -320,7 +328,7 @@
     var $revTab = $('<div/>').addClass('tab-content').attr('id', 'ioco-pd-tab-revisions')
       .append( this.webPageRevisionsHTML );
 
-    kendo.bind( $revTab.find('.webpage-revisions'), this.webpage.viewModel() );
+    kendo.bind( $revTab.find('.webpage-revisions'), this.treeSource.getByUid(this.webpage.uid) );
 
     this.$controlsTabs.find('.tabs-control').append( $('<li/>').addClass('tab-control').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-revisions') ) );
     this.$controlsTabs.find('.tabs-content').append( $revTab );
@@ -385,14 +393,14 @@
       }
     });
   }
-  
+
   PageDesignerBuilder.prototype.webPageBaseFormHTML = '<form class="webpage-base-form">'+
     '<p><label>' + ioco.pageDesigner.t('Webbits') + '</label></p>'+
     '<div class="webbits-tree" data-role="treeview"'+
             ' data-drag-and-drop="true"'+
             ' data-text-field="name"'+
             ' data-spritecssclass-field="pluginName"'+
-            ' data-bind="source: webbits"></div>'+
+            ' data-bind="source: treeView"></div>'+
     '</form>';
   
   PageDesignerBuilder.prototype.webPagePrefFormHTML = 
@@ -408,6 +416,14 @@
       '<p>'+
         '<label>' + ioco.pageDesigner.t('Description') + '</label><br/>'+
         '<textarea data-bind="value: revision.config.meta.description" />'+
+      '</p>'+
+      '<p>'+
+        '<label>' + ioco.pageDesigner.t('View') + '</label><br/>'+
+        '<select data-role="dropdownlist" data-bind="source: viewsArray, value: _currentView"></select>'+
+      '</p>'+
+      '<p>'+
+        '<label>' + ioco.pageDesigner.t('Lang') + '</label><br/>'+
+        '<select data-role="dropdownlist" data-bind="source: langArray, value: _currentLang"></select>'+
       '</p>'+
     '</form>';
 

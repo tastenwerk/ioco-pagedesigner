@@ -78,6 +78,7 @@ a.ioco-pd-btn:hover .ioco-pd-icn{ opacity: 1; }
 .ioco-pd-panelbar hr{ border: none; border-top: 1px solid #ddd;  }
 .ioco-pd-panelbar h1{ font-size: 14px; font-weight: 100; margin: 5px 5px 0 5px; }
 .ioco-pd-panelbar table input[type=text]{ width: 100%; padding: 2px 0; text-indent: 2px; font-size: 12px; }
+.ioco-pd-panelbar .k-dropdown, .ioco-pd .controls .k-dropdown{ width: 100%; }
 
 .ioco-pd-panelbar .btn.small{ padding: 2px 5px; }
 .ioco-pd-panelbar .btn.small.pull-right{ margin-right: 5px; }

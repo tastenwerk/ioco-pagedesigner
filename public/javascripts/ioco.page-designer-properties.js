@@ -32,7 +32,7 @@
       activate: function activateProperties( $win ){
         kendo.bind( $html, webbit );
         $win.find('.ioco-pd-panelbar').kendoPanelBar({
-          expandMode: "single"
+          expandMode: 'single'
         });
       }
     });
@@ -40,36 +40,42 @@
 
   PageDesignerProperties.prototype.propertiesHTML = 
   '<ul class="ioco-pd-panelbar">'+
-      '<li>'+
-        '<span class="k-link k-state-selected">'+ioco.pageDesigner.t('Main Settings')+'</span>'+
-        '<table style="padding-top: 10px">'+
-          '<tr>'+
-            '<td><label>'+ioco.pageDesigner.t('Name')+'</label></td>'+
-            '<td><input type="text" data-bind="value: name" /></td>'+
-          '</tr>'+
-            '<td><label>'+ioco.pageDesigner.t('Type')+'</label></td>'+
-            '<td><input type="text" disabled="disabled" data-bind="value: pluginName" /></td>'+
-          '</tr>'+
-        '</table>'+
-        '<hr />'+
-        '<a class="pull-right ioco-nobtn" data-editor-type="css" data-editor-title="Edit CSS Styles " data-bind="attr: {data-uid: uid}, events: { click: showStylesEditor }"><span class="ioco-pd-icn ioco-pd-icn-pencil"></span></a>'+
-        '<h1>'+ioco.pageDesigner.t('CSS')+'</h1>'+
-        '<table>'+
-          '</tr>'+
-            '<td><label>'+ioco.pageDesigner.t('ID')+'</label></td>'+
-            '<td><input type="text" data-bind="value: config.styles" /></td>'+
-          '</tr>'+
-          '</tr>'+
-            '<td><label>'+ioco.pageDesigner.t('Classes')+'</label></td>'+
-            '<td><input type="text" data-bind="value: config.classes" /></td>'+
-          '</tr>'+
-        '</table>'+
-        '<hr />'+
-        '<a class="pull-right ioco-nobtn" data-editor-type="html" data-editor-title="Edit HTML Source " data-bind="attr: {data-uid: uid}, events: { click: showHtmlEditor }"><span class="ioco-pd-icn ioco-pd-icn-pencil"></span></a>'+
-        '<h1>'+ioco.pageDesigner.t('HTML')+'</h1>'+
+      '<li class="k-state-active">'+
+        ioco.pageDesigner.t('Main Settings')+
+        '<div>'+
+          '<table style="padding-top: 10px">'+
+            '<tr>'+
+              '<td><label>'+ioco.pageDesigner.t('Name')+'</label></td>'+
+              '<td><input type="text" data-bind="value: name" /></td>'+
+            '</tr>'+
+              '<td><label>'+ioco.pageDesigner.t('Plugin')+'</label></td>'+
+              '<td><input type="text" disabled="disabled" data-bind="value: pluginName" /></td>'+
+            '</tr>'+
+            '</tr>'+
+              '<td><label>'+ioco.pageDesigner.t('Revision')+'</label></td>'+
+              '<td><select data-role="dropdownlist" data-bind="source: revisionsArray, value: _currentRevision"></select></td>'+
+            '</tr>'+
+          '</table>'+
+          '<hr />'+
+          '<a class="pull-right ioco-nobtn" data-editor-type="css" data-editor-title="Edit CSS Styles " data-bind="attr: {data-uid: uid}, events: { click: showStylesEditor }"><span class="ioco-pd-icn ioco-pd-icn-pencil"></span></a>'+
+          '<h1>'+ioco.pageDesigner.t('CSS')+'</h1>'+
+          '<table>'+
+            '</tr>'+
+              '<td><label>'+ioco.pageDesigner.t('ID')+'</label></td>'+
+              '<td><input type="text" data-bind="value: getRevision().config.styles" /></td>'+
+            '</tr>'+
+            '</tr>'+
+              '<td><label>'+ioco.pageDesigner.t('Classes')+'</label></td>'+
+              '<td><input type="text" data-bind="value: getRevision().config.classes, events: { change: updateRender }" /></td>'+
+            '</tr>'+
+          '</table>'+
+          '<hr />'+
+          '<a class="pull-right ioco-nobtn" data-editor-type="html" data-editor-title="Edit HTML Source " data-bind="attr: {data-uid: uid}, events: { click: showHtmlEditor }"><span class="ioco-pd-icn ioco-pd-icn-pencil"></span></a>'+
+          '<h1>'+ioco.pageDesigner.t('HTML')+'</h1>'+
+        '</div>'+
       '</li>'+
       '<li>'+
-        '<span class="k-link">'+ioco.pageDesigner.t('Revisions')+'</span>'+
+        ioco.pageDesigner.t('Revisions')+
         '<div>here revs</div>'+
       '</li>'+
     '</ul>';
@@ -112,19 +118,13 @@
         srcEditor.getSession().setUseWrapMode(true);
         srcEditor.getSession().setWrapLimitRange(80, 80);
 
-        console.log('revision', editorType, webbit.getRevision().config[ editorType === 'css' ? 'styles' : editorType ]);
         if( editorType === 'html' )
-          srcEditor.setValue( $('[data-ioco-uid='+webbit.uid+']').html() );
+          srcEditor.setValue( webbit.getLang() );
         else
           srcEditor.setValue( webbit.getRevision().config[ editorType === 'css' ? 'styles' : editorType ] );
 
-        PageDesignerProperties[editorType+'SetupEvents']( srcEditor, webbit );
+        PageDesignerProperties[editorType+'SetupEvents']( srcEditor, webbit, $win );
 
-        $win.data('kendoWindow').wrapper.find(".k-i-tick").click(function(e){
-          webbit.update( 'config.styles', srcEditor.getSession().getValue() );
-          webbit.render();
-          $win.data('kendoWindow').close();
-        });
       },
       deactivate: function( $win ){
         webbit.builder.update( webbit );
@@ -141,16 +141,23 @@
    *
    * @api private
    */
-  PageDesignerProperties.cssSetupEvents = function cssSetupEvents( srcEditor, webbit ){
+  PageDesignerProperties.cssSetupEvents = function cssSetupEvents( srcEditor, webbit, $win ){
 
 
     // watch annotations. if they match,
     // refresh css
     srcEditor.getSession().on("changeAnnotation", function(){
-      if( srcEditor.getSession().getAnnotations().length < 1 )
-        webbit.preview( 'config.styles', srcEditor.getSession().getValue() )
-      //else
-      //  console.log('error', srcEditor.getSession().getAnnotations());
+        if( srcEditor.getSession().getAnnotations().length < 1 ){
+          console.log('guilty')
+          webbit.preview( 'config.styles', srcEditor.getSession().getValue() )
+        }
+        //else
+        //  console.log('error', srcEditor.getSession().getAnnotations());
+    });
+
+    $win.data('kendoWindow').wrapper.find(".k-i-tick").click(function(e){
+      webbit.update( 'config.styles', srcEditor.getSession().getValue() );
+      $win.data('kendoWindow').close();
     });
 
   }
@@ -163,12 +170,17 @@
    *
    * @api private
    */
-  PageDesignerProperties.htmlSetupEvents = function htmlSetupEvents( srcEditor, webbit ){
+  PageDesignerProperties.htmlSetupEvents = function htmlSetupEvents( srcEditor, webbit, $win ){
 
     // watch annotations. if they match,
     // refresh css
     srcEditor.getSession().on("change", function(){
       webbit.preview( 'content', srcEditor.getSession().getValue(), { store: false } )
+    });
+
+    $win.data('kendoWindow').wrapper.find(".k-i-tick").click(function(e){
+      webbit.setContent( srcEditor.getSession().getValue() );
+      $win.data('kendoWindow').close();
     });
 
   }
