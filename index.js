@@ -22,6 +22,8 @@ module.exports = exports = {
     }
   },
 
-  lib: pageDesigner
+  lib: pageDesigner,
+
+  renderer: require(__dirname+'/public/javascripts/ioco.page-designer-renderer')
   
 };
