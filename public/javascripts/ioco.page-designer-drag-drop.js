@@ -71,7 +71,7 @@
           $elem.prepend( $('<div class="can-drop-indicator"/>') );
         },
         dragleave: function( e ){
-          $elem.find('.can-drop-indicator').remove();
+            $elem.find('.can-drop-indicator').remove();
           self.treeView.select( $() );
         },
         drop: function( e ){
@@ -95,7 +95,6 @@
             })
           } else if( $(e.target).closest('.ioco-webbit') ){
             var webbit = self.treeSource.getByUid( $(e.target).closest('.ioco-webbit').attr('data-ioco-uid') );
-            console.log( position, webbit );
             $(e.target).remove();
             self.remove( webbit );
             self.insertWebBit( $elem, position, webbit );

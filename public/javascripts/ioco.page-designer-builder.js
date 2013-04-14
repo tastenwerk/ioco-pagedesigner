@@ -33,12 +33,17 @@
   function PageDesignerBuilder( options ){
 
     var self = this;
+    this.options = {};
+
+    for( var i in options )
+      this.options[i] = options[i];
 
     this.treeSource = new kendo.data.HierarchicalDataSource({
       data: [],
+      drop: function(){},
       change: function( master ){
-        if( ( master.action && master.action == 'add' && master.items.length > 0 ) || 
-            ( master.items.length > 0 && master.field && master.field.match(/getRevision|revisions|name/) ) )
+        if( master && ( ( master.action && master.action == 'add' && master.items.length > 0 ) || 
+            ( master.items.length > 0 && master.field && master.field.match(/getRevision|revisions|name/) ) ) )
           if( self.$controlsDiv )
             self.$controlsDiv.find('.ioco-pd-save-all').removeClass('disabled').addClass('enabled');
         //console.log( master );
@@ -154,9 +159,18 @@
    */
   PageDesignerBuilder.prototype.saveAll = function saveAll(){
     var self = this;
-    console.log('saving');
-    console.log(this.treeSource);
-    self.$controlsDiv.find('.ioco-pd-save-all').addClass('disabled').removeClass('enabled');
+
+    console.log('saving', self.treeSource.data()[0]);
+    if( typeof( self.options.save) === 'function' )
+      self.options.save( self.treeSource.data()[0], function( err ){
+        if( !err )
+          self.$controlsDiv.find('.ioco-pd-save-all').addClass('disabled').removeClass('enabled');
+      });
+    else{
+      console.log('save not implemented');
+      self.$controlsDiv.find('.ioco-pd-save-all').addClass('disabled').removeClass('enabled');
+    }
+
   }
 
   /**
@@ -329,7 +343,7 @@
       var uid = $(this).attr('data-uid');
       var $webbitElem = $workspace.find('.ioco-webbit[data-ioco-uid='+uid+'],.ioco-webpage[data-ioco-uid='+uid+']');
       if( $webbitElem.hasClass('active') && !$webbitElem.hasClass('hovered') ){
-        treeView.select( $() );
+        self.treeView.select( $() );
         $webbitElem.removeClass('active');
       } else{
         $workspace.find('.active').removeClass('active').removeClass('hovered');
