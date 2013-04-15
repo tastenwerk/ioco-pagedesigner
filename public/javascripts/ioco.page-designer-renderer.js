@@ -205,6 +205,7 @@
     var $content = ioco.pageDesigner.$('<div class="ioco-'+(this._type === 'Webpage' ? 'webpage' : 'webbit')+' '+this.getRevision( options.revision ).config.classes+'"'+
       ' data-ioco-id="'+this._id+'"'+
       ' data-ioco-uid="'+this.uid+'" />').append(this.getLang( options.lang ));
+
     $content.find('[data-ioco-id]').each( function(){
       var id = ioco.pageDesigner.$(this).attr('data-ioco-id');
       var child;
@@ -212,6 +213,8 @@
         if( item._id === id )
           child = item;
       });
+      console.log(self.name);
+      child.builder = self.builder;
       ioco.pageDesigner.$(this).replaceWith( self.builder.decorate( child.render() ) );
     });
     if( isNode ){
@@ -221,6 +224,7 @@
       if( this._scriptedContent )
         $content.html( this._scriptedContent);
     }
+    
     return $content;
   };
 
@@ -233,12 +237,12 @@
    */
   PageDesignerRenderer.prototype.renderStyles = function renderStyles( rev ){
     var self = this;
-    ioco.pageDesigner.$('head').find('style[data-ioco-id='+this._id+']').remove();
+    ioco.pageDesigner.$('head').find('style[data-ioco-id="'+this._id+'"]').remove();
     var css = rev.config.styles;
     var cssLines = css.match(/^[#.]{1}[ \w.#]+{/);
     if( cssLines && cssLines.length > 0 )
       cssLines.forEach( function( m ){
-        css = css.replace( m, '[data-ioco-id='+self._id+'] '+m );
+        css = css.replace( m, '[data-ioco-id="'+self._id+'"] '+m );
       });
     css = css.replace(' #this','');
     ioco.pageDesigner.$('head').append( ioco.pageDesigner.$('<style/>').attr('data-ioco-id', this._id).html( css ) );
@@ -322,25 +326,29 @@
     var lang = options.lang || this._currentLang;
     var cachedVal = this.lang; //getLang( revision, view, lang );
     this.revisions[revision].views[view].content[lang] = value;
+    console.log(this.builder);
     if( !isNode )
       this.builder.update( this, options );
     if( options.store && options.store === false )
       this.revisions[revision].views[view].content[lang] = cachedVal;
   }
 
-  /**
-   * override builder with real builder
-   * in nodejs we keep this as we do not want to build anything around the
-   * actual content
-   */
-  PageDesignerRenderer.prototype.builder = {
-    decorate: function( content ){
-      return content;
-    }
-  }
+  if( isNode ){
 
-  if( isNode )
+    /**
+     * override builder with real builder
+     * in nodejs we keep this as we do not want to build anything around the
+     * actual content
+     */
+    PageDesignerRenderer.prototype.builder = {
+      decorate: function( content ){
+        return content;
+      }
+    }
+
     module.exports = exports = PageDesignerRenderer;
+
+  }
   else
     root.ioco.PageDesignerRenderer = PageDesignerRenderer;
 

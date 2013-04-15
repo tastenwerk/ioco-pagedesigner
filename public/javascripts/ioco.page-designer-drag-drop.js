@@ -89,7 +89,7 @@
               submit: function( name ){
                 var webbit = new ioco.Webbit({ pluginName: pluginName, name: name });
                 webbit.builder = { update: function( webbit, options ){ self.update( webbit, options ); },
-                                   decorate: function( content ){ return self.decorate( content ); } };
+                                   decorate: function( content ){ console.log('we decorate'); return self.decorate( content ); } };
                 self.insertWebBit( $elem, position, webbit );
               }
             })

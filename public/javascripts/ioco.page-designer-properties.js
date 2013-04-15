@@ -170,6 +170,7 @@
     $win.data('kendoWindow').wrapper.find(".k-i-tick").click(function(e){
       webbit.update( 'config.styles', srcEditor.getSession().getValue() );
       $win.data('kendoWindow').close();
+      e.preventDefault();
     });
 
   }
@@ -193,6 +194,7 @@
     $win.data('kendoWindow').wrapper.find(".k-i-tick").click(function(e){
       webbit.setContent( srcEditor.getSession().getValue() );
       $win.data('kendoWindow').close();
+      e.preventDefault();
     });
 
   }

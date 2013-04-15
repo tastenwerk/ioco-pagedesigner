@@ -51,8 +51,11 @@
     });
 
     this.webpage = options.webpage || new ioco.Webpage();
+    if( !(this.webpage instanceof ioco.Webpage) )
+      this.webpage = this.initialized( ioco.Webpage, this.webpage );
+
     this.webpage.builder = { update: function( webbit, options ){ self.update( webbit, options ); },
-                             decorate: function( content ){ return self.decorate( content, true ); } };
+                             decorate: function( content ){ console.log('we decorate'); return self.decorate( content ); } };
 
     this.treeSource.add( this.webpage );
     this.webpage.uid = this.treeSource.data()[0].uid;
@@ -65,11 +68,45 @@
 
   }
 
+  /** 
+   * updates loaded webbits to match uid of treeview
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.updateDataItems = function updateDataItems( item ){
+    if( typeof( item ) !== 'object' )
+      return;
+    this.$workspaceDiv.find('[data-ioco-id='+item._id+']').attr('data-ioco-uid', item.uid );
+    if( item.items && item.items.length > 0 )
+      for( var i in item.items )
+        this.updateDataItems( item.items[i] );
+  }
+
+  /**
+   * initializes a webpage with all its webbits
+   *
+   * @api private
+   */
+  PageDesignerBuilder.prototype.initialized = function initializedWebpage( type, attrs ){
+    var self = this;
+    var webitem = new type( attrs );
+    if( webitem.items && webitem.items.length > 0 )
+      webitem.items.forEach( function( item, idx ){
+        webitem.items[idx] = self.initialized( ioco.Webbit, item );
+      });
+    webitem.builder = { update: function( webbit, options ){ self.update( webbit, options ); },
+                        decorate: function( content ){ return self.decorate( content, true ); } };
+    return webitem;
+  }
+
   PageDesignerBuilder.prototype.build = function buildPageDesignerBuilder(){
 
     var $div = $('<div/>').addClass('ioco-pd')
       .append( this.renderWorkspace() )
       .append( this.renderControls() );
+
+
+    this.updateDataItems( this.$controlsDiv.find('.webbits-tree').data('kendoTreeView').dataSource.data()[0] );
 
     return $div;
 
@@ -144,9 +181,9 @@
    */
   PageDesignerBuilder.prototype.update = function update( webbit, options ){
     options = options || {};
-    this.$workspaceDiv.find('[data-ioco-id='+webbit._id+']').replaceWith( 
-      this.decorate( webbit.render( options ) ) 
-    );
+    var $replacer = this.decorate( webbit.render(options) );
+    console.log('about to replace', ioco.pageDesigner.$('[data-ioco-id='+webbit._id+']'), 'with', $('<div/>').append($replacer).html()) ;
+    ioco.pageDesigner.$('[data-ioco-id='+webbit._id+']').replaceWith( $replacer );
   }
 
   /**
@@ -160,7 +197,6 @@
   PageDesignerBuilder.prototype.saveAll = function saveAll(){
     var self = this;
 
-    console.log('saving', self.treeSource.data()[0]);
     if( typeof( self.options.save) === 'function' )
       self.options.save( self.treeSource.data()[0], function( err ){
         if( !err )
