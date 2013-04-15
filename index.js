@@ -23,6 +23,8 @@ module.exports = exports = {
   },
 
   lib: pageDesigner,
+  Webpage: require(__dirname+'/public/javascripts/ioco.webpage'),
+  Webbit: require(__dirname+'/public/javascripts/ioco.webbit'),
 
   renderer: require(__dirname+'/public/javascripts/ioco.page-designer-renderer')
   

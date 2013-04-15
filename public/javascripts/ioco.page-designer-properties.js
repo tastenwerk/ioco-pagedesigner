@@ -62,7 +62,7 @@
           '<table>'+
             '</tr>'+
               '<td><label>'+ioco.pageDesigner.t('ID')+'</label></td>'+
-              '<td><input type="text" data-bind="value: getRevision().config.styles" /></td>'+
+              '<td><input type="text" data-bind="value: getRevision().config.cssId" /></td>'+
             '</tr>'+
             '</tr>'+
               '<td><label>'+ioco.pageDesigner.t('Classes')+'</label></td>'+

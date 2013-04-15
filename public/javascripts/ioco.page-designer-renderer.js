@@ -199,7 +199,8 @@
    */
   PageDesignerRenderer.prototype.render = function render( options ){
     options = options || {};
-    this.renderStyles( this.getRevision( options.revision ) );
+    if( !isNode )
+      this.renderStyles( this.getRevision( options.revision ) );
 
     var self = this;
     var $content = ioco.pageDesigner.$('<div class="ioco-'+(this._type === 'Webpage' ? 'webpage' : 'webbit')+' '+this.getRevision( options.revision ).config.classes+'"'+
@@ -209,12 +210,16 @@
     $content.find('[data-ioco-id]').each( function(){
       var id = ioco.pageDesigner.$(this).attr('data-ioco-id');
       var child;
+      console.log( self.items, id );
       self.items.forEach( function( item ){
-        if( item._id === id )
+        if( item._id.toString() === id )
           child = item;
       });
-      console.log(self.name);
-      child.builder = self.builder;
+      if( !isNode )
+        child.builder = self.builder;
+      if( isNode )
+        child = new ioco.Webbit( child );
+      console.log('child', child );
       ioco.pageDesigner.$(this).replaceWith( self.builder.decorate( child.render() ) );
     });
     if( isNode ){
@@ -237,15 +242,18 @@
    */
   PageDesignerRenderer.prototype.renderStyles = function renderStyles( rev ){
     var self = this;
-    ioco.pageDesigner.$('head').find('style[data-ioco-id="'+this._id+'"]').remove();
+    ioco.pageDesigner.$('head').find('style[data-ioco-id='+this._id+']').remove();
     var css = rev.config.styles;
+    if( !css )
+      return;
     var cssLines = css.match(/^[#.]{1}[ \w.#]+{/);
     if( cssLines && cssLines.length > 0 )
       cssLines.forEach( function( m ){
         css = css.replace( m, '[data-ioco-id="'+self._id+'"] '+m );
       });
     css = css.replace(' #this','');
-    ioco.pageDesigner.$('head').append( ioco.pageDesigner.$('<style/>').attr('data-ioco-id', this._id).html( css ) );
+    var resCss = '<style data-ioco-id="'+this._id+'">'+css+'</style>';
+    setTimeout( function(){ $('head').append( resCss ); }, 5 );
   };
 
   /**
@@ -345,6 +353,7 @@
         return content;
       }
     }
+    var ioco = { Webbit: require( __dirname + '/ioco.webbit' ), pageDesigner: { options: {}, $: require('cheerio') } };
 
     module.exports = exports = PageDesignerRenderer;
 

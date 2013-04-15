@@ -128,7 +128,7 @@
     })
 
     var $mainControls = $('<div/>').addClass('ioco-pd-main-controls')
-      .append( $('<a/>').addClass('ioco-pd-btn').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-close') ).attr('ioco-title', ioco.pageDesigner.t('close') ) )
+      .append( $('<a/>').attr('target', '_blank').attr('href', '/p/'+this.webpage.permaId+'-'+this.webpage.name).addClass('ioco-pd-btn').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-preview') ).attr('ioco-title', ioco.pageDesigner.t('preview') ) )
       .append( $saveBtn.addClass('ioco-pd-btn w-text disabled ioco-pd-save-all').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-save') ).append( $('<span/>').addClass('icn-text').text( ioco.pageDesigner.t('Save') ) ).attr('ioco-title', ioco.pageDesigner.t('save') ) )
       .append( $('<a/>').addClass('ioco-pd-btn disabled').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-redo') ).attr('ioco-title', ioco.pageDesigner.t('redo last action')) )
       .append( $('<a/>').addClass('ioco-pd-btn disabled').append( $('<span/>').addClass('ioco-pd-icn ioco-pd-icn-undo') ).attr('ioco-title', ioco.pageDesigner.t('undo last action')) );
@@ -525,6 +525,14 @@
       '<p>'+
         '<label>' + ioco.pageDesigner.t('Lang') + '</label><br/>'+
         '<select data-role="dropdownlist" data-bind="source: langArray, value: _currentLang"></select>'+
+      '</p>'+
+      '<p>'+
+        '<label>' + ioco.pageDesigner.t('Include CSS') + '</label><br/>'+
+        '<textarea data-bind="value: revision.config.includeCss" />'+
+      '</p>'+
+      '<p>'+
+        '<label>' + ioco.pageDesigner.t('Include JS') + '</label><br/>'+
+        '<textarea data-bind="value: revision.config.includeJs" />'+
       '</p>'+
     '</form>';
 
