@@ -249,7 +249,7 @@
     var cssLines = css.match(/^[#.]{1}[ \w.#]+{/);
     if( cssLines && cssLines.length > 0 )
       cssLines.forEach( function( m ){
-        css = css.replace( m, '[data-ioco-id="'+self._id+'"] '+m );
+        css = css.replace( m, '.ioco-webbit[data-ioco-id="'+self._id+'"] '+m );
       });
     css = css.replace(' #this','');
     var resCss = '<style data-ioco-id="'+this._id+'">'+css+'</style>';
